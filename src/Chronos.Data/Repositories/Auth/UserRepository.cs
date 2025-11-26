@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chronos.Data.Repositories.Auth;
 
-public class UserRepository(AppDbContext context)git : IUserRepository
+public class UserRepository(AppDbContext context) : IUserRepository
 {
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
