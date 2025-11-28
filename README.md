@@ -1,6 +1,6 @@
 ﻿# Project Chronos
 
-Client: David Turgeman
+Client: David Gutman
 
 Lead & Infra: Aaron Iziyaev
 
