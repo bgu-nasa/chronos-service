@@ -1,23 +1,19 @@
-using Chronos.Data.Context;
 using Chronos.Data.Repositories.Auth;
 using Chronos.Domain.Auth;
 using Chronos.MainApi.Auth.Contracts;
 using Chronos.Shared.Exceptions;
-using Microsoft.EntityFrameworkCore;
 using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace Chronos.MainApi.Auth.Services;
 
 public class AuthService(
     IUserRepository userRepository,
-    ITokenGenerator tokenGenerator,
-    AppDbContext dbContext)
+    ITokenGenerator tokenGenerator)
     : IAuthService
 {
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
-        if (await dbContext.Users.IgnoreQueryFilters()
-                .AnyAsync(u => u.Email.ToLower() == request.AdminUser.Email.ToLower()))
+        if (await userRepository.EmailExistsIgnoreFiltersAsync(request.AdminUser.Email))
         {
             throw new BadRequestException("User with this email already exists");
         }
@@ -36,7 +32,6 @@ public class AuthService(
         };
 
         await userRepository.AddAsync(user);
-        await dbContext.SaveChangesAsync();
 
         var token = tokenGenerator.GenerateToken(user);
         return new AuthResponse(token);
@@ -61,13 +56,11 @@ public class AuthService(
         };
 
         await userRepository.AddAsync(user);
-        await dbContext.SaveChangesAsync();
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
-        var user = await dbContext.Users.IgnoreQueryFilters()
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+        var user = await userRepository.GetByEmailIgnoreFiltersAsync(request.Email);
 
         if (user is null || !BCryptNet.Verify(request.Password, user.PasswordHash))
         {
