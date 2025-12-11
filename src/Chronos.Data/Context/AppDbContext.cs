@@ -18,6 +18,8 @@ public class AppDbContext(
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Course> Courses => Set<Course>();
+    public DbSet<CourseActivity> CourseActivities => Set<CourseActivity>();
+    public DbSet<Room> Rooms => Set<Room>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +33,18 @@ public class AppDbContext(
                 .Entity<User>()
                 .HasQueryFilter(u =>
                     u.OrganizationId.ToString().ToLower() == _currentOrganizationId
+                );
+
+            modelBuilder
+                .Entity<Course>()
+                .HasQueryFilter(c =>
+                    c.OrganizationId.ToString().ToLower() == _currentOrganizationId
+                );
+
+            modelBuilder
+                .Entity<Room>()
+                .HasQueryFilter(r =>
+                    r.OrganizationId.ToString().ToLower() == _currentOrganizationId
                 );
         }
     }

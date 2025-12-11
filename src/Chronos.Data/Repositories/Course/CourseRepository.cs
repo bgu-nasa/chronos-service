@@ -6,7 +6,7 @@ namespace Chronos.Data.Repositories.Course;
 
 public class CourseRepository(AppDbContext context) : ICourseRepository
 {
-    public async Task<Course> GetByIdAsync(Guid id, CancellationToken token = default)
+    public async Task<Domain.Course.Course> GetByIdAsync(Guid id, CancellationToken token = default)
     {
         var course = await context.Courses.FirstOrDefaultAsync(x => x.Id == id, token);
 
@@ -18,19 +18,19 @@ public class CourseRepository(AppDbContext context) : ICourseRepository
         return course;
     }
 
-    public async Task<List<Course>> GetAllAsync(CancellationToken token = default)
+    public async Task<List<Domain.Course.Course>> GetAllAsync(CancellationToken token = default)
     {
         return await context.Courses.ToListAsync(token);
     }
 
-    public async Task<Course> AddAsync(Course course, CancellationToken token = default)
+    public async Task<Domain.Course.Course> AddAsync(Domain.Course.Course course, CancellationToken token = default)
     {
         var entry = await context.Courses.AddAsync(course, token);
         await context.SaveChangesAsync(token);
         return entry.Entity;
     }
 
-    public async Task<Course> UpdateAsync(Course course, CancellationToken token = default)
+    public async Task<Domain.Course.Course> UpdateAsync(Domain.Course.Course course, CancellationToken token = default)
     {
         var entry = context.Courses.Update(course);
         await context.SaveChangesAsync(token);
