@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Chronos.Domain.Auth;
 using Chronos.Domain.Management;
+using Chronos.Domain.Management.Roles;
 using Chronos.Shared.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
             // Management
             modelBuilder.Entity<Organization>().HasQueryFilter(o => o.Id.ToString().ToLower() == _currentOrganizationId);
             modelBuilder.Entity<Department>().HasQueryFilter(d => d.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<RoleAssignment>().HasQueryFilter(ra => ra.OrganizationId.ToString().ToLower() == _currentOrganizationId);
         }
 
     }
