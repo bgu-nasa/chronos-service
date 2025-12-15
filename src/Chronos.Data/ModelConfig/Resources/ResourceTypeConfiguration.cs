@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Chronos.Data.ModelConfig.Resources;
 
-public class RoomTypeConfiguration : IEntityTypeConfiguration<RoomType>
+public class ResourceTypeConfiguration : IEntityTypeConfiguration<ResourceType>
 {
-    public void Configure(EntityTypeBuilder<RoomType> builder)
+    public void Configure(EntityTypeBuilder<ResourceType> builder)
     {
-        builder.ToTable(ConfigUtils.ToTableName(nameof(RoomType)));
+        builder.ToTable(ConfigUtils.ToTableName(nameof(ResourceType)));
 
         builder.HasKey(rt => rt.Id);
 

@@ -5,11 +5,11 @@ public class User : ObjectInformation
     // Identification & authentication information
     public Guid Id { get; set; }
     public Guid OrganizationId { get; set; }
-    public required string Email { get; set; }
-    public required string PasswordHash { get; set; }
+    public string Email { get; set; }
+    public string PasswordHash { get; set; }
 
     // Profile information
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
     public string? AvatarUrl { get; set; }
 }

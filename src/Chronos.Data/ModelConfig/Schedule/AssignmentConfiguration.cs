@@ -16,13 +16,13 @@ public class AssignmentConfiguration : IEntityTypeConfiguration<Assignment>
         builder.Property(a => a.SlotId)
             .IsRequired();
 
-        builder.Property(a => a.RoomId)
+        builder.Property(a => a.ResourceId)
             .IsRequired();
 
-        builder.Property(a => a.CourseActivityId)
+        builder.Property(a => a.ScheduledItemId)
             .IsRequired();
 
-        builder.HasIndex(a => new { a.SlotId, a.RoomId })
+        builder.HasIndex(a => new { a.SlotId, a.ResourceId })
             .IsUnique();
     }
 }

@@ -5,31 +5,31 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Chronos.Data.ModelConfig.Resources;
 
-public class RoomConfiguration : IEntityTypeConfiguration<Room>
+public class ResourceConfiguration : IEntityTypeConfiguration<Resource>
 {
-    public void Configure(EntityTypeBuilder<Room> builder)
+    public void Configure(EntityTypeBuilder<Resource> builder)
     {
-        builder.ToTable(ConfigUtils.ToTableName(nameof(Room)));
+        builder.ToTable(ConfigUtils.ToTableName(nameof(Resource)));
 
         builder.HasKey(r => r.Id);
 
         builder.Property(r => r.OrganizationId)
             .IsRequired();
 
-        builder.Property(r => r.RoomTypeId)
+        builder.Property(r => r.ResourceTypeId)
             .IsRequired();
 
-        builder.Property(r => r.Building)
+        builder.Property(r => r.Location)
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(r => r.RoomNumber)
+        builder.Property(r => r.Identifier)
             .IsRequired()
             .HasMaxLength(50);
 
         builder.Property(r => r.Capacity);
 
-        builder.HasIndex(r => new { r.OrganizationId, r.Building, r.RoomNumber })
+        builder.HasIndex(r => new { r.OrganizationId, r.Location, r.Identifier })
             .IsUnique();
     }
 }

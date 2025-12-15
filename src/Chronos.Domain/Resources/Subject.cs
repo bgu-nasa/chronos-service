@@ -1,6 +1,6 @@
 namespace Chronos.Domain.Resources;
 
-public class Course : ObjectInformation
+public class Subject : ObjectInformation
 {
     public Guid Id { get; set; }
     public Guid DepartmentId { get; set; }

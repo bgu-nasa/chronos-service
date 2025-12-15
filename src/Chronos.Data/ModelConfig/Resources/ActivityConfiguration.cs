@@ -13,10 +13,10 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
 
         builder.HasKey(a => a.Id);
 
-        builder.Property(a => a.CourseInstanceId)
+        builder.Property(a => a.SubjectId)
             .IsRequired();
 
-        builder.Property(a => a.LecturerUserId)
+        builder.Property(a => a.AssignedUserId)
             .IsRequired();
 
         builder.Property(a => a.ActivityType)
