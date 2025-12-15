@@ -25,7 +25,10 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
         builder.Property(d => d.DeletedTime)
             .HasDefaultValue(0);
 
-        builder.Property(d => d.CreatedAt);
-        builder.Property(d => d.UpdatedAt);
+        builder.Property(d => d.CreatedAt)
+            .IsRequired();
+
+        builder.Property(d => d.UpdatedAt)
+            .IsRequired();
     }
 }

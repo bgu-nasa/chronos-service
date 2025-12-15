@@ -27,7 +27,10 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 
         builder.Property(d => d.DeletedTime);
 
-        builder.Property(d => d.CreatedAt);
-        builder.Property(d => d.UpdatedAt);
+        builder.Property(d => d.CreatedAt)
+            .IsRequired();
+
+        builder.Property(d => d.UpdatedAt)
+            .IsRequired();
     }
 }
