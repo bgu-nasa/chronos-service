@@ -1,8 +1,9 @@
 using System.Text;
 using Chronos.Data;
 using Chronos.Data.Context;
+using Chronos.MainApi.Auth;
 using Chronos.MainApi.Auth.Configuration;
-using Chronos.MainApi.Auth.Services;
+using Chronos.MainApi.Management;
 using Chronos.MainApi.Shared.Extensions;
 using Chronos.MainApi.Shared.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,15 +27,13 @@ builder.Configuration
     .AddJsonFile($"AppSettings/appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-// Register configurations
-builder.Services.Configure<AuthConfiguration>(builder.Configuration.GetSection(nameof(AuthConfiguration)));
-
 // Register repositories
 builder.Services.AddServiceRepositories();
 
-// Register Auth services -> TODO make a DI extension per module instead of this.
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ITokenGenerator, TokenGenerator>();
+// Register modules
+builder.Services.AddAuthModule(builder.Configuration);
+builder.Services.AddManagementModule(builder.Configuration);
+
 
 // Configure JWT Authentication
 var authConfig = builder.Configuration.GetSection(nameof(AuthConfiguration)).Get<AuthConfiguration>();
