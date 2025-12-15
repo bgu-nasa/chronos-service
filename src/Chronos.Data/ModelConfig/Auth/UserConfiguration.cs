@@ -17,22 +17,28 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         // Property config:
         builder.Property(u => u.OrganizationId)
             .IsRequired();
-        
+
         builder.Property(u => u.Email)
             .IsRequired()
             .HasMaxLength(256);
-        
+
         builder.Property(u => u.FirstName)
             .IsRequired()
             .HasMaxLength(256);
-        
+
         builder.Property(u => u.LastName)
             .IsRequired()
             .HasMaxLength(256);
-        
+
         builder.Property(u => u.PasswordHash)
             .IsRequired();
 
         builder.Property(u => u.AvatarUrl);
+
+        builder.Property(u => u.CreatedAt)
+            .IsRequired();
+
+        builder.Property(u => u.UpdatedAt)
+            .IsRequired();
     }
 }
