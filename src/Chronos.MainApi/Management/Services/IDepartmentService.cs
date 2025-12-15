@@ -9,4 +9,5 @@ public interface IDepartmentService
     Task<List<Department>> GetDepartmentsAsync(Guid organizationId);
     Task UpdateDepartmentAsync(Guid organizationId, Guid departmentId, string name);
     Task SetForDeletionAsync(Guid organizationId, Guid departmentId);
+    Task RestoreDeletedDepartmentAsync(Guid organizationId, Guid departmentId);
 }

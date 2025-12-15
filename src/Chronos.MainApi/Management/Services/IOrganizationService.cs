@@ -8,4 +8,5 @@ public interface IOrganizationService
     Task<Organization> GetOrganizationAsync(Guid organizationId);
     Task UpdateOrganizationAsync(Guid organizationId, string name);
     Task SetForDeletionAsync(Guid organizationId);
+    Task RestoreDeletedOrganizationAsync(Guid organizationId);
 }
