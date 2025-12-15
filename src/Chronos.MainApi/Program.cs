@@ -3,7 +3,6 @@ using Chronos.Data;
 using Chronos.Data.Context;
 using Chronos.MainApi.Auth;
 using Chronos.MainApi.Auth.Configuration;
-using Chronos.MainApi.Auth.Services;
 using Chronos.MainApi.Management;
 using Chronos.MainApi.Shared.Extensions;
 using Chronos.MainApi.Shared.Middleware;
