@@ -50,8 +50,6 @@ public class AuthService(
 
     public async Task CreateUserAsync(string organizationId, CreateUserRequest request)
     {
-        // TODO: Add authorization to check if the user can create a user in this organization
-
         if (await userRepository.GetByEmailAsync(request.Email) is not null)
         {
             throw new BadRequestException("User with this email already exists");

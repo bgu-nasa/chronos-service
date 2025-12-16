@@ -32,6 +32,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     /// <returns></returns>
     [Authorize]
     [RequireOrganization]
+    [Authorize("OrgRole:Administrator")]
     [HttpPost("/{organizationId}/user")]
     public async Task<IActionResult> CreateUser([FromRoute] string organizationId, [FromBody] CreateUserRequest request)
     {
