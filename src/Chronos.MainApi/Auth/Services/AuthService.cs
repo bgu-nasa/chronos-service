@@ -7,7 +7,9 @@ using BCryptNet = BCrypt.Net.BCrypt;
 namespace Chronos.MainApi.Auth.Services;
 
 public class AuthService(
+    ILogger<AuthService> logger,
     IUserRepository userRepository,
+    IOnboardingService onboardingService,
     ITokenGenerator tokenGenerator)
     : IAuthService
 {
@@ -18,23 +20,32 @@ public class AuthService(
             throw new BadRequestException("User with this email already exists");
         }
 
-        // TODO: Create organization
-        var organizationId = Guid.NewGuid();
-
-        var user = new User
+        try
         {
-            FirstName = request.AdminUser.FirstName,
-            LastName = request.AdminUser.LastName,
-            Email = request.AdminUser.Email,
-            PasswordHash = BCryptNet.HashPassword(request.AdminUser.Password),
-            OrganizationId = organizationId,
-            // TODO: Add roles and permissions, for now, the first user is an admin
-        };
+            var organizationId = await onboardingService.CreateOrganizationAsync(request.OrganizationName, request.Plan);
 
-        await userRepository.AddAsync(user);
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                FirstName = request.AdminUser.FirstName,
+                LastName = request.AdminUser.LastName,
+                Email = request.AdminUser.Email,
+                PasswordHash = BCryptNet.HashPassword(request.AdminUser.Password),
+                OrganizationId = organizationId,
+            };
 
-        var token = await tokenGenerator.GenerateTokenAsync(user);
-        return new AuthResponse(token);
+            await userRepository.AddAsync(user);
+            await onboardingService.OnboardAdminUserAsync(organizationId, user);
+
+            var token = await tokenGenerator.GenerateTokenAsync(user);
+
+            return new AuthResponse(token);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Unable to create organization during registration: {Message}", ex.Message);
+            throw new UnexpectedErrorException();
+        }
     }
 
     public async Task CreateUserAsync(string organizationId, CreateUserRequest request)
