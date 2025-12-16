@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Chronos.MainApi.Management.Services;
 using Chronos.MainApi.Shared.Middleware;
 using Chronos.Shared.Exceptions;
@@ -9,9 +10,36 @@ namespace Chronos.MainApi.Management.Controllers;
 
 [ApiController]
 [Route("api/management/[controller]")]
-public class OrganizationController(ILogger<OrganizationController> logger, IOrganizationService organizationService) : ControllerBase
+public class OrganizationController(
+    ILogger<OrganizationController> logger,
+    IOrganizationService organizationService,
+    IOrganizationInfoService infoService)
+    : ControllerBase
 {
-    // TODO have the OrganizationInformation GET endpoint, nothing else for now.
+    [HttpGet("/info")]
+    public async Task<IActionResult> GetOrganizationInfoAsync()
+    {
+        logger.LogInformation("Get organization info");
+
+        var organizationId = GetOrganizationIdFromContext();
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier); // TODO move to extension
+        if (userIdClaim is null)
+        {
+            logger.LogError("No user id claim found in HttpContext, when expecting one");
+            throw new UnauthorizedAccessException();
+        }
+
+        var isValidUserId = Guid.TryParse(userIdClaim.Value, out var userId);
+        if (!isValidUserId)
+        {
+            logger.LogError("Invalid user id in claims: {UserId}", userIdClaim.Value);
+            throw new UnauthorizedAccessException();
+        }
+
+        var orgInfo = await infoService.GetOrganizationInformationAsync(Guid.Parse(organizationId), userId);
+
+        return Ok(orgInfo);
+    }
 
     [RequireOrganization]
     [Authorize(Policy = "OrgRole:Administrator")]
