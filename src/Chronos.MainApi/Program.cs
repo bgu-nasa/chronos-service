@@ -60,6 +60,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, RolePolicyProvider>();
+builder.Services.AddSingleton<IAuthorizationHandler, RequireRoleOrgHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, RequireRoleDeptHandler>();
 
 // Add services to the container
 builder.Services.AddControllers();
