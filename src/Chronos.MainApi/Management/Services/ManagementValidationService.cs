@@ -16,7 +16,7 @@ public class ManagementValidationService(
         if (organization == null || organization.Deleted)
         {
             logger.LogWarning("Organization not found or deleted. OrganizationId: {OrganizationId}", organizationId);
-            throw new BadRequestException("Organization not found");
+            throw new NotFoundException("Organization not found");
         }
     }
 
@@ -27,13 +27,13 @@ public class ManagementValidationService(
         if (department == null || department.OrganizationId != organizationId)
         {
             logger.LogWarning("Department not found or does not belong to organization. DepartmentId: {DepartmentId}, OrganizationId: {OrganizationId}", departmentId, organizationId);
-            throw new BadRequestException("Department not found");
+            throw new NotFoundException("Department not found");
         }
 
         if (excludeDeleted && department.Deleted)
         {
             logger.LogWarning("Department is deleted. DepartmentId: {DepartmentId}", departmentId);
-            throw new BadRequestException("Department not found");
+            throw new NotFoundException("Department not found");
         }
 
         return department;

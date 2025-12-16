@@ -58,7 +58,7 @@ public class OrganizationService(
         if (organization == null)
         {
             logger.LogWarning("Organization not found. OrganizationId: {OrganizationId}", organizationId);
-            throw new BadRequestException("Organization not found");
+            throw new NotFoundException("Organization not found");
         }
 
         if (organization.Deleted)
@@ -83,7 +83,7 @@ public class OrganizationService(
         if (organization == null)
         {
             logger.LogWarning("Organization not found. OrganizationId: {OrganizationId}", organizationId);
-            throw new BadRequestException("Organization not found");
+            throw new NotFoundException("Organization not found");
         }
 
         if (!organization.Deleted)

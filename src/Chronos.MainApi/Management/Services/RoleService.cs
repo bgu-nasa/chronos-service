@@ -44,7 +44,7 @@ public class RoleService(
         if (assignment == null)
         {
             logger.LogWarning("Role assignment not found. OrganizationId: {OrganizationId}, RoleAssignmentId: {RoleAssignmentId}", organizationId, roleAssignmentId);
-            throw new BadRequestException("Role assignment not found");
+            throw new NotFoundException("Role assignment not found");
         }
 
         return assignment;
@@ -90,7 +90,7 @@ public class RoleService(
         if (assignment == null)
         {
             logger.LogWarning("Role assignment not found. OrganizationId: {OrganizationId}, RoleAssignmentId: {RoleAssignmentId}", organizationId, roleAssignmentId);
-            throw new BadRequestException("Role assignment not found");
+            throw new NotFoundException("Role assignment not found");
         }
 
         await roleAssignmentRepository.DeleteAsync(organizationId, roleAssignmentId);
