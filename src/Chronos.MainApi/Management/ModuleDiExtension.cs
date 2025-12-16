@@ -8,10 +8,11 @@ public static class ModuleDiExtension
     {
         // Validation Service
         services.AddScoped<ManagementValidationService>();
-        
+
         // Services
         services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<IOrganizationInfoService, OrganizationInfoService>();
     }
 }
