@@ -33,7 +33,7 @@ public class AuthService(
 
         await userRepository.AddAsync(user);
 
-        var token = tokenGenerator.GenerateToken(user);
+        var token = await tokenGenerator.GenerateTokenAsync(user);
         return new AuthResponse(token);
     }
 
@@ -67,7 +67,7 @@ public class AuthService(
             throw new UnauthorizedException("Invalid credentials");
         }
 
-        var token = tokenGenerator.GenerateToken(user);
+        var token = await tokenGenerator.GenerateTokenAsync(user);
         return new AuthResponse(token);
     }
 
@@ -79,7 +79,7 @@ public class AuthService(
             throw new KeyNotFoundException("User not found");
         }
 
-        var token = tokenGenerator.GenerateToken(user);
+        var token = await tokenGenerator.GenerateTokenAsync(user);
         return new AuthResponse(token);
     }
 

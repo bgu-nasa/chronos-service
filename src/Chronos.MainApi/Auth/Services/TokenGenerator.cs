@@ -20,21 +20,21 @@ public class TokenGenerator(IOptions<AuthConfiguration> config, IRoleService rol
     private readonly JwtSecurityTokenHandler _tokenHandler = new(); // TODO DI?
     private readonly AuthConfiguration _config = config.Value;
 
-    private List<SimpleRoleAssignment> GetUserRoles(User user)
+    private async Task<List<SimpleRoleAssignment>> GetUserRolesAsync(User user)
     {
-        var roles = roleService.GetUserAssignments(user.OrganizationId, user.Id).Result;
+        var roles = await roleService.GetUserAssignments(user.OrganizationId, user.Id);
         return roles
             .Select(r => new SimpleRoleAssignment(r.Role, r.OrganizationId, r.DepartmentId))
             .ToList();
     }
 
-    private string GetUserRolesSerialized(User user)
+    private async Task<string> GetUserRolesSerializedAsync(User user)
     {
-        var roles = GetUserRoles(user);
+        var roles = await GetUserRolesAsync(user);
         return JsonSerializer.Serialize(roles);
     }
 
-    public string GenerateToken(User user)
+    public async Task<string> GenerateTokenAsync(User user)
     {
         var key = Encoding.UTF8.GetBytes(_config.SecretKey);
         var cred = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
@@ -47,7 +47,7 @@ public class TokenGenerator(IOptions<AuthConfiguration> config, IRoleService rol
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                 new Claim("organization", user.OrganizationId.ToString()),
-                new Claim("roles", GetUserRolesSerialized(user))
+                new Claim("roles", await GetUserRolesSerializedAsync(user))
             ]),
             SigningCredentials = cred,
             Expires = DateTime.Now.AddMinutes(_config.ExpiryMinutes)
