@@ -16,6 +16,7 @@ public class OrganizationController(
     IOrganizationInfoService infoService)
     : ControllerBase
 {
+    [Authorize]
     [HttpGet("/info")]
     public async Task<IActionResult> GetOrganizationInfoAsync()
     {
