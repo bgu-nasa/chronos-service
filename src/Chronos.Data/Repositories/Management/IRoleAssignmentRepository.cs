@@ -6,7 +6,7 @@ public interface IRoleAssignmentRepository
 {
     Task<List<RoleAssignment>> GetUserAssignmentsAsync(Guid organizationId, Guid userId, CancellationToken cancellationToken = default);
     Task<List<RoleAssignment>> GetAllAsync(Guid organizationId, CancellationToken cancellationToken = default);
-    Task<RoleAssignment> GetAsync(Guid organizationId, Guid roleAssignmentId, CancellationToken cancellationToken = default);
+    Task<RoleAssignment?> GetAsync(Guid organizationId, Guid roleAssignmentId, CancellationToken cancellationToken = default);
     Task<RoleAssignment> AddAsync(RoleAssignment roleAssignment, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid organizationId, Guid roleAssignmentId, CancellationToken cancellationToken = default);
 }

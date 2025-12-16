@@ -1,0 +1,45 @@
+using Chronos.Data.Context;
+using Chronos.Domain.Management.Roles;
+using Microsoft.EntityFrameworkCore;
+
+namespace Chronos.Data.Repositories.Management;
+
+public class RoleAssignmentRepository(AppDbContext context) : IRoleAssignmentRepository
+{
+    public async Task<List<RoleAssignment>> GetUserAssignmentsAsync(Guid organizationId, Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<RoleAssignment>()
+            .Where(ra => ra.OrganizationId == organizationId && ra.UserId == userId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<RoleAssignment>> GetAllAsync(Guid organizationId, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<RoleAssignment>()
+            .Where(ra => ra.OrganizationId == organizationId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<RoleAssignment?> GetAsync(Guid organizationId, Guid roleAssignmentId, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<RoleAssignment>()
+            .FirstOrDefaultAsync(ra => ra.OrganizationId == organizationId && ra.Id == roleAssignmentId, cancellationToken);
+    }
+
+    public async Task<RoleAssignment> AddAsync(RoleAssignment roleAssignment, CancellationToken cancellationToken = default)
+    {
+        await context.Set<RoleAssignment>().AddAsync(roleAssignment, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return roleAssignment;
+    }
+
+    public async Task DeleteAsync(Guid organizationId, Guid roleAssignmentId, CancellationToken cancellationToken = default)
+    {
+        var roleAssignment = await GetAsync(organizationId, roleAssignmentId, cancellationToken);
+        if (roleAssignment is not null)
+        {
+            context.Set<RoleAssignment>().Remove(roleAssignment);
+            await context.SaveChangesAsync(cancellationToken);
+        }
+    }
+}
