@@ -5,7 +5,7 @@ public static class RoleResolver
     private static readonly Dictionary<Role, List<Role>> RoleMaps = new()
     {
         { Role.Administrator, [Role.Administrator] },
-        { Role.UserManager, [Role.UserManager, Role.ResourceManager] },
+        { Role.UserManager, [Role.UserManager, Role.Administrator] },
         { Role.ResourceManager, [Role.ResourceManager, Role.Administrator] },
         { Role.Operator, [Role.Operator, Role.ResourceManager, Role.Administrator] },
         { Role.Viewer, [/* Should never reach here */] }
@@ -19,7 +19,7 @@ public static class RoleResolver
     /// <returns>true if the given role satisfies the required role, false otherwise.</returns>
     public static bool RoleIncludes(this Role givenRole, Role requiredRole)
     {
-        if (requiredRole == givenRole)
+        if (requiredRole == Role.Viewer)
         {
             return true;
         }
