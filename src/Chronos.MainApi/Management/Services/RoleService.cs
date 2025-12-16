@@ -9,7 +9,7 @@ public class RoleService(
     ManagementValidationService validationService,
     ILogger<RoleService> logger) : IRoleService
 {
-    public async Task<List<RoleAssignment>> GetAllAssignments(Guid organizationId)
+    public async Task<List<RoleAssignment>> GetAllAssignmentsAsync(Guid organizationId)
     {
         logger.LogDebug("Retrieving all role assignments for organization. OrganizationId: {OrganizationId}", organizationId);
         
@@ -21,7 +21,7 @@ public class RoleService(
         return assignments;
     }
 
-    public async Task<List<RoleAssignment>> GetUserAssignments(Guid organizationId, Guid userId)
+    public async Task<List<RoleAssignment>> GetUserAssignmentsAsync(Guid organizationId, Guid userId)
     {
         logger.LogDebug("Retrieving role assignments for user. OrganizationId: {OrganizationId}, UserId: {UserId}", organizationId, userId);
         
@@ -33,7 +33,7 @@ public class RoleService(
         return assignments;
     }
 
-    public async Task<RoleAssignment> GetAssignment(Guid organizationId, Guid roleAssignmentId)
+    public async Task<RoleAssignment> GetAssignmentAsync(Guid organizationId, Guid roleAssignmentId)
     {
         logger.LogDebug("Retrieving role assignment. OrganizationId: {OrganizationId}, RoleAssignmentId: {RoleAssignmentId}", organizationId, roleAssignmentId);
         
@@ -50,7 +50,7 @@ public class RoleService(
         return assignment;
     }
 
-    public async Task<RoleAssignment> AddAssignment(Guid organizationId, Guid? departmentId, Guid userId, Role role)
+    public async Task<RoleAssignment> AddAssignmentAsync(Guid organizationId, Guid? departmentId, Guid userId, Role role)
     {
         logger.LogInformation("Adding role assignment. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}, UserId: {UserId}, Role: {Role}",
             organizationId, departmentId, userId, role);
@@ -79,7 +79,7 @@ public class RoleService(
         return addedAssignment;
     }
 
-    public async Task RemoveAssignment(Guid organizationId, Guid roleAssignmentId)
+    public async Task RemoveAssignmentAsync(Guid organizationId, Guid roleAssignmentId)
     {
         logger.LogInformation("Removing role assignment. OrganizationId: {OrganizationId}, RoleAssignmentId: {RoleAssignmentId}", organizationId, roleAssignmentId);
         

@@ -22,7 +22,7 @@ public class TokenGenerator(IOptions<AuthConfiguration> config, IRoleService rol
 
     private async Task<List<SimpleRoleAssignment>> GetUserRolesAsync(User user)
     {
-        var roles = await roleService.GetUserAssignments(user.OrganizationId, user.Id);
+        var roles = await roleService.GetUserAssignmentsAsync(user.OrganizationId, user.Id);
         return roles
             .Select(r => new SimpleRoleAssignment(r.Role, r.OrganizationId, r.DepartmentId))
             .ToList();
