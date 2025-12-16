@@ -8,27 +8,27 @@ public class RoleAssignmentRepository(AppDbContext context) : IRoleAssignmentRep
 {
     public async Task<List<RoleAssignment>> GetUserAssignmentsAsync(Guid organizationId, Guid userId, CancellationToken cancellationToken = default)
     {
-        return await context.Set<RoleAssignment>()
+        return await context.RoleAssignments
             .Where(ra => ra.OrganizationId == organizationId && ra.UserId == userId)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<List<RoleAssignment>> GetAllAsync(Guid organizationId, CancellationToken cancellationToken = default)
     {
-        return await context.Set<RoleAssignment>()
+        return await context.RoleAssignments
             .Where(ra => ra.OrganizationId == organizationId)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<RoleAssignment?> GetAsync(Guid organizationId, Guid roleAssignmentId, CancellationToken cancellationToken = default)
     {
-        return await context.Set<RoleAssignment>()
+        return await context.RoleAssignments
             .FirstOrDefaultAsync(ra => ra.OrganizationId == organizationId && ra.Id == roleAssignmentId, cancellationToken);
     }
 
     public async Task<RoleAssignment> AddAsync(RoleAssignment roleAssignment, CancellationToken cancellationToken = default)
     {
-        await context.Set<RoleAssignment>().AddAsync(roleAssignment, cancellationToken);
+        await context.RoleAssignments.AddAsync(roleAssignment, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
         return roleAssignment;
     }
@@ -38,7 +38,7 @@ public class RoleAssignmentRepository(AppDbContext context) : IRoleAssignmentRep
         var roleAssignment = await GetAsync(organizationId, roleAssignmentId, cancellationToken);
         if (roleAssignment is not null)
         {
-            context.Set<RoleAssignment>().Remove(roleAssignment);
+            context.RoleAssignments.Remove(roleAssignment);
             await context.SaveChangesAsync(cancellationToken);
         }
     }

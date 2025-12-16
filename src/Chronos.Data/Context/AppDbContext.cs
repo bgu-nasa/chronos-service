@@ -19,6 +19,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
     // Management
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Department> Departments => Set<Department>();
+    public DbSet<RoleAssignment> RoleAssignments => Set<RoleAssignment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
