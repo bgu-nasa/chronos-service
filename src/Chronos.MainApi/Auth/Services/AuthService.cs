@@ -48,7 +48,7 @@ public class AuthService(
         }
     }
 
-    public async Task CreateUserAsync(string organizationId, CreateUserRequest request)
+    public async Task<CreateUserResponse> CreateUserAsync(string organizationId, CreateUserRequest request)
     {
         if (await userRepository.GetByEmailAsync(request.Email) is not null)
         {
@@ -57,6 +57,7 @@ public class AuthService(
 
         var user = new User
         {
+            Id = Guid.NewGuid(),
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
@@ -65,6 +66,8 @@ public class AuthService(
         };
 
         await userRepository.AddAsync(user);
+
+        return new CreateUserResponse(user.Id.ToString(), user.Email);
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
