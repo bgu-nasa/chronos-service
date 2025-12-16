@@ -28,7 +28,7 @@ public class UserPreferenceConfiguration : IEntityTypeConfiguration<UserPreferen
 
         builder.Property(up => up.Value)
             .IsRequired()
-            .HasMaxLength(1000);
+            .HasMaxLength(1024);
     }
 }
 

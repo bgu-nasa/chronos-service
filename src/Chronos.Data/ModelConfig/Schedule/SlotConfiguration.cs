@@ -18,7 +18,7 @@ public class SlotConfiguration : IEntityTypeConfiguration<Slot>
 
         builder.Property(s => s.Weekday)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(64);
 
         builder.Property(s => s.FromTime)
             .IsRequired();

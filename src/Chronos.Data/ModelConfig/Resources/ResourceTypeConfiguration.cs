@@ -15,7 +15,7 @@ public class ResourceTypeConfiguration : IEntityTypeConfiguration<ResourceType>
 
         builder.Property(rt => rt.Type)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(128);
     }
 }
 

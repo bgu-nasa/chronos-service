@@ -28,7 +28,7 @@ public class UserConstraintConfiguration : IEntityTypeConfiguration<UserConstrai
 
         builder.Property(uc => uc.Value)
             .IsRequired()
-            .HasMaxLength(1000);
+            .HasMaxLength(1024);
     }
 }
 

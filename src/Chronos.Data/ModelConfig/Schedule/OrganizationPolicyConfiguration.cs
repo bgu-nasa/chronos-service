@@ -25,7 +25,7 @@ public class OrganizationPolicyConfiguration : IEntityTypeConfiguration<Organiza
 
         builder.Property(op => op.Value)
             .IsRequired()
-            .HasMaxLength(1000);
+            .HasMaxLength(1024);
     }
 }
 

@@ -22,7 +22,7 @@ public class ActivityConstraintConfiguration : IEntityTypeConfiguration<Activity
 
         builder.Property(ac => ac.Value)
             .IsRequired()
-            .HasMaxLength(1000);
+            .HasMaxLength(1024);
     }
 }
 

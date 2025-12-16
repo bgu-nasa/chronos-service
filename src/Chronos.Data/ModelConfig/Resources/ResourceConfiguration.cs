@@ -21,11 +21,11 @@ public class ResourceConfiguration : IEntityTypeConfiguration<Resource>
 
         builder.Property(r => r.Location)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(128);
 
         builder.Property(r => r.Identifier)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(64);
 
         builder.Property(r => r.Capacity);
 

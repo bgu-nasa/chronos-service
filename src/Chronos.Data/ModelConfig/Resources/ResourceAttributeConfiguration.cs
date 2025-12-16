@@ -18,7 +18,7 @@ public class ResourceAttributeConfiguration : IEntityTypeConfiguration<ResourceA
             .HasMaxLength(256);
 
         builder.Property(ra => ra.Description)
-            .HasMaxLength(1000);
+            .HasMaxLength(1024);
     }
 }
 

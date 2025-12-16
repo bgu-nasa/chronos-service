@@ -21,7 +21,7 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
 
         builder.Property(s => s.Code)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(128);
 
         builder.Property(s => s.Name)
             .IsRequired()
