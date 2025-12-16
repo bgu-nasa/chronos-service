@@ -6,6 +6,6 @@ namespace Chronos.MainApi.Management.Contracts;
 public record OrganizationInformation(
     Guid Id,
     string Name,
-    RoleType[] UserRoles,
+    RoleAssignmentResponse[] UserRoles,
     DepartmentResponse[] Departments
 );
