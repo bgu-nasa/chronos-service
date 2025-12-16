@@ -6,8 +6,12 @@ public static class ModuleDiExtension
 {
     public static void AddManagementModule(this IServiceCollection services, IConfiguration configuration)
     {
+        // Validation Service
+        services.AddScoped<ManagementValidationService>();
+        
         // Services
         services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<IRoleService, RoleService>();
     }
 }

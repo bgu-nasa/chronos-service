@@ -6,6 +6,7 @@ namespace Chronos.MainApi.Management.Services;
 
 public class OrganizationService(
     IOrganizationRepository organizationRepository,
+    ManagementValidationService validationService,
     ILogger<OrganizationService> logger) : IOrganizationService
 {
     public async Task<Guid> CreateOrganizationAsync(string name)
@@ -29,30 +30,20 @@ public class OrganizationService(
     {
         logger.LogDebug("Retrieving organization with ID: {OrganizationId}", organizationId);
         
+        await validationService.ValidateOrganizationAsync(organizationId);
         var organization = await organizationRepository.GetByIdAsync(organizationId);
 
-        if (organization == null || organization.Deleted)
-        {
-            logger.LogWarning("Organization not found or deleted. OrganizationId: {OrganizationId}", organizationId);
-            throw new BadRequestException("Organization not found");
-        }
-
-        return organization;
+        return organization!;
     }
 
     public async Task UpdateOrganizationAsync(Guid organizationId, string name)
     {
         logger.LogInformation("Updating organization. OrganizationId: {OrganizationId}, NewName: {Name}", organizationId, name);
         
+        await validationService.ValidateOrganizationAsync(organizationId);
         var organization = await organizationRepository.GetByIdAsync(organizationId);
 
-        if (organization == null || organization.Deleted)
-        {
-            logger.LogWarning("Organization not found or deleted. OrganizationId: {OrganizationId}", organizationId);
-            throw new BadRequestException("Organization not found");
-        }
-
-        organization.Name = name;
+        organization!.Name = name;
         await organizationRepository.UpdateAsync(organization);
         
         logger.LogInformation("Organization updated successfully. OrganizationId: {OrganizationId}", organizationId);
@@ -67,7 +58,7 @@ public class OrganizationService(
         if (organization == null)
         {
             logger.LogWarning("Organization not found. OrganizationId: {OrganizationId}", organizationId);
-            throw new BadRequestException("Organization not found");
+            throw new NotFoundException("Organization not found");
         }
 
         if (organization.Deleted)
@@ -92,7 +83,7 @@ public class OrganizationService(
         if (organization == null)
         {
             logger.LogWarning("Organization not found. OrganizationId: {OrganizationId}", organizationId);
-            throw new BadRequestException("Organization not found");
+            throw new NotFoundException("Organization not found");
         }
 
         if (!organization.Deleted)

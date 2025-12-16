@@ -6,7 +6,9 @@ using Chronos.MainApi.Auth.Configuration;
 using Chronos.MainApi.Management;
 using Chronos.MainApi.Shared.Extensions;
 using Chronos.MainApi.Shared.Middleware;
+using Chronos.MainApi.Shared.Middleware.Rbac;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -34,7 +36,6 @@ builder.Services.AddServiceRepositories();
 builder.Services.AddAuthModule(builder.Configuration);
 builder.Services.AddManagementModule(builder.Configuration);
 
-
 // Configure JWT Authentication
 var authConfig = builder.Configuration.GetSection(nameof(AuthConfiguration)).Get<AuthConfiguration>();
 builder.Services.AddAuthentication(options =>
@@ -58,6 +59,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, RolePolicyProvider>();
 
 // Add services to the container
 builder.Services.AddControllers();
