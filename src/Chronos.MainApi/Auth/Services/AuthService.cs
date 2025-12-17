@@ -43,7 +43,10 @@ public class AuthService(
         }
         catch (Exception ex)
         {
-            logger.LogError("Unable to create organization during registration: {Message}", ex.Message);
+            logger.LogError("Unable to onboard client: {Message}", ex.Message);
+            // TODO: Create reverse onboarding process to clean up half-created organizations/users
+            // The log below contains PII, that's bad, before alpha fix this with the reverse onboarding
+            logger.LogError("User registration that failed: {Email}, manually remove user", request.AdminUser.Email);
             throw new UnexpectedErrorException();
         }
     }
