@@ -6,6 +6,8 @@ namespace Chronos.MainApi.Management.Contracts;
 public record OrganizationInformation(
     Guid Id,
     string Name,
+    bool Deleted,
+    DateTime DeletedTime,
     RoleAssignmentResponse[] UserRoles,
     DepartmentResponse[] Departments
 );

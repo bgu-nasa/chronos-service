@@ -29,6 +29,8 @@ public class OrganizationInfoService(ILogger<OrganizationInfoService> logger,
         return new OrganizationInformation(
             organization.Id,
             organization.Name,
+            organization.Deleted,
+            organization.DeletedTime,
             rolesResponse.ToArray(),
             departmentsResponse.ToArray()
         );
