@@ -7,7 +7,9 @@ using BCryptNet = BCrypt.Net.BCrypt;
 namespace Chronos.MainApi.Auth.Services;
 
 public class AuthService(
+    ILogger<AuthService> logger,
     IUserRepository userRepository,
+    IOnboardingService onboardingService,
     ITokenGenerator tokenGenerator)
     : IAuthService
 {
@@ -18,29 +20,39 @@ public class AuthService(
             throw new BadRequestException("User with this email already exists");
         }
 
-        // TODO: Create organization
-        var organizationId = Guid.NewGuid();
-
-        var user = new User
+        try
         {
-            FirstName = request.AdminUser.FirstName,
-            LastName = request.AdminUser.LastName,
-            Email = request.AdminUser.Email,
-            PasswordHash = BCryptNet.HashPassword(request.AdminUser.Password),
-            OrganizationId = organizationId,
-            // TODO: Add roles and permissions, for now, the first user is an admin
-        };
+            var organizationId = await onboardingService.CreateOrganizationAsync(request.OrganizationName, request.Plan);
 
-        await userRepository.AddAsync(user);
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                FirstName = request.AdminUser.FirstName,
+                LastName = request.AdminUser.LastName,
+                Email = request.AdminUser.Email,
+                PasswordHash = BCryptNet.HashPassword(request.AdminUser.Password),
+                OrganizationId = organizationId,
+            };
 
-        var token = await tokenGenerator.GenerateTokenAsync(user);
-        return new AuthResponse(token);
+            await userRepository.AddAsync(user);
+            await onboardingService.OnboardAdminUserAsync(organizationId, user);
+
+            var token = await tokenGenerator.GenerateTokenAsync(user);
+
+            return new AuthResponse(token);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Unable to onboard client: {Message}", ex.Message);
+            // TODO: Create reverse onboarding process to clean up half-created organizations/users
+            // The log below contains PII, that's bad, before alpha fix this with the reverse onboarding
+            logger.LogError("User registration that failed: {Email}, manually remove user", request.AdminUser.Email);
+            throw new UnexpectedErrorException();
+        }
     }
 
-    public async Task CreateUserAsync(string organizationId, CreateUserRequest request)
+    public async Task<CreateUserResponse> CreateUserAsync(string organizationId, CreateUserRequest request)
     {
-        // TODO: Add authorization to check if the user can create a user in this organization
-
         if (await userRepository.GetByEmailAsync(request.Email) is not null)
         {
             throw new BadRequestException("User with this email already exists");
@@ -48,6 +60,7 @@ public class AuthService(
 
         var user = new User
         {
+            Id = Guid.NewGuid(),
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
@@ -56,6 +69,8 @@ public class AuthService(
         };
 
         await userRepository.AddAsync(user);
+
+        return new CreateUserResponse(user.Id.ToString(), user.Email);
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
