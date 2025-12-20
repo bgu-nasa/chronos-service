@@ -14,7 +14,7 @@ public class OrganizationController(
     ILogger<OrganizationController> logger,
     IOrganizationService organizationService,
     IOrganizationInfoService infoService)
-    : ControllerBase
+: ControllerBase
 {
     [Authorize]
     [HttpGet("/info")]
