@@ -10,5 +10,4 @@ public interface ISubjectRepository
     Task UpdateAsync(Subject subject, CancellationToken cancellationToken = default);
     Task DeleteAsync(Subject subject, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<List<Subject>> GetAllDeletedAsync(CancellationToken cancellationToken = default);
 }
