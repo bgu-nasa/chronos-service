@@ -12,10 +12,16 @@ public class ResourceTypeConfiguration : IEntityTypeConfiguration<ResourceType>
         builder.ToTable(ConfigUtils.ToTableName(nameof(ResourceType)));
 
         builder.HasKey(rt => rt.Id);
+        
+        builder.Property(rt => rt.OrganizationId)
+            .IsRequired();
 
         builder.Property(rt => rt.Type)
             .IsRequired()
             .HasMaxLength(128);
+        
+        builder.HasIndex(rt => new { rt.OrganizationId })
+            .IsUnique();
     }
 }
 

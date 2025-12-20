@@ -12,6 +12,9 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
         builder.ToTable(ConfigUtils.ToTableName(nameof(Subject)));
 
         builder.HasKey(s => s.Id);
+        
+        builder.Property(s => s.OrganizationId)
+            .IsRequired();
 
         builder.Property(s => s.DepartmentId)
             .IsRequired();
@@ -27,7 +30,7 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
             .IsRequired()
             .HasMaxLength(256);
 
-        builder.HasIndex(s => new { s.DepartmentId, s.Code })
+        builder.HasIndex(s => new { s.OrganizationId, s.DepartmentId, s.Code })
             .IsUnique();
     }
 }

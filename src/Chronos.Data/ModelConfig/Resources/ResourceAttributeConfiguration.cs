@@ -12,6 +12,9 @@ public class ResourceAttributeConfiguration : IEntityTypeConfiguration<ResourceA
         builder.ToTable(ConfigUtils.ToTableName(nameof(ResourceAttribute)));
 
         builder.HasKey(ra => ra.Id);
+        
+        builder.Property(ra => ra.OrganizationId)
+            .IsRequired();
 
         builder.Property(ra => ra.Title)
             .IsRequired()
@@ -19,6 +22,9 @@ public class ResourceAttributeConfiguration : IEntityTypeConfiguration<ResourceA
 
         builder.Property(ra => ra.Description)
             .HasMaxLength(1024);
+        
+        builder.HasIndex(ra => new { ra.OrganizationId })
+            .IsUnique();
     }
 }
 

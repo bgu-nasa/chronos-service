@@ -12,6 +12,9 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
         builder.ToTable(ConfigUtils.ToTableName(nameof(Activity)));
 
         builder.HasKey(a => a.Id);
+        
+        builder.Property(a => a.OrganizationId)
+            .IsRequired();
 
         builder.Property(a => a.SubjectId)
             .IsRequired();
@@ -24,6 +27,9 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
             .HasMaxLength(128);
 
         builder.Property(a => a.ExpectedStudents);
+        
+        builder.HasIndex(a => new { a.OrganizationId, a.SubjectId })
+            .IsUnique();
     }
 }
 
