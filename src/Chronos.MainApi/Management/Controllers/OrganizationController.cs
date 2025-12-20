@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chronos.MainApi.Management.Controllers;
 
 [ApiController]
+[RequireOrganization]
 [Route("api/management/[controller]")]
 public class OrganizationController(
     ILogger<OrganizationController> logger,
@@ -42,7 +43,6 @@ public class OrganizationController(
         return Ok(orgInfo);
     }
 
-    [RequireOrganization]
     [Authorize(Policy = "OrgRole:Administrator")]
     [HttpDelete]
     public async Task<IActionResult> DeleteOrganization()
@@ -64,7 +64,6 @@ public class OrganizationController(
         }
     }
 
-    [RequireOrganization]
     [Authorize(Policy = "OrgRole:Administrator")]
     [HttpPost("/restore")]
     public async Task<IActionResult> RestoreOrganization()
