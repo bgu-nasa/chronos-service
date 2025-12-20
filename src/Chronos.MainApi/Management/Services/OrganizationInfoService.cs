@@ -15,7 +15,7 @@ public class OrganizationInfoService(ILogger<OrganizationInfoService> logger,
 
         var organization = await organizationService.GetOrganizationAsync(organizationId);
         var departments = await departmentService.GetDepartmentsAsync(organizationId);
-        var departmentsResponse = departments.Select(d => new DepartmentResponse(d.Id, d.Name));
+        var departmentsResponse = departments.Select(d => d.ToDepartmentResponse());
 
         logger.LogInformation("Found {departmentsCount} departments for organization {OrganizationId}", departments.Count, organizationId);
 
