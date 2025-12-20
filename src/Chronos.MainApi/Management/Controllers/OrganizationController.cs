@@ -37,7 +37,7 @@ public class OrganizationController(
             throw new UnauthorizedAccessException();
         }
 
-        var orgInfo = await infoService.GetOrganizationInformationAsync(Guid.Parse(organizationId), userId);
+        var orgInfo = await infoService.GetOrganizationInformationAsync(organizationId, userId);
 
         return Ok(orgInfo);
     }
@@ -47,20 +47,9 @@ public class OrganizationController(
     public async Task<IActionResult> DeleteOrganization()
     {
         logger.LogInformation("Soft delete organization endpoint was called");
-
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
-
-        try
-        {
-            await organizationService.SetForDeletionAsync(Guid.Parse(organizationId));
-
-            return NoContent();
-        }
-        catch (FormatException e)
-        {
-            logger.LogInformation("The organization ID provided is not in a valid format: {OrganizationId}", organizationId);
-            throw new BadRequestException("The organization ID is not in a valid format.", e);
-        }
+        await organizationService.SetForDeletionAsync(organizationId);
+        return NoContent();
     }
 
     [Authorize(Policy = "OrgRole:Administrator")]
@@ -68,19 +57,8 @@ public class OrganizationController(
     public async Task<IActionResult> RestoreOrganization()
     {
         logger.LogInformation("Restore organization endpoint was called");
-
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
-
-        try
-        {
-            await organizationService.RestoreDeletedOrganizationAsync(Guid.Parse(organizationId));
-
-            return NoContent();
-        }
-        catch (FormatException e)
-        {
-            logger.LogInformation("The organization ID provided is not in a valid format: {OrganizationId}", organizationId);
-            throw new BadRequestException("The organization ID is not in a valid format.", e);
-        }
+        await organizationService.RestoreDeletedOrganizationAsync(organizationId);
+        return NoContent();
     }
 }

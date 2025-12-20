@@ -1,5 +1,6 @@
 using Chronos.MainApi.Management.Services;
 using Chronos.MainApi.Shared.Middleware;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chronos.MainApi.Management.Controllers;
@@ -12,5 +13,13 @@ public class DepartmentController(
     IDepartmentService departmentService)
 : ControllerBase
 {
-    // Create, list, update, delete & undelete.
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetAllDepartments()
+    {
+        logger.LogInformation("Get all departments");
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+        var departments = await departmentService.GetDepartmentsAsync(organizationId);
+        return Ok(departments);
+    }
 }

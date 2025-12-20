@@ -5,7 +5,7 @@ namespace Chronos.MainApi.Management.Controllers;
 
 public static class ControllerUtils
 {
-    internal static string GetOrganizationIdAndFailIfMissing(HttpContext context, ILogger logger)
+    internal static Guid GetOrganizationIdAndFailIfMissing(HttpContext context, ILogger logger)
     {
         var organizationId = context.GetOrganizationId();
 
@@ -15,6 +15,12 @@ public static class ControllerUtils
             throw new BadRequestException("Missing organization ID in request.");
         }
 
-        return organizationId;
+        if (!Guid.TryParse(organizationId, out var organizationIdGuid))
+        {
+            logger.LogInformation("Received ill formatted organization ID in the header.");
+            throw new BadRequestException("Missing organization ID in request.");
+        }
+
+        return organizationIdGuid;
     }
 }
