@@ -1,12 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Chronos.Domain.Schedule;
 
-namespace Chronos.Data.Repositories.Schedule
+namespace Chronos.Data.Repositories.Schedule;
+
+public interface IAssignmentRepository
 {
-    internal interface IAssignmentRepository
-    {
-    }
+    Task<Assignment?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<List<ActivityConstraint>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    Task<List<Assignment>> GetBySlotIdAsync(Guid slotId, CancellationToken cancellationToken = default);
+
+    Task<List<Assignment>> GetBySchedulingPeriodIdAsync(Guid schedulingPeriodId, CancellationToken cancellationToken = default);
+
+    Task AddAsync(Assignment assignment, CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(Assignment assignment, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(Assignment assignment, CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -1,12 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Chronos.Domain.Schedule;
 
-namespace Chronos.Data.Repositories.Schedule
+namespace Chronos.Data.Repositories.Schedule;
+public interface IUserConstraintRepository
 {
-    internal interface IUserConstraintRepository
-    {
-    }
+    Task<UserConstraint?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<List<UserConstraint>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    Task<UserConstraint?> GetByUserPeriodAndKeyAsync(Guid userId, Guid schedulingPeriodId, string key, CancellationToken cancellationToken = default);
+
+    Task<List<UserConstraint>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    Task<List<UserConstraint>> GetBySchedulingPeriodIdAsync(Guid schedulingPeriodId, CancellationToken cancellationToken = default);
+
+    Task AddAsync(UserConstraint constraint, CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(UserConstraint constraint, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(UserConstraint constraint, CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
 }
