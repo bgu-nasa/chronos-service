@@ -5,6 +5,7 @@ namespace Chronos.MainApi.Resources.Services;
 
 public class ActivityService(
     IActivityRepository activityRepository,
+    ResourceValidationService validationService,
     ILogger<ActivityService> logger) : IActivityService
 {
     public async Task<Guid> CreateActivityAsync(Guid resourceId, Guid organizationId, Guid subjectId, Guid assignedUserId, string activityType,
@@ -12,6 +13,8 @@ public class ActivityService(
     {
         logger.LogInformation("Creating activity. OrganizationId: {OrganizationId}, SubjectId: {SubjectId}, AssignedUserId: {AssignedUserId}, ActivityType: {ActivityType}, ExpectedStudents: {ExpectedStudents}",
             organizationId, subjectId, assignedUserId, activityType, expectedStudents);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
         
         var activity = new Activity
         {
@@ -31,15 +34,17 @@ public class ActivityService(
     public async Task<Activity> GetActivityAsync(Guid organizationId, Guid activityId)
     {
         logger.LogDebug("Retrieving activity. OrganizationId: {OrganizationId}, ActivityId: {ActivityId}", organizationId, activityId);
-        
-        var activity = await activityRepository.GetByIdAsync(activityId);
-        // TODO: validate?
+
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var activity = await validationService.ValidateAndGetActivityAsync(organizationId, activityId);
         return activity;
     }
 
     public async Task<List<Activity>> GetActivitiesAsync(Guid organizationId)
     {
         logger.LogDebug("Retrieving all activities for organization. OrganizationId: {OrganizationId}", organizationId);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
         
         var allActivities = await activityRepository.GetAllAsync();
         var filteredActivities = allActivities
@@ -53,6 +58,8 @@ public class ActivityService(
     public async Task<List<Activity>> GetActivitiesBySubjectAsync(Guid organizationId, Guid subjectId)
     {
         logger.LogDebug("Retrieving activities for subject. OrganizationId: {OrganizationId}, SubjectId: {SubjectId}", organizationId, subjectId);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
         
         var allActivities =  await activityRepository.GetAllAsync();
         var filteredActivities = allActivities
@@ -69,8 +76,9 @@ public class ActivityService(
         logger.LogInformation("Updating activity. OrganizationId: {OrganizationId}, ActivityId: {ActivityId}, SubjectId: {SubjectId}, AssignedUserId: {AssignedUserId}, ActivityType: {ActivityType}, ExpectedStudents: {ExpectedStudents}",
             organizationId, activityId, subjectId, assignedUserId, activityType, expectedStudents);
         
-        var activity = await activityRepository.GetByIdAsync(activityId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var activity = await validationService.ValidateAndGetActivityAsync(organizationId,  activityId);
+        
         activity.SubjectId = subjectId;
         activity.AssignedUserId = assignedUserId;
         activity.ActivityType = activityType;
@@ -84,8 +92,8 @@ public class ActivityService(
     {
         logger.LogDebug("Deleting activity. OrganizationId: {OrganizationId}, ActivityId: {ActivityId}", organizationId, activityId);
         
-        var activity =  await activityRepository.GetByIdAsync(activityId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var activity = await validationService.ValidateAndGetActivityAsync(organizationId, activityId);
         await activityRepository.DeleteAsync(activity);
         
         logger.LogDebug("Activity deleted successfully. OrganizationId: {OrganizationId}, ActivityId: {ActivityId}", organizationId, activityId);

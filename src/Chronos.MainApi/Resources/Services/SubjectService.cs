@@ -1,17 +1,20 @@
 using Chronos.Data.Repositories.Resources;
 using Chronos.Domain.Resources;
-using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Resources.Services;
-// TODO: add some validation?
+
 public class SubjectService(
     ISubjectRepository subjectRepository,
+    ResourceValidationService validationService,
     ILogger<SubjectService> logger) : ISubjectService
 {
     public async Task<Guid> CreateSubjectAsync(Guid organizationId, Guid departmentId, Guid schedulingPeriodId, string code, string name)
     {
         logger.LogInformation("Creating subject. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}, SchedulingPeriodId: {SchedulingPeriodId}, Code: {Code}, Name: {Name}",
             organizationId, departmentId, schedulingPeriodId, code, name);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
+        
         var subject = new Subject
         {
             OrganizationId = organizationId,
@@ -31,14 +34,16 @@ public class SubjectService(
     {
         logger.LogDebug("Retrieving subject. OrganizationId: {OrganizationId}, SubjectId: {SubjectId}", organizationId, subjectId);
         
-        var subject = await subjectRepository.GetByIdAsync(subjectId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var subject = await validationService.ValidateAndGetSubjectAsync(organizationId, subjectId);
         return subject;
     }
 
     public async Task<List<Subject>> GetSubjectsAsync(Guid organizationId)
     {
         logger.LogDebug("Retrieving all subjects for organization. OrganizationId: {OrganizationId}", organizationId);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
         
         var allSubjects = await subjectRepository.GetAllAsync();
         var filteredSubjects = allSubjects
@@ -52,6 +57,8 @@ public class SubjectService(
     public async Task<List<Subject>> GetSubjectsByDepartmentAsync(Guid organizationId, Guid departmentId)
     {
         logger.LogDebug("Retrieving subjects for department. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}", organizationId, departmentId);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
         
         var allSubjects =  await subjectRepository.GetAllAsync();
         var filteredSubjects = allSubjects
@@ -67,9 +74,10 @@ public class SubjectService(
     {
         logger.LogInformation("Updating subject. OrganizationId: {OrganizationId}, SubjectId: {SubjectId}, DepartmentId: {DepartmentId}, SchedulingPeriodId: {SchedulingPeriodId}, Code: {Code}, Name: {Name}",
             organizationId, subjectId,  departmentId, schedulingPeriodId, code, name);
+
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var subject = await validationService.ValidateAndGetSubjectAsync(organizationId, subjectId);
         
-        var subject = await subjectRepository.GetByIdAsync(subjectId);
-        // TODO: validate?
         subject.DepartmentId = departmentId;
         subject.SchedulingPeriodId = schedulingPeriodId;
         subject.Code = code;
@@ -83,8 +91,8 @@ public class SubjectService(
     {
         logger.LogDebug("Deleting subject. OrganizationId: {OrganizationId}, SubjectId: {SubjectId}", organizationId, subjectId);
         
-        var subject = await subjectRepository.GetByIdAsync(subjectId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var subject = await validationService.ValidateAndGetSubjectAsync(organizationId, subjectId);
         await subjectRepository.DeleteAsync(subject);
         
         logger.LogDebug("Subject deleted successfully. SubjectId: {SubjectId}", subjectId);

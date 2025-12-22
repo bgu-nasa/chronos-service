@@ -5,6 +5,7 @@ namespace Chronos.MainApi.Resources.Services;
 
 public class ResourceService(
     ResourceRepository resourceRepository,
+    ResourceValidationService validationService,
     ILogger<ResourceService> logger) : IResourceService
 {
     public async Task<Guid> CreateResourceAsync(Guid id, Guid organizationId, Guid resourceTypeId, string location, string identifier,
@@ -12,6 +13,9 @@ public class ResourceService(
     {
         logger.LogInformation("Creating resource. OrganizationId: {OrganizationId}, ResourceTypeId: {ResourceTypeId}, Location: {Location}, Identifier: {Identifier}, Capacity: {Capacity}",
             organizationId, resourceTypeId, location, identifier, capacity);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
+        
         var resource = new Resource
         {
             OrganizationId = organizationId,
@@ -31,14 +35,16 @@ public class ResourceService(
     {
         logger.LogDebug("Retrieving resource. OrganizationId: {OrganizationId}, ResourceId: {ResourceId}", organizationId, resourceId);
         
-        var resource = await resourceRepository.GetByIdAsync(resourceId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var resource = await validationService.ValidateAndGetResourceAsync(organizationId, resourceId);
         return resource;
     } 
 
     public async Task<List<Resource>> GetResourcesAsync(Guid organizationId)
     {
         logger.LogDebug("Retrieving all resources for organization. OrganizationId: {OrganizationId}", organizationId);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
         
         var allResources = await resourceRepository.GetAllAsync();
         var filteredResources = allResources
@@ -55,8 +61,9 @@ public class ResourceService(
         logger.LogInformation("Updating resource. OrganizationId: {OrganizationId}, ResourceId: {ResourceId}, ResourceTypeId: {ResourceTypeId}, Location: {Location}, Identifier: {Identifier}, Capacity: {Capacity}",
             organizationId, resourceId, resourceTypeId, location, identifier, capacity);
         
-        var resource = await resourceRepository.GetByIdAsync(resourceId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var resource = await validationService.ValidateAndGetResourceAsync(organizationId, resourceId);
+        
         resource.ResourceTypeId = resourceTypeId;
         resource.Location = location;
         resource.Identifier = identifier;
@@ -70,8 +77,8 @@ public class ResourceService(
     {
         logger.LogDebug("Deleting resource. OrganizationId: {OrganizationId}, ResourceId: {ResourceId}", organizationId, resourceId);
         
-        var resource =  await resourceRepository.GetByIdAsync(resourceId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var resource = await validationService.ValidateAndGetResourceAsync(organizationId, resourceId);
         await resourceRepository.DeleteAsync(resource);
         
         logger.LogInformation("Resource deleted successfully. ResourceId: {ResourceId}, OrganizationId: {OrganizationId}", resource.Id, organizationId);

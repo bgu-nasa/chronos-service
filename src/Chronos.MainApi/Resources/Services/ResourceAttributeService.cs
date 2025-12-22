@@ -5,12 +5,16 @@ namespace Chronos.MainApi.Resources.Services;
 
 public class ResourceAttributeService(
     IResourceAttributeRepository resourceAttributeRepository,
+    ResourceValidationService validationService,
     ILogger<ResourceAttributeService> logger) : IResourceAttributeService
 {
     public async Task<Guid> CreateResourceAttributeAsync(Guid organizationId, string title, string description)
     {
         logger.LogInformation("Creating resource attribute. OrganizationId: {OrganizationId}, Title: {Title}, Description: {Description}",
             organizationId, title, description);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
+        
         var resourceAttribute = new ResourceAttribute
         {
             OrganizationId = organizationId,
@@ -28,14 +32,16 @@ public class ResourceAttributeService(
     {
         logger.LogDebug("Retrieving resource attribute. OrganizationId: {OrganizationId}, ResourceAttributeId: {ResourceAttributeId}", organizationId, resourceAttributeId);
         
-        var resourceAttribute = await resourceAttributeRepository.GetByIdAsync(resourceAttributeId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var resourceAttribute = await validationService.ValidateAndGetResourceAttributeAsync(organizationId, resourceAttributeId);
         return resourceAttribute;
     }
 
     public async Task<List<ResourceAttribute>> GetResourceAttributesAsync(Guid organizationId)
     {
         logger.LogDebug("Retrieving all resource attributes for organization. OrganizationId: {OrganizationId}", organizationId);
+        
+        await validationService.ValidationOrganizationAsync(organizationId);
         
         var allResourceAttributes = await resourceAttributeRepository.GetAllAsync();
         var filteredResourceAttributes = allResourceAttributes
@@ -51,8 +57,9 @@ public class ResourceAttributeService(
         logger.LogInformation("Updating resource attribute. OrganizationId: {OrganizationId}, ResourceAttributeId: {ResourceAttributeId}, Title: {Title}, Description: {Description}",
             organizationId, resourceAttributeId, title, description);
         
-        var resourceAttribute = await resourceAttributeRepository.GetByIdAsync(resourceAttributeId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var resourceAttribute = await validationService.ValidateAndGetResourceAttributeAsync(organizationId, resourceAttributeId);
+        
         resourceAttribute.Title = title;
         resourceAttribute.Description = description;
         await resourceAttributeRepository.UpdateAsync(resourceAttribute);
@@ -64,8 +71,8 @@ public class ResourceAttributeService(
     {
         logger.LogDebug("Deleting resource attribute. OrganizationId: {OrganizationId}, ResourceAttributeId: {ResourceAttributeId}", organizationId, resourceAttributeId);
         
-        var resourceAttribute = await resourceAttributeRepository.GetByIdAsync(resourceAttributeId);
-        // TODO: validate?
+        await validationService.ValidationOrganizationAsync(organizationId);
+        var resourceAttribute = await validationService.ValidateAndGetResourceAttributeAsync(organizationId, resourceAttributeId);
         await resourceAttributeRepository.DeleteAsync(resourceAttribute);
         
         logger.LogInformation("Resource attribute deleted successfully. ResourceAttributeId: {ResourceAttributeId}, OrganizationId: {OrganizationId}", resourceAttributeId, organizationId);
