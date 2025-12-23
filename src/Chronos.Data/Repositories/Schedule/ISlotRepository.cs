@@ -8,7 +8,7 @@ public interface ISlotRepository
 
     Task<List<Slot>> GetBySchedulingPeriodIdAsync(Guid schedulingPeriodId, CancellationToken cancellationToken = default);
 
-    Task<List<ActivityConstraint>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<Slot>> GetAllAsync(CancellationToken cancellationToken = default);
 
     Task AddAsync(Slot slot, CancellationToken cancellationToken = default);
 

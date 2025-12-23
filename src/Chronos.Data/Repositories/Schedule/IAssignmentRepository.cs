@@ -6,7 +6,7 @@ public interface IAssignmentRepository
 {
     Task<Assignment?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<List<ActivityConstraint>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<Assignment>> GetAllAsync(CancellationToken cancellationToken = default);
 
     Task<List<Assignment>> GetBySlotIdAsync(Guid slotId, CancellationToken cancellationToken = default);
 

@@ -7,7 +7,7 @@ public interface IUserConstraintRepository
 
     Task<List<UserConstraint>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<UserConstraint?> GetByUserPeriodAndKeyAsync(Guid userId, Guid schedulingPeriodId, string key, CancellationToken cancellationToken = default);
+    Task<UserConstraint?> GetByUserPeriodAsync(Guid userId, Guid schedulingPeriodId, CancellationToken cancellationToken = default);
 
     Task<List<UserConstraint>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 

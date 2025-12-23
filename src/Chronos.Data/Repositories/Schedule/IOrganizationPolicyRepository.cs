@@ -8,7 +8,7 @@ public interface IOrganizationPolicyRepository
 
     Task<List<OrganizationPolicy>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<OrganizationPolicy?> GetByPeriodAndKeyAsync(Guid schedulingPeriodId, string key, CancellationToken cancellationToken = default);
+    Task<OrganizationPolicy?> GetByPeriodAsync(Guid schedulingPeriodId, CancellationToken cancellationToken = default);
 
     Task AddAsync(OrganizationPolicy policy, CancellationToken cancellationToken = default);
 
