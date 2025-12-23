@@ -24,6 +24,19 @@ public class AssignmentRepository(AppDbContext context) : IAssignmentRepository
             .Where(a => a.SlotId == slotId)
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<List<Assignment>> GetBySchedulingItemIdAsync(Guid schedulingItemId, CancellationToken cancellationToken = default)
+    {
+        return await context.Assignments
+            .Where(a => a.ScheduledItemId == schedulingItemId)
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<Assignment?> GetbySlotIdAndSchedulingItemIdAsync
+        (Guid slotId, Guid schedulingItemId, CancellationToken cancellationToken = default)
+    {
+        return await context.Assignments 
+            .FirstOrDefaultAsync(a => a.SlotId == slotId && a.ScheduledItemId == schedulingItemId, cancellationToken);}
 
     public async Task AddAsync(Assignment assignment, CancellationToken cancellationToken = default)
     {

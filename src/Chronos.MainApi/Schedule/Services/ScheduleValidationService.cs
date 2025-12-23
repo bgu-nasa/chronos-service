@@ -9,6 +9,11 @@ public class ScheduleValidationService(
     IOrganizationRepository organizationRepository,
     ISchedulingPeriodRepository schedulingPeriodRepository,
     ISlotRepository slotRepository,
+    IAssignmentRepository assignmentRepository,
+    IUserConstraintRepository userConstraintRepository,
+    IUserPreferenceRepository userPreferenceRepository,
+    IOrganizationPolicyRepository organizationPolicyRepository,
+    IActivityConstraintRepository activityConstraintRepository,
     ILogger<ScheduleValidationService> logger)
 {
     public async Task ValidateOrganizationAsync(Guid organizationId)
@@ -48,5 +53,70 @@ public class ScheduleValidationService(
             throw new NotFoundException("Slot not found");
         }
         return slot;
+    }
+    
+    public async Task<Assignment> ValidateAndGetAssignmentAsync(Guid organizationId, Guid assignmentId)
+    {
+        var assignment = await assignmentRepository.GetByIdAsync(assignmentId);
+        if (assignment == null || assignment.OrganizationId != organizationId)
+        {
+            logger.LogWarning(
+                "Assignment not found or does not belong to organization. AssignmentId: {AssignmentId}, OrganizationId: {OrganizationId}",
+                assignmentId, organizationId);
+            throw new NotFoundException("Assignment not found");
+        }
+        return assignment;
+    }
+    
+    public async Task<UserConstraint> ValidateAndGetUserConstraintAsync(Guid organizationId, Guid userConstraintId)
+    {
+        var constraint = await userConstraintRepository.GetByIdAsync(userConstraintId);
+        if (constraint == null || constraint.OrganizationId != organizationId)
+        {
+            logger.LogWarning(
+                "UserConstraint not found or does not belong to organization. UserConstraintId: {UserConstraintId}, OrganizationId: {OrganizationId}",
+                userConstraintId, organizationId);
+            throw new NotFoundException("User constraint not found");
+        }
+        return constraint;
+    }
+    
+    public async Task<UserPreference> ValidateAndGetUserPreferenceAsync(Guid organizationId, Guid userPreferenceId)
+    {
+        var preference = await userPreferenceRepository.GetByIdAsync(userPreferenceId);
+        if (preference == null || preference.OrganizationId != organizationId)
+        {
+            logger.LogWarning(
+                "UserPreference not found or does not belong to organization. UserPreferenceId: {UserPreferenceId}, OrganizationId: {OrganizationId}",
+                userPreferenceId, organizationId);
+            throw new NotFoundException("User preference not found");
+        }
+        return preference;
+    }
+    
+    public async Task<OrganizationPolicy> ValidateAndGetOrganizationPolicyAsync(Guid organizationId, Guid organizationPolicyId)
+    {
+        var policy = await organizationPolicyRepository.GetByIdAsync(organizationPolicyId);
+        if (policy == null || policy.OrganizationId != organizationId)
+        {
+            logger.LogWarning(
+                "OrganizationPolicy not found or does not belong to organization. OrganizationPolicyId: {OrganizationPolicyId}, OrganizationId: {OrganizationId}",
+                organizationPolicyId, organizationId);
+            throw new NotFoundException("Organization policy not found");
+        }
+        return policy;
+    }
+    
+    public async Task<ActivityConstraint> ValidateAndGetActivityConstraintAsync(Guid organizationId, Guid activityConstraintId)
+    {
+        var constraint = await activityConstraintRepository.GetByIdAsync(activityConstraintId);
+        if (constraint == null || constraint.OrganizationId != organizationId)
+        {
+            logger.LogWarning(
+                "ActivityConstraint not found or does not belong to organization. ActivityConstraintId: {ActivityConstraintId}, OrganizationId: {OrganizationId}",
+                activityConstraintId, organizationId);
+            throw new NotFoundException("Activity constraint not found");
+        }
+        return constraint;
     }
 }

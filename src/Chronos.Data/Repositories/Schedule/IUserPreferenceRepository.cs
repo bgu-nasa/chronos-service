@@ -8,7 +8,7 @@ public interface IUserPreferenceRepository
 
     Task<List<UserPreference>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<UserPreference?> GetByUserPeriodAsync
+    Task<List<UserPreference>> GetByUserPeriodAsync
         (Guid userId, Guid schedulingPeriodId, CancellationToken cancellationToken = default);
 
     Task<List<UserPreference>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);

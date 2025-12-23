@@ -19,12 +19,13 @@ public class UserConstraintRepository(AppDbContext context) : IUserConstraintRep
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<UserConstraint?> GetByUserPeriodAsync(Guid userId, Guid schedulingPeriodId, CancellationToken cancellationToken = default)
+    public async Task<List<UserConstraint>> GetByUserPeriodAsync(Guid userId, Guid schedulingPeriodId, CancellationToken cancellationToken = default)
     {
         return await context.UserConstraints
-            .FirstOrDefaultAsync(c =>
+            .Where(c =>
                 c.UserId == userId &&
-                c.SchedulingPeriodId == schedulingPeriodId, cancellationToken);
+                c.SchedulingPeriodId == schedulingPeriodId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<List<UserConstraint>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)

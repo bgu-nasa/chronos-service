@@ -9,9 +9,10 @@ public interface IAssignmentRepository
     Task<List<Assignment>> GetAllAsync(CancellationToken cancellationToken = default);
 
     Task<List<Assignment>> GetBySlotIdAsync(Guid slotId, CancellationToken cancellationToken = default);
-
-    Task<List<Assignment>> GetBySchedulingPeriodIdAsync(Guid schedulingPeriodId, CancellationToken cancellationToken = default);
-
+    Task<List<Assignment>> GetBySchedulingItemIdAsync(Guid schedulingItemId, CancellationToken cancellationToken = default);
+    Task<Assignment?> GetbySlotIdAndSchedulingItemIdAsync
+        (Guid slotId, Guid schedulingItemId, CancellationToken cancellationToken = default);
+    
     Task AddAsync(Assignment assignment, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(Assignment assignment, CancellationToken cancellationToken = default);

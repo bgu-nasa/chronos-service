@@ -1,5 +1,6 @@
 ﻿using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
+using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Schedule.Services;
 
@@ -8,26 +9,22 @@ public class SlotService(
     ScheduleValidationService validationService,
     ILogger<SlotService> logger) : ISlotService
 {
-    public async Task<Guid> CreateSlotAsync(
-        Guid organizationId,
-        Guid schedulingPeriodId,
-        string weekday,
-        TimeSpan fromTime,
-        TimeSpan toTime)
+    
+
+    public async Task<Guid> CreateSlotAsync(Guid organizationId, Guid schedulingPeriodId, string weekday, TimeSpan fromTime, TimeSpan toTime)
     {
         logger.LogInformation(
             "Creating slot. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}, Weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
             organizationId, schedulingPeriodId, weekday, fromTime, toTime);
-
         await validationService.ValidateAndGetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
-        ValidateInput(weekday, fromTime, toTime);
+        TimeRangeValidator(fromTime, toTime);
 
         var slot = new Slot
         {
             Id = Guid.NewGuid(),
             OrganizationId = organizationId,
             SchedulingPeriodId = schedulingPeriodId,
-            Weekday = weekday.Trim(),
+            Weekday = weekday,
             FromTime = fromTime,
             ToTime = toTime
         };
@@ -40,7 +37,6 @@ public class SlotService(
 
         return slot.Id;
     }
-
     public async Task<Slot> GetSlotAsync(Guid organizationId, Guid slotId)
     {
         logger.LogDebug(
@@ -49,7 +45,24 @@ public class SlotService(
 
         return await validationService.ValidateAndGetSlotAsync(organizationId, slotId);
     }
+    
+    public async Task<List<Slot>> GetAllSlotsAsync(Guid organizationId)
+    {
+        logger.LogDebug("Retrieving all slots OrganizationId: {OrganizationId}", organizationId);
 
+        await validationService.ValidateOrganizationAsync(organizationId);
+
+        var all = await slotRepository.GetAllAsync();
+        var filtered = all
+            .Where(s => s.OrganizationId == organizationId)
+            .OrderBy(s => s.Weekday)
+            .ThenBy(s => s.FromTime)
+            .ToList();
+
+        logger.LogDebug("Retrieved {Count} slots for scheduling period. OrganizationId: {OrganizationId}", filtered.Count, organizationId);
+        return filtered;
+    }
+    
     public async Task<List<Slot>> GetSlotsBySchedulingPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
     {
         logger.LogDebug(
@@ -58,46 +71,36 @@ public class SlotService(
 
         await validationService.ValidateAndGetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
 
-        var slots = await slotRepository.GetBySchedulingPeriodIdAsync(schedulingPeriodId);
-
-        // Defensive filter (should already match because period validated)
-        var filtered = slots
+        var all = await slotRepository.GetBySchedulingPeriodIdAsync(schedulingPeriodId);
+        var filtered = all
             .Where(s => s.OrganizationId == organizationId)
             .OrderBy(s => s.Weekday)
             .ThenBy(s => s.FromTime)
             .ToList();
 
-        logger.LogDebug(
-            "Retrieved {Count} slots. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}",
-            filtered.Count, organizationId, schedulingPeriodId);
-
+        logger.LogDebug("Retrieved {Count} slots for scheduling period. SchedulingPeriodId: {SchedulingPeriodId}, OrganizationId: {OrganizationId}", filtered.Count, schedulingPeriodId, organizationId);
         return filtered;
     }
-
-    public async Task UpdateSlotAsync(
-        Guid organizationId,
-        Guid slotId,
-        string weekday,
-        TimeSpan fromTime,
-        TimeSpan toTime)
+    
+    public async Task UpdateSlotAsync(Guid organizationId, Guid slotId, string weekday, TimeSpan fromTime, TimeSpan toTime)
     {
         logger.LogInformation(
             "Updating slot. OrganizationId: {OrganizationId}, SlotId: {SlotId}",
             organizationId, slotId);
 
-        ValidateInput(weekday, fromTime, toTime);
-
         var slot = await validationService.ValidateAndGetSlotAsync(organizationId, slotId);
-
-        slot.Weekday = weekday.Trim();
+        TimeRangeValidator(fromTime, toTime);
+        slot.Weekday = weekday;
         slot.FromTime = fromTime;
         slot.ToTime = toTime;
 
         await slotRepository.UpdateAsync(slot);
 
-        logger.LogInformation("Slot updated successfully. SlotId: {SlotId}", slotId);
+        logger.LogInformation(
+            "Slot updated successfully. SlotId: {SlotId}, OrganizationId: {OrganizationId}",
+            slot.Id, organizationId);
     }
-
+    
     public async Task DeleteSlotAsync(Guid organizationId, Guid slotId)
     {
         logger.LogInformation(
@@ -105,24 +108,22 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await validationService.ValidateAndGetSlotAsync(organizationId, slotId);
+
         await slotRepository.DeleteAsync(slot);
 
-        logger.LogInformation("Slot deleted successfully. SlotId: {SlotId}", slotId);
+        logger.LogInformation(
+            "Slot deleted successfully. SlotId: {SlotId}, OrganizationId: {OrganizationId}",
+            slot.Id, organizationId);
     }
-
-    private static void ValidateInput(string weekday, TimeSpan fromTime, TimeSpan toTime)
+    
+    private void TimeRangeValidator(TimeSpan fromTime, TimeSpan toTime)
     {
-        if (string.IsNullOrWhiteSpace(weekday))
-            throw new ArgumentException("Weekday is required", nameof(weekday));
-
-        if (toTime <= fromTime)
-            throw new ArgumentException("ToTime must be after FromTime");
-
-        // Optional sanity (TimeSpan can exceed 24h)
-        if (fromTime < TimeSpan.Zero || toTime < TimeSpan.Zero)
-            throw new ArgumentException("Times must be non-negative");
-
-        if (fromTime >= TimeSpan.FromDays(1) || toTime > TimeSpan.FromDays(1))
-            throw new ArgumentException("Times must be within a single day (00:00 - 24:00)");
+        if (fromTime >= toTime)
+        {
+            logger.LogWarning(
+                "Invalid time range. FromTime: {FromTime}, ToTime: {ToTime}",
+                fromTime, toTime);
+            throw new BadRequestException("FromTime must be earlier than ToTime");
+        }
     }
 }

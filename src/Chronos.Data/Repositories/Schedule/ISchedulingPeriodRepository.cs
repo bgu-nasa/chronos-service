@@ -5,6 +5,8 @@ namespace Chronos.Data.Repositories.Schedule;
 public interface ISchedulingPeriodRepository
 {
     Task<SchedulingPeriod?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    
+    Task<SchedulingPeriod?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
 
     Task<List<SchedulingPeriod>> GetAllAsync(CancellationToken cancellationToken = default);
 

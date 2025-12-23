@@ -19,10 +19,11 @@ public class OrganizationPolicyRepository(AppDbContext context) : IOrganizationP
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<OrganizationPolicy?> GetByPeriodAsync(Guid schedulingPeriodId, CancellationToken cancellationToken = default)
+    public async Task<List<OrganizationPolicy>> GetByPeriodAsync(Guid schedulingPeriodId, CancellationToken cancellationToken = default)
     {
         return await context.OrganizationPolicies
-        .FirstOrDefaultAsync(p => p.SchedulingPeriodId == schedulingPeriodId, cancellationToken);
+            .Where(p => p.SchedulingPeriodId == schedulingPeriodId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task AddAsync(OrganizationPolicy policy, CancellationToken cancellationToken = default)

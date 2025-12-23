@@ -9,12 +9,13 @@ public class SchedulingPeriodService(
     ScheduleValidationService validationService,
     ILogger<SchedulingPeriodService> logger) : ISchedulingPeriodService
 {
-    public async Task<Guid> CreateSchedulingPeriodAsync(Guid organizationId, string name, DateTime fromDate, DateTime toDate)
+    public async Task<Guid> CreateSchedulingPeriodAsync(Guid organizationId, string name, DateTime fromDate,
+        DateTime toDate)
     {
         logger.LogInformation(
             "Creating scheduling period. OrganizationId: {OrganizationId}, Name: {Name}, FromDate: {FromDate}, ToDate: {ToDate}",
             organizationId, name, fromDate, toDate);
-        validateDateRange(fromDate, toDate);
+        ValidateDateRange(fromDate, toDate);
         await validationService.ValidateOrganizationAsync(organizationId);
 
         var period = new SchedulingPeriod
@@ -43,8 +44,27 @@ public class SchedulingPeriodService(
 
         return await validationService.ValidateAndGetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
     }
+    
+    public async Task<SchedulingPeriod> GetSchedulingPeriodByNameAsync(Guid organizationId , string name)
+    {
+        logger.LogDebug(
+            "Retrieving scheduling period by name. OrganizationId: {OrganizationId}, Name: {Name}",
+            organizationId, name);
+        
+        await validationService.ValidateOrganizationAsync(organizationId);
 
-    public async Task<List<SchedulingPeriod>> GetSchedulingPeriodsAsync(Guid organizationId)
+        var period = await schedulingPeriodRepository.GetByNameAsync(name);
+        if (period == null || period.OrganizationId != organizationId)
+        {
+            throw new NotFoundException($"Scheduling period with name '{name}' not found in organization '{organizationId}'.");
+        }
+        logger.LogDebug(
+            "Retrieved scheduling period by name successfully. OrganizationId: {OrganizationId}, Name: {Name}, SchedulingPeriodId: {SchedulingPeriodId}",
+            organizationId, name, period.Id);
+        return period;
+    }
+    
+    public async Task<List<SchedulingPeriod>> GetAllSchedulingPeriodsAsync(Guid organizationId)
     {
         logger.LogDebug("Retrieving all scheduling periods for organization. OrganizationId: {OrganizationId}", organizationId);
 
@@ -66,7 +86,7 @@ public class SchedulingPeriodService(
             "Updating scheduling period. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}",
             organizationId, schedulingPeriodId);
 
-        validateDateRange(fromDate, toDate);
+        ValidateDateRange(fromDate, toDate);
 
         var period = await validationService.ValidateAndGetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
 
@@ -90,7 +110,7 @@ public class SchedulingPeriodService(
 
         logger.LogInformation("Scheduling period deleted successfully. SchedulingPeriodId: {SchedulingPeriodId}", schedulingPeriodId);
     }
-    public void validateDateRange(DateTime fromDate, DateTime toDate)
+    private void ValidateDateRange(DateTime fromDate, DateTime toDate)
     {
         if (fromDate > toDate)
         {

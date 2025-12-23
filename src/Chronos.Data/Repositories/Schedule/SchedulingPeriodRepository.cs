@@ -11,7 +11,13 @@ namespace Chronos.Data.Repositories.Schedule
             return await context.SchedulingPeriods
                 .FirstOrDefaultAsync(sp => sp.Id == id, cancellationToken);
         }
-
+        
+        public async Task<SchedulingPeriod?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            return await context.SchedulingPeriods
+                .FirstOrDefaultAsync(sp => sp.Name == name, cancellationToken);
+        }
+        
         public async Task<List<SchedulingPeriod>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await context.SchedulingPeriods

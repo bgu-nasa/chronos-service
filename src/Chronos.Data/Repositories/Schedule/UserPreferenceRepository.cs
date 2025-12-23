@@ -19,12 +19,13 @@ public class UserPreferenceRepository(AppDbContext context) : IUserPreferenceRep
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<UserPreference?> GetByUserPeriodAsync(Guid userId, Guid schedulingPeriodId, CancellationToken cancellationToken = default)
+    public async Task<List<UserPreference>> GetByUserPeriodAsync(Guid userId, Guid schedulingPeriodId, CancellationToken cancellationToken = default)
     {
         return await context.UserPreferences
-            .FirstOrDefaultAsync(p =>
+            .Where(p =>
                 p.UserId == userId &&
-                p.SchedulingPeriodId == schedulingPeriodId, cancellationToken);
+                p.SchedulingPeriodId == schedulingPeriodId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<List<UserPreference>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
