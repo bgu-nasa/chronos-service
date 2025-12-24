@@ -10,8 +10,14 @@ public class ResourceAttributeAssignmentConfiguration : IEntityTypeConfiguration
     public void Configure(EntityTypeBuilder<ResourceAttributeAssignment> builder)
     {
         builder.ToTable(ConfigUtils.ToTableName(nameof(ResourceAttributeAssignment)));
+        
+        builder.Property(ra => ra.OrganizationId)
+            .IsRequired();
 
         builder.HasKey(raa => new { raa.ResourceId, raa.ResourceAttributeId });
+        
+        builder.HasIndex(raa => new { raa.OrganizationId })
+            .IsUnique();
     }
 }
 

@@ -12,6 +12,7 @@ public class ResourceValidationService(
     IResourceRepository resourceRepository,
     IResourceTypeRepository resourceTypeRepository,
     IResourceAttributeRepository resourceAttributeRepository,
+    IResourceAttributeAssignmentRepository resourceAttributeAssignmentRepository,
     ILogger<ResourceValidationService> logger)
 {
     public async Task ValidationOrganizationAsync(Guid organizationId)
@@ -88,5 +89,18 @@ public class ResourceValidationService(
         }
         
         return resourceAttribute;
+    }
+    
+    public async Task<ResourceAttributeAssignment> ValidateAndGetResourceAttributeAssignmentAsync(Guid organizationId, Guid resourceId, Guid resourceAttributeId)
+    {
+        var resourceAttributeAssignment = await resourceAttributeAssignmentRepository.GetByIdAsync(resourceId, resourceAttributeId);
+        
+        if (resourceAttributeAssignment == null)
+        {
+            logger.LogWarning("Resource attribute assignment not found. ResourceId: {ResourceId}, ResourceAttributeId: {ResourceAttributeId}", resourceId, resourceAttributeId);
+            throw new NotFoundException("Resource attribute assignment not found");
+        }
+        
+        return resourceAttributeAssignment;
     }
 }

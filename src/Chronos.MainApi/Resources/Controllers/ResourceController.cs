@@ -13,7 +13,8 @@ public class ResourceController(
     ILogger<ResourceController> logger,
     IResourceService resourceService,
     IResourceTypeService resourceTypeService,
-    IResourceAttributeService resourceAttributeService
+    IResourceAttributeService resourceAttributeService,
+    IResourceAttributeAssignmentService resourceAttributeAssignmentService
     ) : ControllerBase
 {
     [Authorize]
@@ -234,6 +235,80 @@ public class ResourceController(
         var organizationId = new Guid(GetOrganizationIdFromContext());
         
         await resourceAttributeService.DeleteResourceAttributeAsync(organizationId, resourceAttributeId);
+
+        return NoContent();
+    }
+    
+    [Authorize]
+    [HttpPost("/attribute-assignments")]
+    public async Task<IActionResult> CreateResourceAttributeAssignmentAsync([FromBody] CreateResourceAttributeAssignmentRequest request)
+    {
+        logger.LogInformation("Create resource attribute assignment endpoint was called.");
+        var organizationId = GetOrganizationIdFromContext();
+        
+        var resourceAttributeId = await resourceAttributeAssignmentService.CreateResourceAttributeAssignmentAsync(
+            request.ResourceId,
+            request.ResourceAttributeId,
+            request.OrganizationId);
+        
+        return CreatedAtAction(nameof(GetResourceAttributeAssignment), new { request.ResourceId, resourceAttributeId }, new { id = resourceAttributeId });
+    }
+    
+    [Authorize]
+    [HttpGet("/attribute-assignments/{resourceId}/{resourceAttributeId}")]
+    public async Task<IActionResult> GetResourceAttributeAssignment(Guid resourceId, Guid resourceAttributeId)
+    {
+        logger.LogInformation("Get resource attribute assignment endpoint was called for resource {ResourceId} and attribute {ResourceAttributeId}", resourceId, resourceAttributeId);
+        var organizationId = new Guid(GetOrganizationIdFromContext());
+        
+        var resourceAttributeAssignment = await resourceAttributeAssignmentService.GetResourceAttributeAssignmentAsync(resourceId, resourceAttributeId, organizationId);
+        if (resourceAttributeAssignment == null)
+            return NotFound();
+
+        var resourceAttributeAssignmentResponse = new ResourceAttributeAssignmentResponse(resourceId, resourceAttributeId);
+        
+        return Ok(resourceAttributeAssignmentResponse);
+    }
+    
+    [Authorize]
+    [HttpGet("/attribute-assignments")]
+    public async Task<IActionResult> GetAllResourceAttributeAssignmentsAsync()
+    {
+        logger.LogInformation("Get resource attribute assignments endpoint was called.");
+        var organizationId = new Guid(GetOrganizationIdFromContext());
+        
+        var resourceAttributeAssignments = await resourceAttributeAssignmentService.GetAllResourceAttributeAssignmentsAsync(organizationId);
+
+        var resourceAttributeAssignmentResponses = resourceAttributeAssignments
+            .Select(raa => new ResourceAttributeAssignmentResponse(raa.ResourceId, raa.ResourceAttributeId))
+            .ToList();
+        
+        return Ok(resourceAttributeAssignmentResponses);
+    }
+    
+    [Authorize]
+    [HttpPatch("/attribute-assignments/{resourceId}/{resourceAttributeId}")]
+    public async Task<IActionResult> UpdateResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, [FromBody] UpdateResourceAttributeAssignmentRequest request)
+    {
+        logger.LogInformation("Update resource attribute assignment endpoint was called for resource {ResourceId} and attribute {ResourceAttributeId}", resourceId, resourceAttributeId);
+        var organizationId = new Guid(GetOrganizationIdFromContext());
+        
+        await resourceAttributeAssignmentService.UpdateResourceAttributeAssignmentAsync(
+            resourceId,
+            resourceAttributeId,
+            organizationId);
+
+        return NoContent();
+    }
+    
+    [Authorize]
+    [HttpDelete("/attribute-assignments/{resourceId}/{resourceAttributeId}")]
+    public async Task<IActionResult> DeleteResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId)
+    {
+        logger.LogInformation("Delete resource attribute assignment endpoint was called for resource {ResourceId} and attribute {ResourceAttributeId}", resourceId, resourceAttributeId);
+        var organizationId = new Guid(GetOrganizationIdFromContext());
+        
+        await resourceAttributeAssignmentService.DeleteResourceAttributeAssignmentAsync(resourceId, resourceAttributeId, organizationId);
 
         return NoContent();
     }
