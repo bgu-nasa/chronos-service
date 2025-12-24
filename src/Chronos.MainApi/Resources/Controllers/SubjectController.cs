@@ -44,7 +44,7 @@ public class SubjectController(
         if (subject == null)
             return NotFound();
         
-        var subjectResponse = new SubjectResponse(subject.Id); // TODO: should be mapped properly
+        var subjectResponse = new SubjectResponse(subject.Id);
         return Ok(subjectResponse);
     }
     
@@ -56,7 +56,7 @@ public class SubjectController(
         var organizationId = GetOrganizationIdFromContext();
         
         var subjects = await subjectService.GetSubjectsAsync(new Guid(organizationId));
-        var subjectResponses = subjects.Select(s => new SubjectResponse(s.Id)).ToList(); // TODO: should be mapped properly
+        var subjectResponses = subjects.Select(s => new SubjectResponse(s.Id)).ToList();
         
         return Ok(subjectResponses);
     }
@@ -69,7 +69,7 @@ public class SubjectController(
         var organizationId = GetOrganizationIdFromContext();
         
         var subjects = await subjectService.GetSubjectsByDepartmentAsync(new Guid(organizationId), departmentId);
-        var subjectResponses = subjects.Select(s => new SubjectResponse(s.Id)).ToList(); // TODO: should be mapped properly
+        var subjectResponses = subjects.Select(s => new SubjectResponse(s.Id)).ToList();
         
         return Ok(subjectResponses);
     }
@@ -136,7 +136,7 @@ public class SubjectController(
         if (activity == null)
             return NotFound();
         
-        var activityResponse = new ActivityResponse(activity.Id); // TODO: should be mapped properly
+        var activityResponse = new ActivityResponse(activity.Id);
         return Ok(activityResponse);
     }
     
@@ -148,7 +148,7 @@ public class SubjectController(
         var organizationId = GetOrganizationIdFromContext();
         
         var activities = await activityService.GetActivitiesAsync(new Guid(organizationId));
-        var activityResponses = activities.Select(a => new ActivityResponse(a.Id)).ToList(); // TODO: should be mapped properly
+        var activityResponses = activities.Select(a => new ActivityResponse(a.Id)).ToList();
         
         return Ok(activityResponses);
     }
@@ -164,7 +164,7 @@ public class SubjectController(
             new Guid(organizationId),
             subjectId);
         
-        var activityResponses = activities.Select(a => new ActivityResponse(a.Id)).ToList(); // TODO: should be mapped properly
+        var activityResponses = activities.Select(a => new ActivityResponse(a.Id)).ToList();
         
         return Ok(activityResponses);
     }

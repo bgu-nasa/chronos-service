@@ -46,7 +46,7 @@ public class ResourceController(
         if (resource == null)
             return NotFound();
 
-        var resourceResponse = new ResourceResponse(resourceId); // TODO: should be mapped properly
+        var resourceResponse = new ResourceResponse(resourceId);
         
         return Ok(resourceResponse);
     }
@@ -60,7 +60,7 @@ public class ResourceController(
         
         var resources = await resourceService.GetResourcesAsync(organizationId);
 
-        var resourceResponses = resources.Select(r => new ResourceResponse(r.Id)).ToList(); // TODO: should be mapped properly
+        var resourceResponses = resources.Select(r => new ResourceResponse(r.Id)).ToList();
         
         return Ok(resourceResponses);
     }
