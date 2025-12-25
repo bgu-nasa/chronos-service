@@ -6,63 +6,63 @@ namespace Chronos.Data.Repositories.Schedule;
 
 public class UserConstraintRepository(AppDbContext context) : IUserConstraintRepository
 {
-    public async Task<UserConstraint?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<UserConstraint?> GetByIdAsync(Guid id)
     {
         return await context.UserConstraints
-            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public async Task<List<UserConstraint>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<UserConstraint>> GetAllAsync()
     {
         return await context.UserConstraints
             .OrderBy(c => c.Key)
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
 
-    public async Task<List<UserConstraint>> GetByUserPeriodAsync(Guid userId, Guid schedulingPeriodId, CancellationToken cancellationToken = default)
+    public async Task<List<UserConstraint>> GetByUserPeriodAsync(Guid userId, Guid schedulingPeriodId)
     {
         return await context.UserConstraints
             .Where(c =>
                 c.UserId == userId &&
                 c.SchedulingPeriodId == schedulingPeriodId)
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
 
-    public async Task<List<UserConstraint>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<List<UserConstraint>> GetByUserIdAsync(Guid userId)
     {
         return await context.UserConstraints
             .Where(c => c.UserId == userId)
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
 
-    public async Task<List<UserConstraint>> GetBySchedulingPeriodIdAsync(Guid schedulingPeriodId, CancellationToken cancellationToken = default)
+    public async Task<List<UserConstraint>> GetBySchedulingPeriodIdAsync(Guid schedulingPeriodId)
     {
         return await context.UserConstraints
             .Where(c => c.SchedulingPeriodId == schedulingPeriodId)
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
 
-    public async Task AddAsync(UserConstraint constraint, CancellationToken cancellationToken = default)
+    public async Task AddAsync(UserConstraint constraint)
     {
-        await context.UserConstraints.AddAsync(constraint, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.UserConstraints.AddAsync(constraint);
+        await context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(UserConstraint constraint, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(UserConstraint constraint)
     {
         context.UserConstraints.Update(constraint);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(UserConstraint constraint, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(UserConstraint constraint)
     {
         context.UserConstraints.Remove(constraint);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync();
     }
 
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(Guid id)
     {
         return await context.UserConstraints
-            .AnyAsync(c => c.Id == id, cancellationToken);
+            .AnyAsync(c => c.Id == id);
     }
 }

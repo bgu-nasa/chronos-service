@@ -4,20 +4,19 @@ namespace Chronos.Data.Repositories.Schedule;
 
 public interface IAssignmentRepository
 {
-    Task<Assignment?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Assignment?> GetByIdAsync(Guid id);
 
-    Task<List<Assignment>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<Assignment>> GetAllAsync();
 
-    Task<List<Assignment>> GetBySlotIdAsync(Guid slotId, CancellationToken cancellationToken = default);
-    Task<List<Assignment>> GetBySchedulingItemIdAsync(Guid schedulingItemId, CancellationToken cancellationToken = default);
-    Task<Assignment?> GetbySlotIdAndSchedulingItemIdAsync
-        (Guid slotId, Guid schedulingItemId, CancellationToken cancellationToken = default);
+    Task<List<Assignment>> GetBySlotIdAsync(Guid slotId);
+    Task<List<Assignment>> GetBySchedulingItemIdAsync(Guid schedulingItemId);
+    Task<Assignment?> GetBySlotIdAndResourceIdAsync(Guid slotId, Guid resourceId);
     
-    Task AddAsync(Assignment assignment, CancellationToken cancellationToken = default);
+    Task AddAsync(Assignment assignment);
 
-    Task UpdateAsync(Assignment assignment, CancellationToken cancellationToken = default);
+    Task UpdateAsync(Assignment assignment);
 
-    Task DeleteAsync(Assignment assignment, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Assignment assignment);
 
-    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(Guid id);
 }

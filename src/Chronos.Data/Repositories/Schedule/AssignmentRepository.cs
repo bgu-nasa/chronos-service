@@ -6,59 +6,60 @@ namespace Chronos.Data.Repositories.Schedule;
 
 public class AssignmentRepository(AppDbContext context) : IAssignmentRepository
 {
-    public async Task<Assignment?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Assignment?> GetByIdAsync(Guid id)
     {
         return await context.Assignments
-            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<List<Assignment>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<Assignment>> GetAllAsync()
     {
         return await context.Assignments
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
 
-    public async Task<List<Assignment>> GetBySlotIdAsync(Guid slotId, CancellationToken cancellationToken = default)
+    public async Task<List<Assignment>> GetBySlotIdAsync(Guid slotId)
     {
         return await context.Assignments
             .Where(a => a.SlotId == slotId)
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
     
-    public async Task<List<Assignment>> GetBySchedulingItemIdAsync(Guid schedulingItemId, CancellationToken cancellationToken = default)
+    public async Task<List<Assignment>> GetBySchedulingItemIdAsync(Guid schedulingItemId)
     {
         return await context.Assignments
             .Where(a => a.ScheduledItemId == schedulingItemId)
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
     
-    public async Task<Assignment?> GetbySlotIdAndSchedulingItemIdAsync
-        (Guid slotId, Guid schedulingItemId, CancellationToken cancellationToken = default)
-    {
-        return await context.Assignments 
-            .FirstOrDefaultAsync(a => a.SlotId == slotId && a.ScheduledItemId == schedulingItemId, cancellationToken);}
-
-    public async Task AddAsync(Assignment assignment, CancellationToken cancellationToken = default)
-    {
-        await context.Assignments.AddAsync(assignment, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task UpdateAsync(Assignment assignment, CancellationToken cancellationToken = default)
-    {
-        context.Assignments.Update(assignment);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task DeleteAsync(Assignment assignment, CancellationToken cancellationToken = default)
-    {
-        context.Assignments.Remove(assignment);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Assignment?> GetBySlotIdAndResourceIdAsync(Guid slotId, Guid resourceId)
     {
         return await context.Assignments
-            .AnyAsync(a => a.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(a => a.SlotId == slotId && a.ResourceId == resourceId);
+    }
+
+
+    public async Task AddAsync(Assignment assignment)
+    {
+        await context.Assignments.AddAsync(assignment);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Assignment assignment)
+    {
+        context.Assignments.Update(assignment);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Assignment assignment)
+    {
+        context.Assignments.Remove(assignment);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<bool> ExistsAsync(Guid id)
+    {
+        return await context.Assignments
+            .AnyAsync(a => a.Id == id);
     }
 }

@@ -4,19 +4,19 @@ namespace Chronos.Data.Repositories.Schedule;
 
 public interface ISchedulingPeriodRepository
 {
-    Task<SchedulingPeriod?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<SchedulingPeriod?> GetByIdAsync(Guid id);
     
-    Task<SchedulingPeriod?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
+    Task<SchedulingPeriod?> GetByNameAsync(string name);
 
-    Task<List<SchedulingPeriod>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<SchedulingPeriod>> GetAllAsync();
 
-    Task AddAsync(SchedulingPeriod schedulingPeriod, CancellationToken cancellationToken = default);
+    Task AddAsync(SchedulingPeriod schedulingPeriod);
 
-    Task UpdateAsync(SchedulingPeriod schedulingPeriod, CancellationToken cancellationToken = default);
+    Task UpdateAsync(SchedulingPeriod schedulingPeriod);
 
-    Task DeleteAsync(SchedulingPeriod schedulingPeriod, CancellationToken cancellationToken = default);
+    Task DeleteAsync(SchedulingPeriod schedulingPeriod);
 
-    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(Guid id);
 
 }
 

@@ -6,47 +6,47 @@ namespace Chronos.Data.Repositories.Schedule
 {
     public class SchedulingPeriodRepository(AppDbContext context) : ISchedulingPeriodRepository
     {
-        public async Task<SchedulingPeriod?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<SchedulingPeriod?> GetByIdAsync(Guid id)
         {
             return await context.SchedulingPeriods
-                .FirstOrDefaultAsync(sp => sp.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(sp => sp.Id == id);
         }
         
-        public async Task<SchedulingPeriod?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<SchedulingPeriod?> GetByNameAsync(string name)
         {
             return await context.SchedulingPeriods
-                .FirstOrDefaultAsync(sp => sp.Name == name, cancellationToken);
+                .FirstOrDefaultAsync(sp => sp.Name == name);
         }
         
-        public async Task<List<SchedulingPeriod>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<List<SchedulingPeriod>> GetAllAsync()
         {
             return await context.SchedulingPeriods
                 .OrderBy(sp => sp.FromDate)
-                .ToListAsync(cancellationToken);
+                .ToListAsync();
         }
 
-        public async Task AddAsync(SchedulingPeriod schedulingPeriod, CancellationToken cancellationToken = default)
+        public async Task AddAsync(SchedulingPeriod schedulingPeriod)
         {
-            await context.SchedulingPeriods.AddAsync(schedulingPeriod, cancellationToken);
-            await context.SaveChangesAsync(cancellationToken);
+            await context.SchedulingPeriods.AddAsync(schedulingPeriod);
+            await context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(SchedulingPeriod schedulingPeriod, CancellationToken cancellationToken = default)
+        public async Task UpdateAsync(SchedulingPeriod schedulingPeriod)
         {
             context.SchedulingPeriods.Update(schedulingPeriod);
-            await context.SaveChangesAsync(cancellationToken);
+            await context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(SchedulingPeriod schedulingPeriod, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(SchedulingPeriod schedulingPeriod)
         {
             context.SchedulingPeriods.Remove(schedulingPeriod);
-            await context.SaveChangesAsync(cancellationToken);
+            await context.SaveChangesAsync();
         }
 
-        public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsAsync(Guid id)
         {
             return await context.SchedulingPeriods
-                .AnyAsync(sp => sp.Id == id, cancellationToken);
+                .AnyAsync(sp => sp.Id == id);
         }
     }
 }
