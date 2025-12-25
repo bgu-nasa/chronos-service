@@ -1,19 +1,20 @@
 using Chronos.Data.Repositories.Management;
 using Chronos.Data.Repositories.Resources;
 using Chronos.Domain.Resources;
+using Chronos.MainApi.Management.Services;
 using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Resources.Services;
 
 public class ResourceValidationService(
-    IOrganizationRepository organizationRepository,
+    IOrganizationService organizationService,
     ISubjectRepository subjectRepository,
     IActivityRepository activityRepository,
     ILogger<ResourceValidationService> logger)
 {
     public async Task ValidationOrganizationAsync(Guid organizationId)
     {
-        var organization = await organizationRepository.GetByIdAsync(organizationId);
+        var organization = await organizationService.GetOrganizationAsync(organizationId);
 
         if (organization == null || organization.Deleted)
         {
