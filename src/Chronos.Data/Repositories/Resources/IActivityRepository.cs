@@ -9,5 +9,4 @@ public interface IActivityRepository
     Task AddAsync(Activity activity, CancellationToken cancellationToken = default);
     Task UpdateAsync(Activity activity, CancellationToken cancellationToken = default);
     Task DeleteAsync(Activity activity, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
 }
