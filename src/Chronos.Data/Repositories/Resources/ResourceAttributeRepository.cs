@@ -6,39 +6,39 @@ namespace Chronos.Data.Repositories.Resources;
 
 public class ResourceAttributeRepository(AppDbContext context) : IResourceAttributeRepository
 {
-    public async Task<ResourceAttribute?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ResourceAttribute?> GetByIdAsync(Guid id)
     {
         return await context.ResourceAttributes
-            .FirstOrDefaultAsync(ra => ra.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(ra => ra.Id == id);
     }
 
-    public async Task<List<ResourceAttribute>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<ResourceAttribute>> GetAllAsync()
     {
         return await context.ResourceAttributes
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
 
-    public async Task AddAsync(ResourceAttribute resourceAttribute, CancellationToken cancellationToken = default)
+    public async Task AddAsync(ResourceAttribute resourceAttribute)
     {
-        await context.ResourceAttributes.AddAsync(resourceAttribute, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.ResourceAttributes.AddAsync(resourceAttribute);
+        await context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(ResourceAttribute resourceAttribute, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(ResourceAttribute resourceAttribute)
     {
         context.ResourceAttributes.Update(resourceAttribute);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(ResourceAttribute resourceAttribute, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(ResourceAttribute resourceAttribute)
     {
         context.ResourceAttributes.Remove(resourceAttribute);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync();
     }
 
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(Guid id)
     {
         return await context.ResourceAttributes
-            .AnyAsync(ra => ra.Id == id, cancellationToken);
+            .AnyAsync(ra => ra.Id == id);
     }
 }

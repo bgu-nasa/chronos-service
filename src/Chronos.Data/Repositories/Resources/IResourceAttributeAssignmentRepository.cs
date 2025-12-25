@@ -4,9 +4,10 @@ namespace Chronos.Data.Repositories.Resources;
 
 public interface IResourceAttributeAssignmentRepository
 {
-    Task<ResourceAttributeAssignment?> GetByIdAsync(Guid resourceId, Guid resourceAttributeId, CancellationToken cancellationToken = default);
-    Task<List<ResourceAttributeAssignment>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task AddAsync(ResourceAttributeAssignment resourceAttributeAssignment, CancellationToken cancellationToken = default);
-    Task UpdateAsync(ResourceAttributeAssignment resourceAttributeAssignment, CancellationToken cancellationToken = default);
-    Task DeleteAsync(ResourceAttributeAssignment resourceAttributeAssignment, CancellationToken cancellationToken = default);
+    Task<ResourceAttributeAssignment?> GetByIdAsync(Guid resourceId, Guid resourceAttributeId);
+    Task<List<ResourceAttributeAssignment>> GetAllAsync();
+    Task AddAsync(ResourceAttributeAssignment resourceAttributeAssignment);
+    Task UpdateAsync(ResourceAttributeAssignment resourceAttributeAssignment);
+    Task DeleteAsync(ResourceAttributeAssignment resourceAttributeAssignment);
+    Task<bool> ExistsAsync(Guid resourceId, Guid resourceAttributeId);
 }
