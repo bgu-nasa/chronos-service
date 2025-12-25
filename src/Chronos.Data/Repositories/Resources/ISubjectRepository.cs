@@ -4,9 +4,9 @@ namespace Chronos.Data.Repositories.Resources;
 
 public interface ISubjectRepository
 {
-    Task<Subject?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<List<Subject>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task AddAsync(Subject subject, CancellationToken cancellationToken = default);
-    Task UpdateAsync(Subject subject, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Subject subject, CancellationToken cancellationToken = default);
+    Task<Subject?> GetByIdAsync(Guid id);
+    Task<List<Subject>> GetAllAsync();
+    Task AddAsync(Subject subject);
+    Task UpdateAsync(Subject subject);
+    Task DeleteAsync(Subject subject);
 }

@@ -6,40 +6,40 @@ namespace Chronos.Data.Repositories.Resources;
 
 public class ActivityRepository(AppDbContext context) : IActivityRepository
 {
-    public async Task<Activity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Activity?> GetByIdAsync(Guid id)
     {
         return await context.Activities
-            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<List<Activity>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<Activity>> GetAllAsync()
     {
         return await context.Activities
             .OrderBy(a => a.SubjectId)
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
     }
 
-    public async Task AddAsync(Activity activity, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Activity activity)
     {
-        await context.Activities.AddAsync(activity, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.Activities.AddAsync(activity);
+        await context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(Activity activity, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Activity activity)
     {
         context.Activities.Update(activity);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(Activity activity, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Activity activity)
     {
         context.Activities.Remove(activity);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync();
     }
 
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(Guid id)
     {
         return await context.Activities
-            .AnyAsync(a => a.Id == id, cancellationToken);
+            .AnyAsync(a => a.Id == id);
     }
 }
