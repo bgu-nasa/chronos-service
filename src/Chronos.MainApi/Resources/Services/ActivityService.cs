@@ -90,12 +90,12 @@ public class ActivityService(
 
     public async Task DeleteActivityAsync(Guid organizationId, Guid activityId)
     {
-        logger.LogDebug("Deleting activity. OrganizationId: {OrganizationId}, ActivityId: {ActivityId}", organizationId, activityId);
+        logger.LogInformation("Deleting activity. OrganizationId: {OrganizationId}, ActivityId: {ActivityId}", organizationId, activityId);
 
         await validationService.ValidationOrganizationAsync(organizationId);
         var activity = await validationService.ValidateAndGetActivityAsync(organizationId, activityId);
         await activityRepository.DeleteAsync(activity);
 
-        logger.LogDebug("Activity deleted successfully. OrganizationId: {OrganizationId}, ActivityId: {ActivityId}", organizationId, activityId);
+        logger.LogInformation("Activity deleted successfully. OrganizationId: {OrganizationId}, ActivityId: {ActivityId}", organizationId, activityId);
     }
 }

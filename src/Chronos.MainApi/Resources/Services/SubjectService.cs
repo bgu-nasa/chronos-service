@@ -49,7 +49,7 @@ public class SubjectService(
         var filteredSubjects = allSubjects
             .Where(s => s.OrganizationId == organizationId)
             .ToList();
-
+        
         logger.LogDebug("Retrieved {Count} subjects for organization. OrganizationId: {OrganizationId}", filteredSubjects.Count, organizationId);
         return filteredSubjects;
     }
@@ -89,12 +89,12 @@ public class SubjectService(
 
     public async Task DeleteSubjectAsync(Guid organizationId, Guid subjectId)
     {
-        logger.LogDebug("Deleting subject. OrganizationId: {OrganizationId}, SubjectId: {SubjectId}", organizationId, subjectId);
+        logger.LogInformation("Deleting subject. OrganizationId: {OrganizationId}, SubjectId: {SubjectId}", organizationId, subjectId);
 
         await validationService.ValidationOrganizationAsync(organizationId);
         var subject = await validationService.ValidateAndGetSubjectAsync(organizationId, subjectId);
         await subjectRepository.DeleteAsync(subject);
 
-        logger.LogDebug("Subject deleted successfully. SubjectId: {SubjectId}", subjectId);
+        logger.LogInformation("Subject deleted successfully. SubjectId: {SubjectId}", subjectId);
     }
 }
