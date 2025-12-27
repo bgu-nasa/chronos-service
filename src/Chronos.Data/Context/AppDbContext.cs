@@ -5,6 +5,8 @@ using Chronos.Domain.Management.Roles;
 using Chronos.Shared.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Chronos.Domain.Schedule;
+
 
 namespace Chronos.Data.Context;
 
@@ -21,6 +23,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<RoleAssignment> RoleAssignments => Set<RoleAssignment>();
 
+    // Schedule
+    public DbSet<UserConstraint> UserConstraints => Set<UserConstraint>();
+    public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
+    public DbSet<OrganizationPolicy> OrganizationPolicies => Set<OrganizationPolicy>();
+    public DbSet<ActivityConstraint> ActivityConstraints => Set<ActivityConstraint>();
+    public DbSet<SchedulingPeriod> SchedulingPeriods => Set<SchedulingPeriod>();
+    public DbSet<Slot> Slots => Set<Slot>();
+    public DbSet<Assignment> Assignments => Set<Assignment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -36,6 +47,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
             modelBuilder.Entity<Organization>().HasQueryFilter(o => o.Id.ToString().ToLower() == _currentOrganizationId);
             modelBuilder.Entity<Department>().HasQueryFilter(d => d.OrganizationId.ToString().ToLower() == _currentOrganizationId);
             modelBuilder.Entity<RoleAssignment>().HasQueryFilter(ra => ra.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+
+            //Schedule
+            modelBuilder.Entity<UserConstraint>().HasQueryFilter(uc => uc.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<UserPreference>().HasQueryFilter(up => up.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<OrganizationPolicy>().HasQueryFilter(op => op.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<SchedulingPeriod>().HasQueryFilter(sp => sp.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<Slot>().HasQueryFilter(s => s.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<Assignment>().HasQueryFilter(a => a.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<ActivityConstraint>().HasQueryFilter(ac => ac.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+
         }
 
     }
