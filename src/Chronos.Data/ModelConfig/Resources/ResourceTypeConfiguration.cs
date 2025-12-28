@@ -17,8 +17,5 @@ public class ResourceTypeConfiguration : IEntityTypeConfiguration<ResourceType>
         builder.Property(rt => rt.Type)
             .IsRequired()
             .HasMaxLength(128);
-
-        builder.HasIndex(rt => new { rt.OrganizationId })
-            .IsUnique();
     }
 }

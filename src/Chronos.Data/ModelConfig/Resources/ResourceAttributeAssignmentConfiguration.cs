@@ -13,8 +13,5 @@ public class ResourceAttributeAssignmentConfiguration : IEntityTypeConfiguration
             .IsRequired();
 
         builder.HasKey(raa => new { raa.ResourceId, raa.ResourceAttributeId });
-
-        builder.HasIndex(raa => new { raa.OrganizationId })
-            .IsUnique();
     }
 }

@@ -20,8 +20,5 @@ public class ResourceAttributeConfiguration : IEntityTypeConfiguration<ResourceA
 
         builder.Property(ra => ra.Description)
             .HasMaxLength(1024);
-
-        builder.HasIndex(ra => new { ra.OrganizationId })
-            .IsUnique();
     }
 }
