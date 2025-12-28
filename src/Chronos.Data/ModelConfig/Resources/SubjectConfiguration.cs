@@ -25,6 +25,7 @@ public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
             .IsRequired()
             .HasMaxLength(256);
 
-        builder.HasIndex(s => new { s.DepartmentId, s.Code });
+        builder.HasIndex(s => new { s.DepartmentId, s.Code })
+            .IsUnique();
     }
 }
