@@ -1,0 +1,49 @@
+﻿using Chronos.Data.Context;
+using Chronos.Domain.Schedule;
+using Microsoft.EntityFrameworkCore;
+
+namespace Chronos.Data.Repositories.Schedule;
+
+public class ActivityConstraintRepository(AppDbContext context) : IActivityConstraintRepository
+{
+    public async Task<ActivityConstraint?> GetByIdAsync(Guid id)
+    {
+        return await context.ActivityConstraints
+        .FirstOrDefaultAsync(ac => ac.Id == id);
+    }
+
+    public async Task<List<ActivityConstraint>> GetAllAsync()
+    {
+        return await context.ActivityConstraints.ToListAsync();
+    }
+
+    public async Task<List<ActivityConstraint>> GetByActivityIdAsync(Guid activityId)
+    {
+        return await context.ActivityConstraints
+            .Where(ac => ac.ActivityId == activityId)
+            .ToListAsync();
+    }
+
+    public async Task AddAsync(ActivityConstraint constraint)
+    {
+        await context.ActivityConstraints.AddAsync(constraint);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(ActivityConstraint constraint)
+    {
+        context.ActivityConstraints.Update(constraint);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(ActivityConstraint constraint)
+    {
+        context.ActivityConstraints.Remove(constraint);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<bool> ExistsAsync(Guid id)
+    {
+        return await context.ActivityConstraints.AnyAsync(ac => ac.Id == id);
+    }
+}
