@@ -2,9 +2,7 @@ using Chronos.Data.Utils;
 using Chronos.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
 namespace Chronos.Data.ModelConfig.Resources;
-
 public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
 {
     public void Configure(EntityTypeBuilder<Activity> builder)
@@ -13,12 +11,13 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
 
         builder.HasKey(a => a.Id);
 
+        builder.Property(a => a.OrganizationId)
+            .IsRequired();
+
         builder.Property(a => a.SubjectId)
             .IsRequired();
-
         builder.Property(a => a.AssignedUserId)
             .IsRequired();
-
         builder.Property(a => a.ActivityType)
             .IsRequired()
             .HasMaxLength(128);
@@ -26,4 +25,3 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
         builder.Property(a => a.ExpectedStudents);
     }
 }
-

@@ -4,6 +4,7 @@ using Chronos.Domain.Management;
 using Chronos.Domain.Management.Roles;
 using Chronos.Shared.Extensions;
 using Microsoft.AspNetCore.Http;
+using Chronos.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
 using Chronos.Domain.Schedule;
 
@@ -22,6 +23,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<RoleAssignment> RoleAssignments => Set<RoleAssignment>();
+
+    // Resources
+    public DbSet<Subject> Subjects => Set<Subject>();
+    public DbSet<Activity> Activities => Set<Activity>();
 
     // Schedule
     public DbSet<UserConstraint> UserConstraints => Set<UserConstraint>();
@@ -47,6 +52,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
             modelBuilder.Entity<Organization>().HasQueryFilter(o => o.Id.ToString().ToLower() == _currentOrganizationId);
             modelBuilder.Entity<Department>().HasQueryFilter(d => d.OrganizationId.ToString().ToLower() == _currentOrganizationId);
             modelBuilder.Entity<RoleAssignment>().HasQueryFilter(ra => ra.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+
+            // Resources
+            modelBuilder.Entity<Subject>().HasQueryFilter(s => s.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<Activity>().HasQueryFilter(a => a.OrganizationId.ToString().ToLower() == _currentOrganizationId);
 
             //Schedule
             modelBuilder.Entity<UserConstraint>().HasQueryFilter(uc => uc.OrganizationId.ToString().ToLower() == _currentOrganizationId);
