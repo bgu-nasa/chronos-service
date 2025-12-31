@@ -27,6 +27,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
     // Resources
     public DbSet<Subject> Subjects => Set<Subject>();
     public DbSet<Activity> Activities => Set<Activity>();
+    public DbSet<Resource> Resources => Set<Resource>();
+    public DbSet<ResourceAttribute> ResourceAttributes => Set<ResourceAttribute>();
+    public DbSet<ResourceType> ResourceTypes => Set<ResourceType>();
+    public DbSet<ResourceAttributeAssignment> ResourceAttributeAssignments => Set<ResourceAttributeAssignment>();
 
     // Schedule
     public DbSet<UserConstraint> UserConstraints => Set<UserConstraint>();
@@ -36,7 +40,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
     public DbSet<SchedulingPeriod> SchedulingPeriods => Set<SchedulingPeriod>();
     public DbSet<Slot> Slots => Set<Slot>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -56,6 +60,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAc
             // Resources
             modelBuilder.Entity<Subject>().HasQueryFilter(s => s.OrganizationId.ToString().ToLower() == _currentOrganizationId);
             modelBuilder.Entity<Activity>().HasQueryFilter(a => a.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<Resource>().HasQueryFilter(r => r.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<ResourceAttribute>().HasQueryFilter(ra => ra.OrganizationId.ToString().ToLower() == _currentOrganizationId);
+            modelBuilder.Entity<ResourceType>().HasQueryFilter(rt => rt.OrganizationId.ToString().ToLower() == _currentOrganizationId);
 
             //Schedule
             modelBuilder.Entity<UserConstraint>().HasQueryFilter(uc => uc.OrganizationId.ToString().ToLower() == _currentOrganizationId);
