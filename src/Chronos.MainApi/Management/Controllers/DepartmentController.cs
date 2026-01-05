@@ -1,3 +1,4 @@
+using Chronos.MainApi.Management.Contracts;
 using Chronos.MainApi.Management.Extensions;
 using Chronos.MainApi.Management.Services;
 using Chronos.MainApi.Shared.Middleware;
@@ -42,4 +43,41 @@ public class DepartmentController(
 
         return Ok(department.ToDepartmentResponse());
     }
+
+    [Authorize(Policy = "OrgRole:ResourceManager")]
+    [HttpPost]
+    public async Task<IActionResult> CreateDepartment([FromBody] DepartmentRequest departmentRequest)
+    {
+        logger.LogInformation("Create new department with name: {deptName}", departmentRequest.Name);
+
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+
+        var department = await departmentService.CreateDepartmentAsync(organizationId, departmentRequest.Name);
+
+        return CreatedAtAction(
+            nameof(GetDepartmentById),
+            new { departmentId = department.Id },
+            department.ToDepartmentResponse()
+        );
+    }
+
+    [Authorize(Policy = "DeptRole:Operator")]
+    [HttpPatch("{departmentId}")]
+    public async Task<IActionResult> UpdateDepartment([FromRoute] string departmentId, [FromBody] DepartmentRequest request)
+    {
+        logger.LogInformation("Update department with id: {deptId}", departmentId);
+
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+
+        if (!Guid.TryParse(departmentId, out var departmentGuid))
+        {
+            logger.LogInformation("Invalid format of department ID in request.");
+            return BadRequest("Invalid format of department ID in request.");
+        }
+
+        await departmentService.UpdateDepartmentAsync(organizationId, departmentGuid, request.Name);
+
+        return Ok();
+    }
+
 }
