@@ -9,10 +9,10 @@ public class DepartmentService(
     ManagementValidationService validationService,
     ILogger<DepartmentService> logger) : IDepartmentService
 {
-    public async Task<Guid> CreateDepartmentAsync(Guid organizationId, string name)
+    public async Task<Department> CreateDepartmentAsync(Guid organizationId, string name)
     {
         logger.LogInformation("Creating department. OrganizationId: {OrganizationId}, Name: {Name}", organizationId, name);
-        
+
         await validationService.ValidateOrganizationAsync(organizationId);
 
         var department = new Department
@@ -24,15 +24,15 @@ public class DepartmentService(
         };
 
         await departmentRepository.AddAsync(department);
-        
+
         logger.LogInformation("Department created successfully. DepartmentId: {DepartmentId}, OrganizationId: {OrganizationId}", department.Id, organizationId);
-        return department.Id;
+        return department;
     }
 
     public async Task<Department> GetDepartmentAsync(Guid organizationId, Guid departmentId)
     {
         logger.LogDebug("Retrieving department. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}", organizationId, departmentId);
-        
+
         await validationService.ValidateOrganizationAsync(organizationId);
         var department = await validationService.ValidateAndGetDepartmentAsync(organizationId, departmentId, excludeDeleted: true);
         return department;
@@ -41,14 +41,14 @@ public class DepartmentService(
     public async Task<List<Department>> GetDepartmentsAsync(Guid organizationId)
     {
         logger.LogDebug("Retrieving all departments for organization. OrganizationId: {OrganizationId}", organizationId);
-        
+
         await validationService.ValidateOrganizationAsync(organizationId);
 
         var allDepartments = await departmentRepository.GetAllAsync();
         var filteredDepartments = allDepartments
             .Where(d => d.OrganizationId == organizationId && !d.Deleted)
             .ToList();
-        
+
         logger.LogDebug("Retrieved {Count} departments for organization. OrganizationId: {OrganizationId}", filteredDepartments.Count, organizationId);
         return filteredDepartments;
     }
@@ -56,20 +56,20 @@ public class DepartmentService(
     public async Task UpdateDepartmentAsync(Guid organizationId, Guid departmentId, string name)
     {
         logger.LogInformation("Updating department. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}, NewName: {Name}", organizationId, departmentId, name);
-        
+
         await validationService.ValidateOrganizationAsync(organizationId);
         var department = await validationService.ValidateAndGetDepartmentAsync(organizationId, departmentId, excludeDeleted: true);
 
         department.Name = name;
         await departmentRepository.UpdateAsync(department);
-        
+
         logger.LogInformation("Department updated successfully. DepartmentId: {DepartmentId}", departmentId);
     }
 
     public async Task SetForDeletionAsync(Guid organizationId, Guid departmentId)
     {
         logger.LogInformation("Setting department for deletion. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}", organizationId, departmentId);
-        
+
         await validationService.ValidateOrganizationAsync(organizationId);
         var department = await validationService.ValidateAndGetDepartmentAsync(organizationId, departmentId, excludeDeleted: false);
 
@@ -82,14 +82,14 @@ public class DepartmentService(
         department.Deleted = true;
         department.DeletedTime = DateTime.UtcNow;
         await departmentRepository.UpdateAsync(department);
-        
+
         logger.LogInformation("Department set for deletion successfully. DepartmentId: {DepartmentId}", departmentId);
     }
 
     public async Task RestoreDeletedDepartmentAsync(Guid organizationId, Guid departmentId)
     {
         logger.LogInformation("Restoring deleted department. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}", organizationId, departmentId);
-        
+
         await validationService.ValidateOrganizationAsync(organizationId);
         var department = await validationService.ValidateAndGetDepartmentAsync(organizationId, departmentId, excludeDeleted: false);
 
@@ -102,7 +102,7 @@ public class DepartmentService(
         department.Deleted = false;
         department.DeletedTime = default;
         await departmentRepository.UpdateAsync(department);
-        
+
         logger.LogInformation("Department restored successfully. DepartmentId: {DepartmentId}", departmentId);
     }
 
