@@ -61,7 +61,7 @@ public class DepartmentController(
         );
     }
 
-    [Authorize(Policy = "DeptRole:Operator")]
+    [Authorize(Policy = "DeptRole:Administrator")]
     [HttpPatch("{departmentId}")]
     public async Task<IActionResult> UpdateDepartment([FromRoute] string departmentId, [FromBody] DepartmentRequest request)
     {
@@ -77,7 +77,42 @@ public class DepartmentController(
 
         await departmentService.UpdateDepartmentAsync(organizationId, departmentGuid, request.Name);
 
-        return Ok();
+        return NoContent();
     }
 
+    [Authorize(Policy = "DeptRole:Administrator")]
+    [HttpDelete("{departmentId}")]
+    public async Task<IActionResult> DeleteDepartment([FromRoute] string departmentId)
+    {
+        logger.LogInformation("Delete department with id: {deptId}", departmentId);
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+
+        if (!Guid.TryParse(departmentId, out var departmentGuid))
+        {
+            logger.LogInformation("Invalid format of department ID in request.");
+            return BadRequest("Invalid format of department ID in request.");
+        }
+
+        await departmentService.SetForDeletionAsync(organizationId, departmentGuid);
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = "DeptRole:Administrator")]
+    [HttpPost("restore/{departmentId}")]
+    public async Task<IActionResult> RestoreDepartment([FromRoute] string departmentId)
+    {
+        logger.LogInformation("Delete department with id: {deptId}", departmentId);
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+
+        if (!Guid.TryParse(departmentId, out var departmentGuid))
+        {
+            logger.LogInformation("Invalid format of department ID in request.");
+            return BadRequest("Invalid format of department ID in request.");
+        }
+
+        await departmentService.RestoreDeletedDepartmentAsync(organizationId, departmentGuid);
+
+        return NoContent();
+    }
 }
