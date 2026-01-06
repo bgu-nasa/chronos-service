@@ -12,4 +12,11 @@ public class AuthClient(ILogger<AuthClient> logger,
 
         return await userService.GetUserAsync(organizationId, userId);
     }
+
+    public async Task<IEnumerable<UserResponse>> GetUsersAsync(Guid organizationId)
+    {
+        logger.LogInformation("Management accessing auth for users fetch for organization with id: {organizationId}", organizationId);
+
+        return await userService.GetUsersAsync(organizationId);
+    }
 }
