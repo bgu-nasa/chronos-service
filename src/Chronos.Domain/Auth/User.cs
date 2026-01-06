@@ -7,7 +7,8 @@ public class User : ObjectInformation
     public Guid OrganizationId { get; set; }
     public string Email { get; set; }
     public string PasswordHash { get; set; }
-    
+    public bool Verified { get; set; } = false;
+
     // Profile information
     public string FirstName { get; set; }
     public string LastName { get; set; }

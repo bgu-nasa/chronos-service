@@ -1,0 +1,12 @@
+using Chronos.Domain.Resources;
+
+namespace Chronos.MainApi.Resources.Services;
+
+public interface IResourceAttributeAssignmentService
+{
+    Task<Guid> CreateResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, Guid organizationId);
+    Task<ResourceAttributeAssignment> GetResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, Guid organizationId);
+    Task<List<ResourceAttributeAssignment>> GetAllResourceAttributeAssignmentsAsync(Guid organizationId);
+    Task UpdateResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, Guid organizationId);
+    Task DeleteResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, Guid organizationId);
+}
