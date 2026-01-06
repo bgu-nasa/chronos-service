@@ -1,13 +1,12 @@
-using Chronos.Data.Repositories.Management;
 using Chronos.Data.Repositories.Resources;
 using Chronos.Domain.Resources;
-using Chronos.MainApi.Management.Services;
+using Chronos.MainApi.Shared.ExternalMangement;
 using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Resources.Services;
 
 public class ResourceValidationService(
-    IOrganizationService organizationService,
+    IManagementExternalService managementExternalService,
     ISubjectRepository subjectRepository,
     IActivityRepository activityRepository,
     IResourceRepository resourceRepository,
@@ -18,13 +17,7 @@ public class ResourceValidationService(
 {
     public async Task ValidationOrganizationAsync(Guid organizationId)
     {
-        var organization = await organizationService.GetOrganizationAsync(organizationId);
-
-        if (organization == null || organization.Deleted)
-        {
-            logger.LogWarning("Organization not found or deleted. OrganizationId: {OrganizationId}", organizationId);
-            throw new NotFoundException("Organization not found");
-        }
+        await managementExternalService.ValidateOrganizationAsync(organizationId);
     }
 
     public async Task<Subject> ValidateAndGetSubjectAsync(Guid organizationId, Guid subjectId)

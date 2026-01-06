@@ -1,11 +1,12 @@
 using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
+using Chronos.MainApi.Shared.ExternalMangement;
 using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Schedule.Services;
 public class UserConstraintService(
     IUserConstraintRepository userConstraintRepository,
-    IManegmentClient validationService,
+    IManagementExternalService validationService,
     ILogger<UserConstraintService> logger) : IUserConstraintService
 {
     public async Task<Guid> CreateUserConstraintAsync(Guid organizationId, Guid userId, Guid schedulingPeriodId, string key, string value)

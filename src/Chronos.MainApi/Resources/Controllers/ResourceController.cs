@@ -26,7 +26,7 @@ public class ResourceController(
         logger.LogInformation("Create resource endpoint was called.");
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var resourceId = await resourceService.CreateResourceAsync(
+        var resource = await resourceService.CreateResourceAsync(
             request.Id,
             request.OrganizationId,
             request.ResourceTypeId,
@@ -34,10 +34,9 @@ public class ResourceController(
             request.Identifier,
             request.Capacity);
         
-        var resource = await resourceService.GetResourceAsync(organizationId, resourceId);
         var response = resource.ToResourceResponse();
         
-        return CreatedAtAction(nameof(GetResource), new { resourceId }, response);
+        return CreatedAtAction(nameof(GetResource), new { resourceId = resource.Id }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -107,14 +106,13 @@ public class ResourceController(
         logger.LogInformation("Create resource type endpoint was called.");
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var resourceTypeId = await resourceTypeService.CreateResourceTypeAsync(
+        var resourceType = await resourceTypeService.CreateResourceTypeAsync(
             request.OrganizationId,
             request.Type);
         
-        var resourceType = await resourceTypeService.GetResourceTypeAsync(organizationId, resourceTypeId);
         var response = resourceType.ToResourceTypeResponse();
         
-        return CreatedAtAction(nameof(GetResourceType), new { resourceTypeId }, response);
+        return CreatedAtAction(nameof(GetResourceType), new { resourceTypeId = resourceType.Id }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -181,15 +179,14 @@ public class ResourceController(
         logger.LogInformation("Create resource attribute endpoint was called.");
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var resourceAttributeId = await resourceAttributeService.CreateResourceAttributeAsync(
+        var resourceAttribute = await resourceAttributeService.CreateResourceAttributeAsync(
             request.OrganizationId,
             request.Title,
             request.Description);
         
-        var resourceAttribute = await resourceAttributeService.GetResourceAttributeAsync(organizationId, resourceAttributeId);
         var response = resourceAttribute.ToResourceAttributeResponse();
         
-        return CreatedAtAction(nameof(GetResourceAttribute), new { resourceId, resourceAttributeId }, response);
+        return CreatedAtAction(nameof(GetResourceAttribute), new { resourceId, resourceAttributeId = resourceAttribute.Id }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -257,16 +254,14 @@ public class ResourceController(
         logger.LogInformation("Create resource attribute assignment endpoint was called.");
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var resourceAttributeId = await resourceAttributeAssignmentService.CreateResourceAttributeAssignmentAsync(
+        var resourceAttributeAssignment = await resourceAttributeAssignmentService.CreateResourceAttributeAssignmentAsync(
             request.ResourceId,
             request.ResourceAttributeId,
             request.OrganizationId);
         
-        var resourceAttributeAssignment = await resourceAttributeAssignmentService.GetResourceAttributeAssignmentAsync(
-            request.ResourceId, resourceAttributeId, organizationId);
         var response = resourceAttributeAssignment.ToResourceAttributeAssignmentResponse();
         
-        return CreatedAtAction(nameof(GetResourceAttributeAssignment), new { request.ResourceId, resourceAttributeId }, response);
+        return CreatedAtAction(nameof(GetResourceAttributeAssignment), new { resourceId = request.ResourceId, resourceAttributeId = resourceAttributeAssignment.ResourceAttributeId }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]

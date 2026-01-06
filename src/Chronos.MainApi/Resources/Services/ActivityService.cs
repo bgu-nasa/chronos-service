@@ -8,7 +8,7 @@ public class ActivityService(
     ResourceValidationService validationService,
     ILogger<ActivityService> logger) : IActivityService
 {
-    public async Task<Guid> CreateActivityAsync(Guid resourceId, Guid organizationId, Guid subjectId, Guid assignedUserId, string activityType,
+    public async Task<Activity> CreateActivityAsync(Guid resourceId, Guid organizationId, Guid subjectId, Guid assignedUserId, string activityType,
         int? expectedStudents)
     {
         logger.LogInformation("Creating activity. OrganizationId: {OrganizationId}, SubjectId: {SubjectId}, AssignedUserId: {AssignedUserId}, ActivityType: {ActivityType}, ExpectedStudents: {ExpectedStudents}",
@@ -28,7 +28,7 @@ public class ActivityService(
         await activityRepository.AddAsync(activity);
 
         logger.LogInformation("Activity created successfully. ActivityId: {ActivityId}, OrganizationId: {OrganizationId}", activity.Id, organizationId);
-        return activity.Id;
+        return activity;
     }
 
     public async Task<Activity> GetActivityAsync(Guid organizationId, Guid activityId)

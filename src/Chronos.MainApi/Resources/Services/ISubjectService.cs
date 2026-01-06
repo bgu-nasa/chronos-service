@@ -4,7 +4,7 @@ namespace Chronos.MainApi.Resources.Services;
 
 public interface ISubjectService
 {
-    Task<Guid> CreateSubjectAsync(Guid organizationId, Guid departmentId, Guid schedulingPeriodId, string code, string name);
+    Task<Subject> CreateSubjectAsync(Guid organizationId, Guid departmentId, Guid schedulingPeriodId, string code, string name);
     Task<Subject> GetSubjectAsync(Guid organizationId, Guid subjectId);
     Task<List<Subject>> GetSubjectsAsync(Guid organizationId);
     Task<List<Subject>> GetSubjectsByDepartmentAsync(Guid organizationId, Guid departmentId);

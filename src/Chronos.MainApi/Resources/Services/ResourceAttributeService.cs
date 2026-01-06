@@ -8,7 +8,7 @@ public class ResourceAttributeService(
     ResourceValidationService validationService,
     ILogger<ResourceAttributeService> logger) : IResourceAttributeService
 {
-    public async Task<Guid> CreateResourceAttributeAsync(Guid organizationId, string title, string description)
+    public async Task<ResourceAttribute> CreateResourceAttributeAsync(Guid organizationId, string title, string description)
     {
         logger.LogInformation("Creating resource attribute. OrganizationId: {OrganizationId}, Title: {Title}, Description: {Description}",
             organizationId, title, description);
@@ -25,7 +25,7 @@ public class ResourceAttributeService(
         await resourceAttributeRepository.AddAsync(resourceAttribute);
 
         logger.LogInformation("Resource attribute created successfully. ResourceAttributeId: {ResourceAttributeId}, OrganizationId: {OrganizationId}", resourceAttribute.Id, organizationId);
-        return resourceAttribute.Id;
+        return resourceAttribute;
     }
 
     public async Task<ResourceAttribute> GetResourceAttributeAsync(Guid organizationId, Guid resourceAttributeId)
