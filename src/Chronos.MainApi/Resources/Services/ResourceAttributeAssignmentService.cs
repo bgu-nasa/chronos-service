@@ -8,7 +8,7 @@ public class ResourceAttributeAssignmentService(
     ResourceValidationService validationService,
     ILogger<ResourceAttributeAssignmentService> logger) : IResourceAttributeAssignmentService
 {
-    public async Task<Guid> CreateResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, Guid organizationId)
+    public async Task<ResourceAttributeAssignment> CreateResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, Guid organizationId)
     {
         logger.LogInformation("Creating resource attribute assignment. OrganizationId: {OrganizationId}, ResourceId: {ResourceId}, ResourceAttributeId: {ResourceAttributeId}",
             organizationId, resourceId, resourceAttributeId);
@@ -25,7 +25,7 @@ public class ResourceAttributeAssignmentService(
         await resourceAttributeAssignmentRepository.AddAsync(resourceAttributeAssignment);
 
         logger.LogInformation("Resource attribute assignment created successfully. ResourceId: {ResourceId}, ResourceAttributeId: {ResourceAttributeId}, OrganizationId: {OrganizationId}", resourceId, resourceAttributeId, organizationId);
-        return resourceAttributeId;
+        return resourceAttributeAssignment;
     }
 
     public async Task<ResourceAttributeAssignment> GetResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, Guid organizationId)

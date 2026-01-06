@@ -1,12 +1,13 @@
 ﻿using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
+using Chronos.MainApi.Shared.ExternalMangement;
 using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Schedule.Services;
 
 public class SchedulingPeriodService(
     ISchedulingPeriodRepository schedulingPeriodRepository,
-    IManegmentClient validationService,
+    IManagementExternalService validationService,
     ILogger<SchedulingPeriodService> logger) : ISchedulingPeriodService
 {
     public async Task<Guid> CreateSchedulingPeriodAsync(Guid organizationId, string name, DateTime fromDate,

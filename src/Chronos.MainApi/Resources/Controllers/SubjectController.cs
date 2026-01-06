@@ -24,17 +24,16 @@ public class SubjectController(
 
         var organizationId = GetOrganizationIdFromContext();
         
-        var subjectId = await subjectService.CreateSubjectAsync(
+        var subject = await subjectService.CreateSubjectAsync(
             request.OrganizationId,
             request.DepartmentId,
             request.SchedulingPeriodId,
             request.Code,
             request.Name);
 
-        var subject = await subjectService.GetSubjectAsync(new Guid(organizationId), subjectId);
         var response = subject.ToSubjectResponse();
 
-        return CreatedAtAction(nameof(GetSubject), new { subjectId }, response);
+        return CreatedAtAction(nameof(GetSubject), new { subjectId = subject.Id }, response);
     }
 
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -115,7 +114,7 @@ public class SubjectController(
         logger.LogInformation("Create activity endpoint was called for subject {SubjectId}", subjectId);
         var organizationId = GetOrganizationIdFromContext();
         
-        var activityId =  await activityService.CreateActivityAsync(
+        var activity = await activityService.CreateActivityAsync(
             new Guid(organizationId),
             subjectId,
             request.SubjectId,
@@ -123,10 +122,9 @@ public class SubjectController(
             request.ActivityType,
             request.ExpectedStudents);
         
-        var activity = await activityService.GetActivityAsync(new Guid(organizationId), activityId);
         var response = activity.ToActivityResponse();
         
-        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId }, response);
+        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId = activity.Id }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
