@@ -14,5 +14,6 @@ public static class ModuleDiExtension
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<IOnboardingService, OnboardingService>();
+        services.AddScoped<IUserService, UserService>();
     }
 }
