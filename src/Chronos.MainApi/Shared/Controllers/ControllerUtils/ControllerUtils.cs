@@ -1,7 +1,7 @@
 using Chronos.Shared.Exceptions;
 using Chronos.Shared.Extensions;
 
-namespace Chronos.MainApi.Management.Controllers;
+namespace Chronos.MainApi.Shared.Controllers.ControllerUtils;
 
 public static class ControllerUtils
 {
