@@ -14,5 +14,6 @@ public static class DataDependencyInjectionExtension
         // Management
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+        services.AddScoped<IRoleAssignmentRepository, RoleAssignmentRepository>();
     }
 }
