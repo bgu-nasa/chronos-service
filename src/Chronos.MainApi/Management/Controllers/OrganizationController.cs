@@ -21,7 +21,7 @@ public class OrganizationController(
     {
         logger.LogInformation("Get organization info");
 
-        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+        var organizationId = HttpContext.User.GetOrganizationId();
         var userId = HttpContext.User.GetUserId();
 
         var orgInfo = await infoService.GetOrganizationInformationAsync(organizationId, userId);
