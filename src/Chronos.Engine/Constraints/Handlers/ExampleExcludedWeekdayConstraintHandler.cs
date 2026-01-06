@@ -4,12 +4,12 @@ using Chronos.Domain.Schedule;
 namespace Chronos.Engine.Constraints.Handlers;
 
 /// <summary>
-/// Example handler: Excludes all slots on a specific weekday
-/// Constraint: Key = "excluded_weekday", Value = "Monday" (or any weekday)
+/// Example constraint handler that excludes all slots on specified weekdays
+/// Constraint Value format: "Monday,Wednesday,Friday" (comma-separated weekdays)
 /// </summary>
 public class ExampleExcludedWeekdayConstraintHandler : IConstraintHandler
 {
-    public string ConstraintKey => "excluded_weekday";
+    public string ConstraintKey => "excluded_weekdays";
 
     private readonly ISlotRepository _slotRepository;
     private readonly ILogger<ExampleExcludedWeekdayConstraintHandler> _logger;
@@ -22,29 +22,41 @@ public class ExampleExcludedWeekdayConstraintHandler : IConstraintHandler
         _logger = logger;
     }
 
-    public async Task<HashSet<Guid>> GetExcludedSlotIdsAsync(
+    public async Task<HashSet<Guid>> ProcessConstraintAsync(
         ActivityConstraint constraint,
         Guid organizationId)
     {
-        var excludedWeekday = constraint.Value;
-
         _logger.LogDebug(
-            "Excluding all slots for weekday: {Weekday}",
-            excludedWeekday);
+            "Processing excluded_weekdays constraint. Value: {Value}",
+            constraint.Value);
 
-        // Load all slots (in production, filter by organization/period)
+        // Parse comma-separated weekdays
+        var excludedWeekdays = constraint.Value
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(w => w.Trim())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (!excludedWeekdays.Any())
+        {
+            _logger.LogWarning(
+                "No weekdays found in constraint value: {Value}",
+                constraint.Value);
+            return new HashSet<Guid>();
+        }
+
+        // Get all slots for the organization
         var allSlots = await _slotRepository.GetAllAsync();
 
-        // Filter slots matching the excluded weekday
+        // Filter slots matching excluded weekdays
         var excludedSlots = allSlots
-            .Where(s => s.Weekday.Equals(excludedWeekday, StringComparison.OrdinalIgnoreCase))
+            .Where(s => excludedWeekdays.Contains(s.Weekday))
             .Select(s => s.Id)
             .ToHashSet();
 
         _logger.LogInformation(
-            "Excluded {SlotCount} slots for weekday {Weekday}",
+            "Excluded {SlotCount} slots for weekdays: {Weekdays}",
             excludedSlots.Count,
-            excludedWeekday);
+            string.Join(", ", excludedWeekdays));
 
         return excludedSlots;
     }

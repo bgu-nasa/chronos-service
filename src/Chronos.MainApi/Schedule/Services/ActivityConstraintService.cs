@@ -2,14 +2,15 @@ using System.Diagnostics;
 using System.Text.Json;
 using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
+using Chronos.MainApi.Shared.ExternalMangement;
 using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Schedule.Services;
 
 public class ActivityConstraintService(
     IActivityConstraintRepository activityConstraintRepository,
-    ILogger<ActivityConstraintService> logger
-    ,IManegmentClient validationService
+    ILogger<ActivityConstraintService> logger,
+    IManagementExternalService validationService
 ) : IActivityConstraintService
 {
 

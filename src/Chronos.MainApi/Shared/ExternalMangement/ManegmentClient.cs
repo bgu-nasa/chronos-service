@@ -1,8 +1,8 @@
-using Chronos.Domain.Schedule;
 using Chronos.MainApi.Management.Services;
-namespace Chronos.MainApi.Schedule.Services;
 
-public class ManegmentClient(ManagementValidationService managementValidationService) : IManegmentClient
+namespace Chronos.MainApi.Shared.ExternalMangement;
+
+public class ManagementExternalService(ManagementValidationService managementValidationService) : IManagementExternalService
 {
     public async Task ValidateOrganizationAsync(Guid organizationId)
     {

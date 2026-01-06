@@ -8,7 +8,7 @@ public class SubjectService(
     ResourceValidationService validationService,
     ILogger<SubjectService> logger) : ISubjectService
 {
-    public async Task<Guid> CreateSubjectAsync(Guid organizationId, Guid departmentId, Guid schedulingPeriodId, string code, string name)
+    public async Task<Subject> CreateSubjectAsync(Guid organizationId, Guid departmentId, Guid schedulingPeriodId, string code, string name)
     {
         logger.LogInformation("Creating subject. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}, SchedulingPeriodId: {SchedulingPeriodId}, Code: {Code}, Name: {Name}",
             organizationId, departmentId, schedulingPeriodId, code, name);
@@ -27,7 +27,7 @@ public class SubjectService(
         await subjectRepository.AddAsync(subject);
 
         logger.LogInformation("Subject created successfully. SubjectId: {SubjectId}, OrganizationId: {OrganizationId}", subject.Id, organizationId);
-        return subject.Id;
+        return subject;
     }
 
     public async Task<Subject> GetSubjectAsync(Guid organizationId, Guid subjectId)

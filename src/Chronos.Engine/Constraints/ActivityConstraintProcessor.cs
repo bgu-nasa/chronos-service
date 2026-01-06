@@ -47,7 +47,7 @@ public class ActivityConstraintProcessor : IConstraintProcessor
             }
 
             // Process constraint
-            var excludedByThisConstraint = await handler.GetExcludedSlotIdsAsync(
+            var excludedByThisConstraint = await handler.ProcessConstraintAsync(
                 constraint,
                 organizationId);
 
