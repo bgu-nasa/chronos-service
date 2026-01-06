@@ -1,4 +1,5 @@
 using Chronos.MainApi.Resources.Contracts;
+using Chronos.MainApi.Resources.Extensions;
 using Chronos.MainApi.Resources.Services;
 using Chronos.Shared.Exceptions;
 using Chronos.Shared.Extensions;
@@ -32,7 +33,10 @@ public class ResourceController(
             request.Identifier,
             request.Capacity);
         
-        return CreatedAtAction(nameof(GetResource), new { resourceId }, new { id = resourceId });
+        var resource = await resourceService.GetResourceAsync(new Guid(organizationId), resourceId);
+        var response = resource.ToResourceResponse();
+        
+        return CreatedAtAction(nameof(GetResource), new { resourceId }, response);
     }
     
     [Authorize]
@@ -46,7 +50,7 @@ public class ResourceController(
         if (resource == null)
             return NotFound();
 
-        var resourceResponse = new ResourceResponse(resourceId);
+        var resourceResponse = resource.ToResourceResponse();
         
         return Ok(resourceResponse);
     }
@@ -60,7 +64,7 @@ public class ResourceController(
         
         var resources = await resourceService.GetResourcesAsync(organizationId);
 
-        var resourceResponses = resources.Select(r => new ResourceResponse(r.Id)).ToList();
+        var resourceResponses = resources.Select(r => r.ToResourceResponse()).ToList();
         
         return Ok(resourceResponses);
     }
@@ -106,7 +110,10 @@ public class ResourceController(
             request.OrganizationId,
             request.Type);
         
-        return CreatedAtAction(nameof(GetResourceType), new { resourceTypeId }, new { id = resourceTypeId });
+        var resourceType = await resourceTypeService.GetResourceTypeAsync(new Guid(organizationId), resourceTypeId);
+        var response = resourceType.ToResourceTypeResponse();
+        
+        return CreatedAtAction(nameof(GetResourceType), new { resourceTypeId }, response);
     }
     
     [Authorize]
@@ -120,7 +127,7 @@ public class ResourceController(
         if (resourceType == null)
             return NotFound();
 
-        var resourceTypeResponse = new ResourceTypeResponse(resourceTypeId);
+        var resourceTypeResponse = resourceType.ToResourceTypeResponse();
         
         return Ok(resourceTypeResponse);
     }
@@ -134,7 +141,7 @@ public class ResourceController(
         
         var resourceTypes = await resourceTypeService.GetResourceTypesAsync(organizationId);
 
-        var resourceTypeResponses = resourceTypes.Select(rt => new ResourceTypeResponse(rt.Id)).ToList();
+        var resourceTypeResponses = resourceTypes.Select(rt => rt.ToResourceTypeResponse()).ToList();
         
         return Ok(resourceTypeResponses);
     }
@@ -178,7 +185,10 @@ public class ResourceController(
             request.Title,
             request.Description);
         
-        return CreatedAtAction(nameof(GetResourceAttribute), new { resourceId, resourceAttributeId }, new { id = resourceAttributeId });
+        var resourceAttribute = await resourceAttributeService.GetResourceAttributeAsync(new Guid(organizationId), resourceAttributeId);
+        var response = resourceAttribute.ToResourceAttributeResponse();
+        
+        return CreatedAtAction(nameof(GetResourceAttribute), new { resourceId, resourceAttributeId }, response);
     }
     
     [Authorize]
@@ -192,7 +202,7 @@ public class ResourceController(
         if (resourceAttribute == null)
             return NotFound();
 
-        var resourceAttributeResponse = new ResourceAttributeResponse(resourceAttributeId);
+        var resourceAttributeResponse = resourceAttribute.ToResourceAttributeResponse();
         
         return Ok(resourceAttributeResponse);
     }
@@ -206,7 +216,7 @@ public class ResourceController(
         
         var resourceAttributes = await resourceAttributeService.GetResourceAttributesAsync(organizationId);
 
-        var resourceAttributeResponses = resourceAttributes.Select(ra => new ResourceAttributeResponse(ra.Id)).ToList();
+        var resourceAttributeResponses = resourceAttributes.Select(ra => ra.ToResourceAttributeResponse()).ToList();
         
         return Ok(resourceAttributeResponses);
     }
@@ -251,7 +261,11 @@ public class ResourceController(
             request.ResourceAttributeId,
             request.OrganizationId);
         
-        return CreatedAtAction(nameof(GetResourceAttributeAssignment), new { request.ResourceId, resourceAttributeId }, new { id = resourceAttributeId });
+        var resourceAttributeAssignment = await resourceAttributeAssignmentService.GetResourceAttributeAssignmentAsync(
+            request.ResourceId, resourceAttributeId, new Guid(organizationId));
+        var response = resourceAttributeAssignment.ToResourceAttributeAssignmentResponse();
+        
+        return CreatedAtAction(nameof(GetResourceAttributeAssignment), new { request.ResourceId, resourceAttributeId }, response);
     }
     
     [Authorize]
@@ -265,7 +279,7 @@ public class ResourceController(
         if (resourceAttributeAssignment == null)
             return NotFound();
 
-        var resourceAttributeAssignmentResponse = new ResourceAttributeAssignmentResponse(resourceId, resourceAttributeId);
+        var resourceAttributeAssignmentResponse = resourceAttributeAssignment.ToResourceAttributeAssignmentResponse();
         
         return Ok(resourceAttributeAssignmentResponse);
     }
@@ -280,7 +294,7 @@ public class ResourceController(
         var resourceAttributeAssignments = await resourceAttributeAssignmentService.GetAllResourceAttributeAssignmentsAsync(organizationId);
 
         var resourceAttributeAssignmentResponses = resourceAttributeAssignments
-            .Select(raa => new ResourceAttributeAssignmentResponse(raa.ResourceId, raa.ResourceAttributeId))
+            .Select(raa => raa.ToResourceAttributeAssignmentResponse())
             .ToList();
         
         return Ok(resourceAttributeAssignmentResponses);
