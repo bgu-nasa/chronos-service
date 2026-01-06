@@ -126,7 +126,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpGet("/types")]
+    [HttpGet("types")]
     public async Task<IActionResult> GetResourceTypesAsync()
     {
         logger.LogInformation("Get resource types endpoint was called.");
@@ -167,7 +167,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpPost("/attributes")]
+    [HttpPost("attributes")]
     public async Task<IActionResult> CreateResourceAttributeAsync(Guid resourceId, [FromBody] CreateResourceAttributeRequest request)
     {
         logger.LogInformation("Create resource attribute endpoint was called.");
@@ -182,7 +182,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpGet("/attributes/{resourceAttributeId}")]
+    [HttpGet("attributes/{resourceAttributeId}")]
     public async Task<IActionResult> GetResourceAttribute(Guid resourceAttributeId)
     {
         logger.LogInformation("Get resource attribute endpoint was called for resource attribute {ResourceAttributeId}", resourceAttributeId);
@@ -198,7 +198,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpGet("/attributes")]
+    [HttpGet("attributes")]
     public async Task<IActionResult> GetResourceAttributesAsync()
     {
         logger.LogInformation("Get resource attributes endpoint was called.");
@@ -212,7 +212,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpPatch("/attributes/{resourceAttributeId}")]
+    [HttpPatch("attributes/{resourceAttributeId}")]
     public async Task<IActionResult> UpdateResourceAttributeAsync(Guid resourceId, Guid resourceAttributeId, [FromBody] UpdateResourceAttributeRequest request)
     {
         logger.LogInformation("Update resource attribute endpoint was called for resource attribute {ResourceAttributeId}", resourceAttributeId);
@@ -228,7 +228,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpDelete("/attributes/{resourceAttributeId}")]
+    [HttpDelete("attributes/{resourceAttributeId}")]
     public async Task<IActionResult> DeleteResourceAttributeAsync(Guid resourceId, Guid resourceAttributeId)
     {
         logger.LogInformation("Delete resource attribute endpoint was called for resource attribute {ResourceAttributeId}", resourceAttributeId);
@@ -240,7 +240,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpPost("/attribute-assignments")]
+    [HttpPost("attribute-assignments")]
     public async Task<IActionResult> CreateResourceAttributeAssignmentAsync([FromBody] CreateResourceAttributeAssignmentRequest request)
     {
         logger.LogInformation("Create resource attribute assignment endpoint was called.");
@@ -255,7 +255,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpGet("/attribute-assignments/{resourceId}/{resourceAttributeId}")]
+    [HttpGet("attribute-assignments/{resourceId}/{resourceAttributeId}")]
     public async Task<IActionResult> GetResourceAttributeAssignment(Guid resourceId, Guid resourceAttributeId)
     {
         logger.LogInformation("Get resource attribute assignment endpoint was called for resource {ResourceId} and attribute {ResourceAttributeId}", resourceId, resourceAttributeId);
@@ -271,7 +271,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpGet("/attribute-assignments")]
+    [HttpGet("attribute-assignments")]
     public async Task<IActionResult> GetAllResourceAttributeAssignmentsAsync()
     {
         logger.LogInformation("Get resource attribute assignments endpoint was called.");
@@ -287,7 +287,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpPatch("/attribute-assignments/{resourceId}/{resourceAttributeId}")]
+    [HttpPatch("attribute-assignments/{resourceId}/{resourceAttributeId}")]
     public async Task<IActionResult> UpdateResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, [FromBody] UpdateResourceAttributeAssignmentRequest request)
     {
         logger.LogInformation("Update resource attribute assignment endpoint was called for resource {ResourceId} and attribute {ResourceAttributeId}", resourceId, resourceAttributeId);
@@ -302,7 +302,7 @@ public class ResourceController(
     }
     
     [Authorize]
-    [HttpDelete("/attribute-assignments/{resourceId}/{resourceAttributeId}")]
+    [HttpDelete("attribute-assignments/{resourceId}/{resourceAttributeId}")]
     public async Task<IActionResult> DeleteResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId)
     {
         logger.LogInformation("Delete resource attribute assignment endpoint was called for resource {ResourceId} and attribute {ResourceAttributeId}", resourceId, resourceAttributeId);
