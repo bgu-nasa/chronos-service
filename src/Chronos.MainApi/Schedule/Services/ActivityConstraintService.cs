@@ -86,7 +86,7 @@ public class ActivityConstraintService(
         var activityConstraint = await activityConstraintRepository.GetByIdAsync(activityConstraintId);
         if (activityConstraint == null || activityConstraint.OrganizationId != organizationId)
         {
-            logger.LogWarning(
+            logger.LogInformation(
                 "ActivityConstraint not found or does not belong to organization. ActivityConstraintId: {ActivityConstraintId}, OrganizationId: {OrganizationId}",
                 activityConstraintId, organizationId);
             throw new NotFoundException("Activity constraint not found");

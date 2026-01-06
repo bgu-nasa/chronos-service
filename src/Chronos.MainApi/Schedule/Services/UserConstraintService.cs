@@ -96,7 +96,7 @@ public class UserConstraintService(
         var constraint =  await userConstraintRepository.GetByIdAsync(userConstraintId);
         if (constraint == null || constraint.OrganizationId != organizationId)
         {
-            logger.LogWarning("UserConstraint {UserConstraintId} not found for Organization {OrganizationId}", userConstraintId, organizationId);
+            logger.LogInformation("UserConstraint {UserConstraintId} not found for Organization {OrganizationId}", userConstraintId, organizationId);
             throw new NotFoundException($"UserConstraint with ID {userConstraintId} not found in organization {organizationId}.");
         }
         return constraint;

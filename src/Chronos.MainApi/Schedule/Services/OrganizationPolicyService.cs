@@ -38,7 +38,7 @@ public class OrganizationPolicyService(
     
     public async Task<OrganizationPolicy> GetPolicyAsync(Guid organizationId, Guid organizationPolicyId)
     {
-        logger.LogDebug(
+        logger.LogInformation(
             "Retrieving organization policy. OrganizationId: {OrganizationId}, OrganizationPolicyId: {OrganizationPolicyId}",
             organizationId, organizationPolicyId);
 
@@ -47,7 +47,7 @@ public class OrganizationPolicyService(
     
     public async Task<List<OrganizationPolicy>> GetAllPoliciesAsync(Guid organizationId)
     {
-        logger.LogDebug("Retrieving all organization policies. OrganizationId: {OrganizationId}", organizationId);
+        logger.LogInformation("Retrieving all organization policies. OrganizationId: {OrganizationId}", organizationId);
 
         await validationService.ValidateOrganizationAsync(organizationId);
 
@@ -61,7 +61,7 @@ public class OrganizationPolicyService(
     
     public async Task<List<OrganizationPolicy>> GetPoliciesBySchedulingPeriodIdsAsync(Guid organizationId, Guid schedulingPeriodId)
     {
-        logger.LogDebug(
+        logger.LogInformation(
             "Retrieving organization policies by SchedulingPeriodId. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}",
             organizationId, schedulingPeriodId);
 
@@ -117,7 +117,7 @@ public class OrganizationPolicyService(
         var organizationPolicy = await organizationPolicyRepository.GetByIdAsync(organizationPolicyId);
         if (organizationPolicy == null || organizationPolicy.OrganizationId != organizationId)
         {
-            logger.LogWarning(
+            logger.LogInformation(
                 "Organization policy not found or does not belong to organization. OrganizationPolicyId: {OrganizationPolicyId}, OrganizationId: {OrganizationId}",
                 organizationPolicyId, organizationId);
             throw new NotFoundException("Organization policy not found");
