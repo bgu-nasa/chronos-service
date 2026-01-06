@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chronos.MainApi.Resources.Controllers;
 
 [ApiController]
-[Route("api/resources/[controller]")]
+[Route("api/department/{departmentId}/resources/[controller]")]
 public class ResourceController(
     ILogger<ResourceController> logger,
     IResourceService resourceService,
@@ -18,7 +18,7 @@ public class ResourceController(
     IResourceAttributeAssignmentService resourceAttributeAssignmentService
     ) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost]
     public async Task<IActionResult> CreateResourceAsync([FromBody] CreateResourceRequest request)
     {
@@ -39,7 +39,7 @@ public class ResourceController(
         return CreatedAtAction(nameof(GetResource), new { resourceId }, response);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetResource([FromRoute] Guid resourceId)
     {
@@ -55,7 +55,7 @@ public class ResourceController(
         return Ok(resourceResponse);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet]
     public async Task<IActionResult> GetResourcesAsync()
     {
@@ -69,7 +69,7 @@ public class ResourceController(
         return Ok(resourceResponses);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPatch("{resourceId}")]
     public async Task<IActionResult> UpdateResourceAsync(Guid resourceId, [FromBody] UpdateResourceRequest request)
     {
@@ -87,7 +87,7 @@ public class ResourceController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpDelete("{resourceId}")]
     public async Task<IActionResult> DeleteResourceAsync(Guid resourceId)
     {
@@ -99,7 +99,7 @@ public class ResourceController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost("types")]
     public async Task<IActionResult> CreateResourceTypeAsync([FromBody] CreateResourceTypeRequest request)
     {
@@ -116,7 +116,7 @@ public class ResourceController(
         return CreatedAtAction(nameof(GetResourceType), new { resourceTypeId }, response);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("types/{resourceTypeId}")]
     public async Task<IActionResult> GetResourceType(Guid resourceTypeId)
     {
@@ -132,7 +132,7 @@ public class ResourceController(
         return Ok(resourceTypeResponse);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("types")]
     public async Task<IActionResult> GetResourceTypesAsync()
     {
@@ -146,7 +146,7 @@ public class ResourceController(
         return Ok(resourceTypeResponses);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPatch("types/{resourceTypeId}")]
     public async Task<IActionResult> UpdateResourceTypeAsync(Guid resourceTypeId, [FromBody] UpdateResourceTypeRequest request)
     {
@@ -161,7 +161,7 @@ public class ResourceController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpDelete("types/{resourceTypeId}")]
     public async Task<IActionResult> DeleteResourceTypeAsync(Guid resourceTypeId)
     {
@@ -173,7 +173,7 @@ public class ResourceController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost("attributes")]
     public async Task<IActionResult> CreateResourceAttributeAsync(Guid resourceId, [FromBody] CreateResourceAttributeRequest request)
     {
@@ -191,7 +191,7 @@ public class ResourceController(
         return CreatedAtAction(nameof(GetResourceAttribute), new { resourceId, resourceAttributeId }, response);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("attributes/{resourceAttributeId}")]
     public async Task<IActionResult> GetResourceAttribute(Guid resourceAttributeId)
     {
@@ -207,7 +207,7 @@ public class ResourceController(
         return Ok(resourceAttributeResponse);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("attributes")]
     public async Task<IActionResult> GetResourceAttributesAsync()
     {
@@ -221,7 +221,7 @@ public class ResourceController(
         return Ok(resourceAttributeResponses);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPatch("attributes/{resourceAttributeId}")]
     public async Task<IActionResult> UpdateResourceAttributeAsync(Guid resourceId, Guid resourceAttributeId, [FromBody] UpdateResourceAttributeRequest request)
     {
@@ -237,7 +237,7 @@ public class ResourceController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpDelete("attributes/{resourceAttributeId}")]
     public async Task<IActionResult> DeleteResourceAttributeAsync(Guid resourceId, Guid resourceAttributeId)
     {
@@ -249,7 +249,7 @@ public class ResourceController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost("attribute-assignments")]
     public async Task<IActionResult> CreateResourceAttributeAssignmentAsync([FromBody] CreateResourceAttributeAssignmentRequest request)
     {
@@ -268,7 +268,7 @@ public class ResourceController(
         return CreatedAtAction(nameof(GetResourceAttributeAssignment), new { request.ResourceId, resourceAttributeId }, response);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("attribute-assignments/{resourceId}/{resourceAttributeId}")]
     public async Task<IActionResult> GetResourceAttributeAssignment(Guid resourceId, Guid resourceAttributeId)
     {
@@ -284,7 +284,7 @@ public class ResourceController(
         return Ok(resourceAttributeAssignmentResponse);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("attribute-assignments")]
     public async Task<IActionResult> GetAllResourceAttributeAssignmentsAsync()
     {
@@ -300,7 +300,7 @@ public class ResourceController(
         return Ok(resourceAttributeAssignmentResponses);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPatch("attribute-assignments/{resourceId}/{resourceAttributeId}")]
     public async Task<IActionResult> UpdateResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId, [FromBody] UpdateResourceAttributeAssignmentRequest request)
     {
@@ -315,7 +315,7 @@ public class ResourceController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpDelete("attribute-assignments/{resourceId}/{resourceAttributeId}")]
     public async Task<IActionResult> DeleteResourceAttributeAssignmentAsync(Guid resourceId, Guid resourceAttributeId)
     {
