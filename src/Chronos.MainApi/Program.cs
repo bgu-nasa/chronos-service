@@ -64,7 +64,11 @@ builder.Services.AddSingleton<IAuthorizationHandler, RequireRoleOrgHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, RequireRoleDeptHandler>();
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
