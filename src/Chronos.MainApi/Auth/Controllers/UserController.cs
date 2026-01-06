@@ -38,7 +38,7 @@ public class UserController(
     /// <param name="userId">The user identifier.</param>
     /// <returns>The user details.</returns>
     [HttpGet("{userId}")]
-    [Authorize(Policy = "OrgRole:UserManager")]
+    [Authorize]
     public async Task<IActionResult> GetUser([FromRoute] Guid userId)
     {
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
@@ -52,7 +52,7 @@ public class UserController(
     /// </summary>
     /// <returns>A list of users in the organization.</returns>
     [HttpGet]
-    [Authorize(Policy = "OrgRole:UserManager")]
+    [Authorize]
     public async Task<IActionResult> GetUsers()
     {
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
