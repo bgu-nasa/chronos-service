@@ -25,17 +25,16 @@ public class SubjectController(
 
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var subjectId = await subjectService.CreateSubjectAsync(
+        var subject = await subjectService.CreateSubjectAsync(
             request.OrganizationId,
             request.DepartmentId,
             request.SchedulingPeriodId,
             request.Code,
             request.Name);
-
-        var subject = await subjectService.GetSubjectAsync(organizationId, subjectId);
+        
         var response = subject.ToSubjectResponse();
 
-        return CreatedAtAction(nameof(GetSubject), new { subjectId }, response);
+        return CreatedAtAction(nameof(GetSubject), new { subjectId = subject.Id }, response);
     }
 
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -124,10 +123,9 @@ public class SubjectController(
             request.ActivityType,
             request.ExpectedStudents);
         
-        var activity = await activityService.GetActivityAsync(organizationId, activityId);
         var response = activity.ToActivityResponse();
         
-        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId }, response);
+        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId = activity.Id }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -206,18 +204,4 @@ public class SubjectController(
         
         return NoContent();
     }
-    
-    private string GetOrganizationIdFromContext()
-    {
-        var organizationId = HttpContext.GetOrganizationId();
-
-        if (organizationId is null)
-        {
-            logger.LogCritical("No organization id was found in the HttpContext, although infra policy requires so.");
-            throw new BadRequestException("Missing organization ID in request.");
-        }
-
-        return organizationId;
-    }
-    
 }
