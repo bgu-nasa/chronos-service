@@ -26,4 +26,13 @@ public static class RoleMapper
             RoleType.Viewer => Role.Viewer,
             _ => throw new ArgumentOutOfRangeException(nameof(roleType), $"Not expected role type value: {roleType}"),
         };
+
+    public static RoleAssignmentResponse ToRoleAssignmentResponse(this RoleAssignment assignment) =>
+        new(
+            Id: assignment.Id,
+            UserId: assignment.UserId,
+            OrganizationId: assignment.OrganizationId,
+            DepartmentId: assignment.DepartmentId,
+            Role: assignment.Role.ToRoleType()
+        );
 }

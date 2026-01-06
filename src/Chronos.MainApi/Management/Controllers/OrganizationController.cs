@@ -1,7 +1,6 @@
-using System.Security.Claims;
 using Chronos.MainApi.Management.Services;
+using Chronos.MainApi.Shared.Extensions;
 using Chronos.MainApi.Shared.Middleware;
-using Chronos.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,19 +22,7 @@ public class OrganizationController(
         logger.LogInformation("Get organization info");
 
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
-        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier); // TODO move to extension
-        if (userIdClaim is null)
-        {
-            logger.LogError("No user id claim found in HttpContext, when expecting one");
-            throw new UnauthorizedAccessException();
-        }
-
-        var isValidUserId = Guid.TryParse(userIdClaim.Value, out var userId);
-        if (!isValidUserId)
-        {
-            logger.LogError("Invalid user id in claims: {UserId}", userIdClaim.Value);
-            throw new UnauthorizedAccessException();
-        }
+        var userId = HttpContext.User.GetUserId();
 
         var orgInfo = await infoService.GetOrganizationInformationAsync(organizationId, userId);
 

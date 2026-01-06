@@ -1,12 +1,13 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Chronos.Domain.Management.Roles;
+using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Shared.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {
-     private const string RolesClaimType = "roles";
+    private const string RolesClaimType = "roles";
 
     public static IReadOnlyList<SimpleRoleAssignment> GetRoles(this ClaimsPrincipal principal)
     {
@@ -24,5 +25,21 @@ public static class ClaimsPrincipalExtensions
         {
             return [];
         }
+    }
+
+    public static Guid GetUserId(this ClaimsPrincipal principal)
+    {
+        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
+        {
+            throw new TokenMissingValueException("UserId");
+        }
+
+        if (!Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            throw new TokenMissingValueException("UserId (invalid format)");
+        }
+
+        return userId;
     }
 }
