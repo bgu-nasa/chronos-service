@@ -1,5 +1,6 @@
 using Chronos.Data.Repositories.Auth;
 using Chronos.MainApi.Auth.Contracts;
+using Chronos.MainApi.Auth.Validation;
 using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Auth.Services;
@@ -52,6 +53,8 @@ public class UserService(
 
     public async Task UpdateUserProfileAsync(Guid organizationId, Guid userId, UserUpdateRequest request)
     {
+        AvatarUrlValidator.ValidateAvatarUrl(request.AvatarUrl);
+        
         var user = await userRepository.GetByIdAsync(userId);
         
         if (user is null)
