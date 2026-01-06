@@ -52,7 +52,7 @@ public class UserController(
     /// </summary>
     /// <returns>A list of users in the organization.</returns>
     [HttpGet]
-    [Authorize(Policy = "OrgRole:UserManager")]
+    [Authorize]
     public async Task<IActionResult> GetUsers()
     {
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
@@ -68,7 +68,7 @@ public class UserController(
     /// <param name="request">The user update request containing profile information.</param>
     /// <returns>204 No Content when the profile is successfully updated.</returns>
     [HttpPut("{userId}")]
-    [Authorize(Policy = "OrgRole:UserManager")]
+    [Authorize]
     public async Task<IActionResult> UpdateUserProfile(
         [FromRoute] Guid userId,
         [FromBody] UserUpdateRequest request)
