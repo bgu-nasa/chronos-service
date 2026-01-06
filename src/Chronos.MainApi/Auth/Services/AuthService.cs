@@ -105,4 +105,21 @@ public class AuthService(
             throw new UnauthorizedException("Invalid token");
         }
     }
+
+    public async Task UpdatePasswordAsync(Guid userId, UserPasswordUpdateRequest request)
+    {
+        var user = await userRepository.GetByIdAsync(userId);
+        if (user is null)
+        {
+            throw new NotFoundException("User not found");
+        }
+
+        if (!BCryptNet.Verify(request.OldPassword, user.PasswordHash))
+        {
+            throw new UnauthorizedException("Invalid current password");
+        }
+
+        user.PasswordHash = BCryptNet.HashPassword(request.NewPassword);
+        await userRepository.UpdateAsync(user);
+    }
 }

@@ -9,4 +9,5 @@ public interface IAuthService
     Task<AuthResponse> LoginAsync(LoginRequest request);
     Task<AuthResponse> RefreshTokenAsync(Guid userId);
     Task VerifyTokenAsync(Guid userId);
+    Task UpdatePasswordAsync(Guid userId, UserPasswordUpdateRequest request);
 }

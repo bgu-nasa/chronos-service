@@ -80,4 +80,19 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
         await authService.VerifyTokenAsync(userId);
         return Ok();
     }
+
+    /// <summary>
+    /// Updates the password of the authenticated user.
+    /// </summary>
+    /// <param name="request">The password update request containing old and new passwords.</param>
+    /// <returns>204 No Content when the password is successfully updated.</returns>
+    [Authorize]
+    [HttpPut("password")]
+    public async Task<IActionResult> UpdatePassword([FromBody] UserPasswordUpdateRequest request)
+    {
+        logger.LogInformation("Update password endpoint was called");
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await authService.UpdatePasswordAsync(userId, request);
+        return NoContent();
+    }
 }
