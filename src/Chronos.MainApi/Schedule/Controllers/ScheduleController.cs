@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chronos.MainApi.Schedule.Controllers;
 
 [ApiController]
-[RequireOrganization]
 [Route("api/schedule/scheduling")]
 public class ScheduleController(
     ILogger<ScheduleController> logger,
@@ -18,8 +17,10 @@ public class ScheduleController(
     IAssignmentService assignmentService)
     : ControllerBase
 {
-    
-    [Authorize]
+    private const string ViewerPolicy = "OrgRole:Viewer";
+    private const string OperatorPolicy = "OrgRole:Operator";
+
+    [Authorize(Policy = OperatorPolicy)]
     [HttpPost("periods")]
     public async Task<IActionResult> CreateSchedulingPeriod([FromBody] CreateSchedulingPeriodRequest request)
     {
@@ -38,7 +39,7 @@ public class ScheduleController(
         return CreatedAtAction(nameof(GetSchedulingPeriod), new { schedulingPeriodId = periodId }, response);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("periods/{schedulingPeriodId}")]
     public async Task<IActionResult> GetSchedulingPeriod(Guid schedulingPeriodId)
     {
@@ -52,7 +53,7 @@ public class ScheduleController(
         return Ok(period.ToSchedulingPeriodResponse());
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("periods")]
     public async Task<IActionResult> GetAllSchedulingPeriods()
     {
@@ -65,7 +66,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpPatch("periods/{schedulingPeriodId}")]
     public async Task<IActionResult> UpdateSchedulingPeriod(
         Guid schedulingPeriodId,
@@ -97,7 +98,7 @@ public class ScheduleController(
     }
 
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpPost("slots")]
     public async Task<IActionResult> CreateSlot([FromBody] CreateSlotRequest request)
     {
@@ -117,7 +118,7 @@ public class ScheduleController(
         return CreatedAtAction(nameof(GetSlot), new { slotId }, response);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("slots/{slotId}")]
     public async Task<IActionResult> GetSlot(Guid slotId)
     {
@@ -131,7 +132,7 @@ public class ScheduleController(
         return Ok(slot.ToSlotResponse());
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("slots")]
     public async Task<IActionResult> GetAllSlots()
     {
@@ -144,7 +145,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("periods/{schedulingPeriodId}/slots")]
     public async Task<IActionResult> GetSlotsBySchedulingPeriod(Guid schedulingPeriodId)
     {
@@ -157,7 +158,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpPatch("slots/{slotId}")]
     public async Task<IActionResult> UpdateSlot(Guid slotId, [FromBody] UpdateSlotRequest request)
     {
@@ -174,7 +175,7 @@ public class ScheduleController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpDelete("slots/{slotId}")]
     public async Task<IActionResult> DeleteSlot(Guid slotId)
     {
@@ -187,7 +188,7 @@ public class ScheduleController(
     }
 
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpPost("assignments")]
     public async Task<IActionResult> CreateAssignment([FromBody] CreateAssignmentRequest request)
     {
@@ -206,7 +207,7 @@ public class ScheduleController(
         return CreatedAtAction(nameof(GetAssignment), new { assignmentId }, response);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("assignments/{assignmentId}")]
     public async Task<IActionResult> GetAssignment(Guid assignmentId)
     {
@@ -220,7 +221,7 @@ public class ScheduleController(
         return Ok(assignment.ToAssignmentResponse());
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("assignments")]
     public async Task<IActionResult> GetAllAssignments()
     {
@@ -233,7 +234,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("slots/{slotId}/assignments")]
     public async Task<IActionResult> GetAssignmentsBySlot(Guid slotId)
     {
@@ -246,7 +247,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("scheduled-items/{scheduledItemId}/assignments")]
     public async Task<IActionResult> GetAssignmentsByScheduledItem(Guid scheduledItemId)
     {
@@ -259,7 +260,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpPatch("assignments/{assignmentId}")]
     public async Task<IActionResult> UpdateAssignment(Guid assignmentId, [FromBody] UpdateAssignmentRequest request)
     {
@@ -276,7 +277,7 @@ public class ScheduleController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpDelete("assignments/{assignmentId}")]
     public async Task<IActionResult> DeleteAssignment(Guid assignmentId)
     {

@@ -19,8 +19,11 @@ public class ConstraintController(
     IOrganizationPolicyService organizationPolicyService)
     : ControllerBase
 {
+    private const string ViewerPolicy = "OrgRole:Viewer";
+    private const string OperatorPolicy = "OrgRole:Operator";
+    private const string ResourceManagerPolicy = "OrgRole:ResourceManager";
 
-    [Authorize]
+    [Authorize(Policy = OperatorPolicy)]
     [HttpPost("activityConstraint")]
     public async Task<IActionResult> CreateActivityConstraint([FromBody] CreateActivityConstraintRequest request)
     {
@@ -39,7 +42,7 @@ public class ConstraintController(
         return CreatedAtAction(nameof(GetActivityConstraint), new { activityConstraintId = constraintId }, response);
     }
 
-    [Authorize]
+    [Authorize(Policy = ViewerPolicy)]
     [HttpGet("activityConstraint/{activityConstraintId}")]
     public async Task<IActionResult> GetActivityConstraint(Guid activityConstraintId)
     {
@@ -53,7 +56,7 @@ public class ConstraintController(
         return Ok(constraint.ToActivityConstraintResponse());
     }
 
-    [Authorize]
+    [Authorize(Policy = ViewerPolicy)]
     [HttpGet("activityConstraint")]
     public async Task<IActionResult> GetAllActivityConstraints()
     {
@@ -66,7 +69,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize(Policy = ViewerPolicy)]
     [HttpGet("activityConstraint/by-activity/{activityId}")]
     public async Task<IActionResult> GetActivityConstraintsByActivity(Guid activityId)
     {
@@ -79,7 +82,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpPatch("activityConstraint/{activityConstraintId}")]
     public async Task<IActionResult> UpdateActivityConstraint(
         Guid activityConstraintId,
@@ -97,7 +100,7 @@ public class ConstraintController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpDelete("activityConstraint/{activityConstraintId}")]
     public async Task<IActionResult> DeleteActivityConstraint(Guid activityConstraintId)
     {
@@ -110,7 +113,7 @@ public class ConstraintController(
     }
 
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpPost("userConstraint")]
     public async Task<IActionResult> CreateUserConstraint([FromBody] CreateUserConstraintRequest request)
     {
@@ -130,7 +133,7 @@ public class ConstraintController(
         return CreatedAtAction(nameof(GetUserConstraint), new { userConstraintId = constraintId }, response);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("userConstraint/{userConstraintId}")]
     public async Task<IActionResult> GetUserConstraint(Guid userConstraintId)
     {
@@ -144,7 +147,7 @@ public class ConstraintController(
         return Ok(constraint.ToUserConstraintResponse());
     }
 
-    [Authorize]
+    [Authorize(Policy = ViewerPolicy)]
     [HttpGet("userConstraint")]
     public async Task<IActionResult> GetAllUserConstraints()
     {
@@ -157,7 +160,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("userConstraint/by-user/{userId}")]
     public async Task<IActionResult> GetUserConstraintsByUser(Guid userId)
     {
@@ -170,7 +173,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("userConstraint/by-period/{schedulingPeriodId}")]
     public async Task<IActionResult> GetUserConstraintsByPeriod(Guid schedulingPeriodId)
     {
@@ -183,7 +186,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize(Policy = ViewerPolicy)]
     [HttpGet("userConstraint/by-period-and-user/{schedulingPeriodId}/{userId}")]
     public async Task<IActionResult> GetUserConstraintsByPeriodAndUser(Guid schedulingPeriodId, Guid userId)
     {
@@ -196,7 +199,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize(Policy = OperatorPolicy) ]
     [HttpPatch("userConstraint/{userConstraintId}")]
     public async Task<IActionResult> UpdateUserConstraint(
         Guid userConstraintId,
@@ -214,7 +217,7 @@ public class ConstraintController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = OperatorPolicy)]
     [HttpDelete("userConstraint/{userConstraintId}")]
     public async Task<IActionResult> DeleteUserConstraint(Guid userConstraintId)
     {
@@ -227,7 +230,7 @@ public class ConstraintController(
     }
 
 
-    [Authorize]
+    [Authorize(Policy = OperatorPolicy)]
     [HttpPost("preferenceConstraint")]
     public async Task<IActionResult> CreateUserPreference([FromBody] CreateUserPreferenceRequest request)
     {
@@ -254,7 +257,7 @@ public class ConstraintController(
             response);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("preferenceConstraint/{userId}/{schedulingPeriodId}/{key}")]
     public async Task<IActionResult> GetUserPreference(Guid userId, Guid schedulingPeriodId, string key)
     {
@@ -268,7 +271,7 @@ public class ConstraintController(
         return Ok(preference.ToUserPreferenceResponse());
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("preferenceConstraint")]
     public async Task<IActionResult> GetAllUserPreferences()
     {
@@ -281,7 +284,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("preferenceConstraint/by-user/{userId}")]
     public async Task<IActionResult> GetUserPreferencesByUser(Guid userId)
     {
@@ -294,7 +297,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("preferenceConstraint/by-period/{schedulingPeriodId}")]
     public async Task<IActionResult> GetUserPreferencesByPeriod(Guid schedulingPeriodId)
     {
@@ -307,7 +310,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("preferenceConstraint/by-period-and-user/{schedulingPeriodId}/{userId}")]
     public async Task<IActionResult> GetUserPreferencesByPeriodAndUser(Guid schedulingPeriodId, Guid userId)
     {
@@ -320,7 +323,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpPatch("preferenceConstraint/{userId}/{schedulingPeriodId}/{key}")]
     public async Task<IActionResult> UpdateUserPreference(
         Guid userId,
@@ -341,7 +344,7 @@ public class ConstraintController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize (Policy = OperatorPolicy)]
     [HttpDelete("preferenceConstraint/{userPreferenceId}")]
     public async Task<IActionResult> DeleteUserPreference(Guid userPreferenceId)
     {
@@ -354,7 +357,7 @@ public class ConstraintController(
     }
 
 
-    [Authorize]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpPost("policy")]
     public async Task<IActionResult> CreateOrganizationPolicy([FromBody] CreateOrganizationPolicyRequest request)
     {
@@ -372,7 +375,7 @@ public class ConstraintController(
         return CreatedAtAction(nameof(GetOrganizationPolicy), new { policyId = policy.Id }, response);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("policy/{policyId}")]
     public async Task<IActionResult> GetOrganizationPolicy(Guid policyId)
     {
@@ -388,7 +391,7 @@ public class ConstraintController(
         return Ok(policy.ToOrganizationPolicyResponse());
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("policy")]
     public async Task<IActionResult> GetAllOrganizationPolicies()
     {
@@ -401,7 +404,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ViewerPolicy)]
     [HttpGet("policy/by-period/{schedulingPeriodId}")]
     public async Task<IActionResult> GetOrganizationPoliciesByPeriod(Guid schedulingPeriodId)
     {
@@ -414,7 +417,7 @@ public class ConstraintController(
         return Ok(responses);
     }
 
-    [Authorize]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpPatch("policy/{policyId}")]
     public async Task<IActionResult> UpdateOrganizationPolicy(
         Guid policyId,
@@ -432,7 +435,7 @@ public class ConstraintController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpDelete("policy/{policyId}")]
     public async Task<IActionResult> DeleteOrganizationPolicy(Guid policyId)
     {
