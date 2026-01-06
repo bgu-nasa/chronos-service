@@ -118,6 +118,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsLocal())
     app.UseSwaggerUI();
 }
 
+// Global exception handler should be first in the pipeline
+app.UseMiddleware<GlobalExceptionHandler>();
 app.UseMiddleware<OrganizationMiddleware>();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
