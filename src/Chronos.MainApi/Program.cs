@@ -118,11 +118,10 @@ if (app.Environment.IsDevelopment() || app.Environment.IsLocal())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<OrganizationMiddleware>();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseMiddleware<OrganizationMiddleware>();
 
 // app.UseHttpsRedirection();
 app.MapControllers();
