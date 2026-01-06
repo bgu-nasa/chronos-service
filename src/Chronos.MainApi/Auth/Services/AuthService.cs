@@ -1,6 +1,7 @@
 using Chronos.Data.Repositories.Auth;
 using Chronos.Domain.Auth;
 using Chronos.MainApi.Auth.Contracts;
+using Chronos.MainApi.Auth.Validation;
 using Chronos.Shared.Exceptions;
 using BCryptNet = BCrypt.Net.BCrypt;
 
@@ -19,6 +20,8 @@ public class AuthService(
         {
             throw new BadRequestException("User with this email already exists");
         }
+
+        PasswordValidator.ValidatePassword(request.AdminUser.Password);
 
         try
         {
@@ -57,6 +60,8 @@ public class AuthService(
         {
             throw new BadRequestException("User with this email already exists");
         }
+
+        PasswordValidator.ValidatePassword(request.Password);
 
         var user = new User
         {
@@ -118,6 +123,8 @@ public class AuthService(
         {
             throw new UnauthorizedException("Invalid current password");
         }
+
+        PasswordValidator.ValidatePassword(request.NewPassword);
 
         user.PasswordHash = BCryptNet.HashPassword(request.NewPassword);
         await userRepository.UpdateAsync(user);
