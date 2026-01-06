@@ -20,7 +20,7 @@ public class UserController(ILogger<UserController> logger, IUserService userSer
     /// <param name="userId">The user identifier.</param>
     /// <returns>The user details.</returns>
     [HttpGet("{userId}")]
-    [Authorize(Policy = "OrgRole:Administrator,Manager")]
+    [Authorize(Policy = "OrgRole:UserManager")]
     public async Task<IActionResult> GetUser([FromRoute] Guid userId)
     {
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
@@ -34,7 +34,7 @@ public class UserController(ILogger<UserController> logger, IUserService userSer
     /// </summary>
     /// <returns>A list of users in the organization.</returns>
     [HttpGet]
-    [Authorize(Policy = "OrgRole:Administrator,Manager")]
+    [Authorize(Policy = "OrgRole:UserManager")]
     public async Task<IActionResult> GetUsers()
     {
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
@@ -50,7 +50,7 @@ public class UserController(ILogger<UserController> logger, IUserService userSer
     /// <param name="request">The user update request containing profile information.</param>
     /// <returns>204 No Content when the profile is successfully updated.</returns>
     [HttpPut("{userId}")]
-    [Authorize(Policy = "OrgRole:Administrator,Manager")]
+    [Authorize(Policy = "OrgRole:UserManager")]
     public async Task<IActionResult> UpdateUserProfile(
         [FromRoute] Guid userId,
         [FromBody] UserUpdateRequest request)
@@ -66,7 +66,7 @@ public class UserController(ILogger<UserController> logger, IUserService userSer
     /// </summary>
     /// <param name="request">The user update request containing profile information.</param>
     /// <returns>204 No Content when the profile is successfully updated.</returns>
-    [HttpPut("me")]
+    [HttpPut]
     public async Task<IActionResult> UpdateMyProfile([FromBody] UserUpdateRequest request)
     {
         var userId = User.GetUserId();
@@ -82,7 +82,7 @@ public class UserController(ILogger<UserController> logger, IUserService userSer
     /// <param name="userId">The user identifier.</param>
     /// <returns>204 No Content when the user is successfully deleted.</returns>
     [HttpDelete("{userId}")]
-    [Authorize(Policy = "OrgRole:Administrator")]
+    [Authorize(Policy = "OrgRole:UserManager")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid userId)
     {
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
