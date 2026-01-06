@@ -7,6 +7,6 @@ public static class DepartmentMapper
 {
     public static DepartmentResponse ToDepartmentResponse(this Department department)
     {
-        return new DepartmentResponse(department.Id, department.Name);
+        return new DepartmentResponse(department.Id, department.Name, department.Deleted);
     }
 }
