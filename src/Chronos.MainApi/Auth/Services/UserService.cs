@@ -1,5 +1,6 @@
 using Chronos.Data.Repositories.Auth;
 using Chronos.MainApi.Auth.Contracts;
+using Chronos.MainApi.Auth.Extensions;
 using Chronos.MainApi.Auth.Validation;
 using Chronos.Shared.Exceptions;
 
@@ -24,14 +25,7 @@ public class UserService(
             throw new NotFoundException($"User with ID {userId} not found in organization {organizationId}");
         }
 
-        return new UserResponse(
-            user.Id.ToString(),
-            user.Email,
-            user.FirstName,
-            user.LastName,
-            user.AvatarUrl,
-            user.Verified
-        );
+        return user.ToUserResponse();
     }
 
     public async Task<IEnumerable<UserResponse>> GetUsersAsync(Guid organizationId)
@@ -40,14 +34,7 @@ public class UserService(
         
         return users
             .Where(u => u.OrganizationId == organizationId)
-            .Select(user => new UserResponse(
-                user.Id.ToString(),
-                user.Email,
-                user.FirstName,
-                user.LastName,
-                user.AvatarUrl,
-                user.Verified
-            ))
+            .Select(user => user.ToUserResponse())
             .ToList();
     }
 
