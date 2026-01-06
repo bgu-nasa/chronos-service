@@ -1,5 +1,3 @@
-using Chronos.MainApi.Management.Contracts;
-
-namespace Chronos.MainApi.Auth.Contracts;
+namespace Chronos.MainApi.Management.Contracts;
 
 public record UserRoleAssignmentSummary(string UserEmail, RoleAssignmentResponse[] Assignments);
