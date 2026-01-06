@@ -20,7 +20,7 @@ public class OrganizationInfoService(ILogger<OrganizationInfoService> logger,
         logger.LogInformation("Found {departmentsCount} departments for organization {OrganizationId}", departments.Count, organizationId);
 
         var roles = await roleService.GetUserAssignmentsAsync(organizationId, userId);
-        var rolesResponse = roles.Select(r => new RoleAssignmentResponse(r.OrganizationId, r.DepartmentId, r.Role.ToRoleType()));
+        var rolesResponse = roles.Select(r => new RoleAssignmentResponse(r.Id, r.UserId, r.OrganizationId, r.DepartmentId, r.Role.ToRoleType()));
 
         logger.LogInformation("Found {rolesCount} roles in organization {OrganizationId}", roles.Count, organizationId);
 
