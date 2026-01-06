@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using Chronos.MainApi.Auth.Contracts;
 using Chronos.MainApi.Auth.Services;
-using Chronos.MainApi.Shared.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,22 +21,6 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
         logger.LogInformation("Register user endpoint was called");
         var response = await authService.RegisterAsync(request);
         return Ok(response);
-    }
-
-    /// <summary>
-    /// Creates a new user in the organization.
-    /// </summary>
-    /// <param name="organizationId">The organization identifier.</param>
-    /// <param name="request">The user creation request.</param>
-    /// <returns></returns>
-    [RequireOrganization]
-    [Authorize(Policy = "OrgRole:UserManager")]
-    [HttpPost("/{organizationId}/user")]
-    public async Task<IActionResult> CreateUser([FromRoute] string organizationId, [FromBody] CreateUserRequest request)
-    {
-        logger.LogInformation("Create user endpoint was called");
-        await authService.CreateUserAsync(organizationId, request);
-        return NoContent();
     }
 
     /// <summary>

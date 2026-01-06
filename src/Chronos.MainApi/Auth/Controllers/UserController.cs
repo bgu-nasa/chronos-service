@@ -12,8 +12,26 @@ namespace Chronos.MainApi.Auth.Controllers;
 [Route("api/[controller]")]
 [RequireOrganization]
 [Authorize]
-public class UserController(ILogger<UserController> logger, IUserService userService) : ControllerBase
+public class UserController(
+    ILogger<UserController> logger,
+    IUserService userService,
+    IAuthService authService) : ControllerBase
 {
+    /// <summary>
+    /// Creates a new user in the organization.
+    /// </summary>
+    /// <param name="request">The user creation request.</param>
+    /// <returns>201 Created with the new user information.</returns>
+    [HttpPost]
+    [Authorize(Policy = "OrgRole:UserManager")]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
+    {
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+        logger.LogInformation("Create user endpoint was called for organization {OrganizationId}", organizationId);
+        var response = await authService.CreateUserAsync(organizationId.ToString(), request);
+        return CreatedAtAction(nameof(GetUser), new { userId = response.UserId }, response);
+    }
+
     /// <summary>
     /// Gets a specific user by ID within an organization.
     /// </summary>
