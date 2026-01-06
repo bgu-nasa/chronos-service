@@ -116,7 +116,7 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
         }
     }
 
-    private async Task<List<Domain.Resources.Activity>> LoadActivitiesForPeriodAsync(Guid schedulingPeriodId)
+    private async Task<List<Activity>> LoadActivitiesForPeriodAsync(Guid schedulingPeriodId)
     {
         // For now, load all activities (in production, filter by scheduling period)
         var allActivities = await _activityRepository.GetAllAsync();
@@ -125,7 +125,7 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
 
     private List<SlotResourcePair> GenerateSlotResourcePairs(
         List<Slot> slots,
-        List<Domain.Resources.Resource> resources)
+        List<Resource> resources)
     {
         var pairs = new List<SlotResourcePair>();
 
@@ -162,7 +162,7 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
     }
 
     private async Task<SchedulingResult> ProcessActivitiesWithRankingAsync(
-        List<Domain.Resources.Activity> activities,
+        List<Activity> activities,
         List<SlotResourcePair> rankedPairs,
         Guid organizationId,
         Guid schedulingPeriodId,
@@ -263,7 +263,7 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
                 : null);
     }
 
-    private bool IsCapacitySufficient(Domain.Resources.Resource resource, int? expectedStudents)
+    private bool IsCapacitySufficient(Resource resource, int? expectedStudents)
     {
         if (expectedStudents == null || resource.Capacity == null)
         {
