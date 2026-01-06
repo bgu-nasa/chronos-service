@@ -9,8 +9,8 @@ namespace Chronos.MainApi.Schedule.Services;
 
 public class ActivityConstraintService(
     IActivityConstraintRepository activityConstraintRepository,
-    ILogger<ActivityConstraintService> logger
-    ,IManagementExternalService validationService
+    ILogger<ActivityConstraintService> logger,
+    IManagementExternalService validationService
 ) : IActivityConstraintService
 {
 
