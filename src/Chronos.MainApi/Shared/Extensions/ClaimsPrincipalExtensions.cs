@@ -42,4 +42,20 @@ public static class ClaimsPrincipalExtensions
 
         return userId;
     }
+
+    public static Guid GetOrganizationId(this ClaimsPrincipal principal)
+    {
+        var organizationClaim = principal.FindFirst("organization");
+        if (organizationClaim == null)
+        {
+            throw new TokenMissingValueException("OrganizationId");
+        }
+
+        if (!Guid.TryParse(organizationClaim.Value, out var organizationId))
+        {
+            throw new TokenMissingValueException("OrganizationId (invalid format)");
+        }
+
+        return organizationId;
+    }
 }
