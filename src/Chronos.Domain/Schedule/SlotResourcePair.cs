@@ -1,7 +1,6 @@
 using Chronos.Domain.Resources;
-using Chronos.Domain.Schedule;
 
-namespace Chronos.Engine.Matching;
+namespace Chronos.Domain.Schedule;
 
 /// <summary>
 /// Represents a (Slot, Resource) pair in the bipartite matching graph
