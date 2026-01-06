@@ -6,5 +6,5 @@ public class Assignment : ObjectInformation
     public Guid OrganizationId { get; set; }
     public Guid SlotId { get; set; }
     public Guid ResourceId { get; set; }
-    public Guid ScheduledItemId { get; set; }
+    public Guid ActivityId { get; set; }
 }

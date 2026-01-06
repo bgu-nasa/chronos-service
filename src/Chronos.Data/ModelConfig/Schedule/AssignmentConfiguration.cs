@@ -19,7 +19,7 @@ public class AssignmentConfiguration : IEntityTypeConfiguration<Assignment>
         builder.Property(a => a.ResourceId)
             .IsRequired();
 
-        builder.Property(a => a.ScheduledItemId)
+        builder.Property(a => a.ActivityId)
             .IsRequired();
 
         builder.HasIndex(a => new { a.SlotId, a.ResourceId })

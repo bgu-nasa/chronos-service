@@ -9,8 +9,10 @@ public interface IAssignmentRepository
     Task<List<Assignment>> GetAllAsync();
 
     Task<List<Assignment>> GetBySlotIdAsync(Guid slotId);
-    Task<List<Assignment>> GetBySchedulingItemIdAsync(Guid schedulingItemId);
+    Task<List<Assignment>> GetByActivityIdAsync(Guid activityId);
     Task<Assignment?> GetBySlotIdAndResourceIdAsync(Guid slotId, Guid resourceId);
+
+    Task<List<Assignment>> GetByResourceIdAsync(Guid resourceId);
     
     Task AddAsync(Assignment assignment);
 
