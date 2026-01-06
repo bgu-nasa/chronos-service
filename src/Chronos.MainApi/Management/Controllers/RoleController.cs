@@ -15,7 +15,7 @@ public class RoleController(
     IRoleService roleService)
 : ControllerBase
 {
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet]
     public async Task<IActionResult> GetAllRoleAssignments()
     {
@@ -25,7 +25,7 @@ public class RoleController(
         return Ok(assignments.Select(a => a.ToRoleAssignmentResponse()).ToArray());
     }
 
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetUserRoleAssignments(string userId)
     {
@@ -43,7 +43,7 @@ public class RoleController(
         return Ok(assignments.Select(a => a.ToRoleAssignmentResponse()).ToArray());
     }
 
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("{roleAssignmentId}")]
     public async Task<IActionResult> GetRoleAssignmentById(string roleAssignmentId)
     {
@@ -62,7 +62,7 @@ public class RoleController(
         return Ok(assignment.ToRoleAssignmentResponse());
     }
 
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost]
     public async Task<IActionResult> AddRoleAssignment([FromBody] RoleAssignmentRequest request)
     {
@@ -84,7 +84,7 @@ public class RoleController(
         );
     }
 
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpDelete("{roleAssignmentId}")]
     public async Task<IActionResult> RemoveRoleAssignment([FromRoute] string roleAssignmentId)
     {
