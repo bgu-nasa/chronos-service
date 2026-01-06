@@ -1,5 +1,7 @@
 using Chronos.Data.Repositories.Management;
 using Chronos.Domain.Management.Roles;
+using Chronos.MainApi.Management.Contracts;
+using Chronos.MainApi.Management.Extensions;
 using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Management.Services;
@@ -9,7 +11,7 @@ public class RoleService(
     ManagementValidationService validationService,
     ILogger<RoleService> logger) : IRoleService
 {
-    public async Task<List<RoleAssignment>> GetAllAssignmentsAsync(Guid organizationId)
+    public async Task<List<RoleAssignmentResponse>> GetAllAssignmentsAsync(Guid organizationId)
     {
         logger.LogDebug("Retrieving all role assignments for organization. OrganizationId: {OrganizationId}", organizationId);
         
@@ -18,10 +20,10 @@ public class RoleService(
         var assignments = await roleAssignmentRepository.GetAllAsync(organizationId);
         
         logger.LogDebug("Retrieved {Count} role assignments for organization. OrganizationId: {OrganizationId}", assignments.Count, organizationId);
-        return assignments;
+        return assignments.Select(a => a.ToRoleAssignmentResponse()).ToList();
     }
 
-    public async Task<List<RoleAssignment>> GetUserAssignmentsAsync(Guid organizationId, Guid userId)
+    public async Task<List<RoleAssignmentResponse>> GetUserAssignmentsAsync(Guid organizationId, Guid userId)
     {
         logger.LogDebug("Retrieving role assignments for user. OrganizationId: {OrganizationId}, UserId: {UserId}", organizationId, userId);
         
@@ -30,10 +32,10 @@ public class RoleService(
         var assignments = await roleAssignmentRepository.GetUserAssignmentsAsync(organizationId, userId);
         
         logger.LogDebug("Retrieved {Count} role assignments for user. OrganizationId: {OrganizationId}, UserId: {UserId}", assignments.Count, organizationId, userId);
-        return assignments;
+        return assignments.Select(a => a.ToRoleAssignmentResponse()).ToList();
     }
 
-    public async Task<RoleAssignment> GetAssignmentAsync(Guid organizationId, Guid roleAssignmentId)
+    public async Task<RoleAssignmentResponse> GetAssignmentAsync(Guid organizationId, Guid roleAssignmentId)
     {
         logger.LogDebug("Retrieving role assignment. OrganizationId: {OrganizationId}, RoleAssignmentId: {RoleAssignmentId}", organizationId, roleAssignmentId);
         
@@ -47,10 +49,10 @@ public class RoleService(
             throw new NotFoundException("Role assignment not found");
         }
 
-        return assignment;
+        return assignment.ToRoleAssignmentResponse();
     }
 
-    public async Task<RoleAssignment> AddAssignmentAsync(Guid organizationId, Guid? departmentId, Guid userId, Role role)
+    public async Task<RoleAssignmentResponse> AddAssignmentAsync(Guid organizationId, Guid? departmentId, Guid userId, Role role)
     {
         logger.LogInformation("Adding role assignment. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}, UserId: {UserId}, Role: {Role}",
             organizationId, departmentId, userId, role);
@@ -73,10 +75,10 @@ public class RoleService(
 
         var addedAssignment = await roleAssignmentRepository.AddAsync(roleAssignment);
         
-        logger.LogInformation("Role assignment added successfully. RoleAssignmentId: {RoleAssignmentId}, OrganizationId: {OrganizationId}, UserId: {UserId}", 
+        logger.LogInformation("Role assignment added successfully. RoleAssignmentId: {RoleAssignmentId}, OrganizationId: {OrganizationId}, UserId: {UserId}",
             addedAssignment.Id, organizationId, userId);
         
-        return addedAssignment;
+        return addedAssignment.ToRoleAssignmentResponse();
     }
 
     public async Task RemoveAssignmentAsync(Guid organizationId, Guid roleAssignmentId)
