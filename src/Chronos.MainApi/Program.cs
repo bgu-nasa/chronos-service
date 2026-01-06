@@ -111,7 +111,7 @@ app.UseAuthorization();
 
 app.UseMiddleware<OrganizationMiddleware>();
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
