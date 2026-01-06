@@ -25,7 +25,8 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
         builder.Property(d => d.Deleted)
             .HasDefaultValue(false);
 
-        builder.Property(d => d.DeletedTime);
+        builder.Property(d => d.DeletedTime)
+            .HasDefaultValue(DateTime.MinValue);
 
         builder.Property(d => d.CreatedAt)
             .IsRequired();

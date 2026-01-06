@@ -23,7 +23,7 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
             .HasDefaultValue(false);
 
         builder.Property(d => d.DeletedTime)
-            .HasDefaultValue(0);
+            .HasDefaultValue(DateTime.MinValue);
 
         builder.Property(d => d.CreatedAt)
             .IsRequired();

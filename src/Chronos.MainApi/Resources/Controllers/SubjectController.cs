@@ -1,6 +1,7 @@
 using Chronos.MainApi.Resources.Contracts;
 using Chronos.MainApi.Resources.Extensions;
 using Chronos.MainApi.Resources.Services;
+using Chronos.MainApi.Shared.Controllers.Utils;
 using Chronos.Shared.Exceptions;
 using Chronos.Shared.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -22,18 +23,19 @@ public class SubjectController(
     {
         logger.LogInformation("Create subject endpoint was called.");
 
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var subject = await subjectService.CreateSubjectAsync(
+        var subjectId = await subjectService.CreateSubjectAsync(
             request.OrganizationId,
             request.DepartmentId,
             request.SchedulingPeriodId,
             request.Code,
             request.Name);
 
+        var subject = await subjectService.GetSubjectAsync(organizationId, subjectId);
         var response = subject.ToSubjectResponse();
 
-        return CreatedAtAction(nameof(GetSubject), new { subjectId = subject.Id }, response);
+        return CreatedAtAction(nameof(GetSubject), new { subjectId }, response);
     }
 
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -41,9 +43,9 @@ public class SubjectController(
     public async Task<IActionResult> GetSubject(Guid subjectId)
     {
         logger.LogInformation("Get subject endpoint was called for subject {SubjectId}", subjectId);
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var subject = await subjectService.GetSubjectAsync(new Guid(organizationId), subjectId);
+        var subject = await subjectService.GetSubjectAsync(organizationId, subjectId);
         if (subject == null)
             return NotFound();
         
@@ -56,9 +58,9 @@ public class SubjectController(
     public async Task<IActionResult> GetSubjectsAsync()
     {
         logger.LogInformation("Get subjects endpoint was called.");
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var subjects = await subjectService.GetSubjectsAsync(new Guid(organizationId));
+        var subjects = await subjectService.GetSubjectsAsync(organizationId);
         var subjectResponses = subjects.Select(s => s.ToSubjectResponse()).ToList();
         
         return Ok(subjectResponses);
@@ -69,9 +71,9 @@ public class SubjectController(
     public async Task<IActionResult> GetSubjectsByDepartmentAsync([FromQuery] Guid departmentId)
     {
         logger.LogInformation("Get subjects by department endpoint was called.");
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var subjects = await subjectService.GetSubjectsByDepartmentAsync(new Guid(organizationId), departmentId);
+        var subjects = await subjectService.GetSubjectsByDepartmentAsync(organizationId, departmentId);
         var subjectResponses = subjects.Select(s => s.ToSubjectResponse()).ToList();
         
         return Ok(subjectResponses);
@@ -82,10 +84,10 @@ public class SubjectController(
     public async Task<IActionResult> UpdateSubjectAsync(Guid subjectId, [FromBody] UpdateSubjectRequest request)
     {
         logger.LogInformation("Update subject endpoint was called for subject {SubjectId}", subjectId);
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
         await subjectService.UpdateSubjectAsync(
-            new Guid(organizationId),
+            organizationId,
             subjectId,
             request.DepartmentId,
             request.SchedulingPeriodId,
@@ -100,9 +102,9 @@ public class SubjectController(
     public async Task<IActionResult> DeleteSubjectAsync(Guid subjectId)
     {
         logger.LogInformation("Delete subject endpoint was called for subject {SubjectId}", subjectId);
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        await subjectService.DeleteSubjectAsync(new Guid(organizationId), subjectId);
+        await subjectService.DeleteSubjectAsync(organizationId, subjectId);
         
         return NoContent();
     }
@@ -112,19 +114,20 @@ public class SubjectController(
     public async Task<IActionResult> CreateActivityAsync(Guid subjectId, [FromBody] CreateActivityRequest request)
     {
         logger.LogInformation("Create activity endpoint was called for subject {SubjectId}", subjectId);
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
         var activity = await activityService.CreateActivityAsync(
-            new Guid(organizationId),
+            organizationId,
             subjectId,
             request.SubjectId,
             request.AssignedUserId,
             request.ActivityType,
             request.ExpectedStudents);
         
+        var activity = await activityService.GetActivityAsync(organizationId, activityId);
         var response = activity.ToActivityResponse();
         
-        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId = activity.Id }, response);
+        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -132,10 +135,10 @@ public class SubjectController(
     public async Task<IActionResult> GetActivity(Guid subjectId, Guid activityId)
     {
         logger.LogInformation("Get activity endpoint was called for subject {SubjectId} and activity {ActivityId}", subjectId, activityId);
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
         var  activity = await activityService.GetActivityAsync(
-            new Guid(organizationId),
+            organizationId,
             activityId);
         
         if (activity == null)
@@ -150,9 +153,9 @@ public class SubjectController(
     public async Task<IActionResult> GetActivitiesAsync()
     {
         logger.LogInformation("Get activities endpoint was called.");
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
-        var activities = await activityService.GetActivitiesAsync(new Guid(organizationId));
+        var activities = await activityService.GetActivitiesAsync(organizationId);
         var activityResponses = activities.Select(a => a.ToActivityResponse()).ToList();
         
         return Ok(activityResponses);
@@ -163,10 +166,10 @@ public class SubjectController(
     public async Task<IActionResult> GetActivitiesBySubjectAsync(Guid subjectId)
     {
         logger.LogInformation("Get activities by subject endpoint was called for subject {SubjectId}", subjectId);
-        var organizationId = GetOrganizationIdFromContext();
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
         var activities = await activityService.GetActivitiesBySubjectAsync(
-            new Guid(organizationId),
+            organizationId,
             subjectId);
         
         var activityResponses = activities.Select(a => a.ToActivityResponse()).ToList();
@@ -179,10 +182,10 @@ public class SubjectController(
     public async Task<IActionResult> UpdateActivityAsync(Guid activityId, [FromBody] UpdateActivityRequest request)
     {
         logger.LogInformation("Update activity endpoint was called for activity {ActivityId}", activityId);
-        
-        var organizationId = GetOrganizationIdFromContext();
+
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         await activityService.UpdateActivityAsync(
-            new Guid(organizationId),
+            organizationId,
             activityId,
             request.SubjectId,
             request.AssignedUserId,
@@ -198,10 +201,8 @@ public class SubjectController(
     {
         logger.LogInformation("Delete activity endpoint was called for activity {ActivityId}", activityId);
         
-        var organizationId = GetOrganizationIdFromContext();
-        await activityService.DeleteActivityAsync(
-            new Guid(organizationId),
-            activityId);
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+        await activityService.DeleteActivityAsync(organizationId, activityId);
         
         return NoContent();
     }
