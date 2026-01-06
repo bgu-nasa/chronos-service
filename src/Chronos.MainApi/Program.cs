@@ -96,6 +96,9 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Enable CORS
+app.UseCors();
+
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment() || app.Environment.IsLocal())
 {
