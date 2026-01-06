@@ -24,11 +24,11 @@ public class AssignmentRepository(AppDbContext context) : IAssignmentRepository
             .Where(a => a.SlotId == slotId)
             .ToListAsync();
     }
-    
-    public async Task<List<Assignment>> GetBySchedulingItemIdAsync(Guid schedulingItemId)
+
+    public async Task<List<Assignment>> GetByActivityIdAsync(Guid activityId)
     {
         return await context.Assignments
-            .Where(a => a.ScheduledItemId == schedulingItemId)
+            .Where(a => a.ActivityId == activityId)
             .ToListAsync();
     }
     
@@ -36,6 +36,12 @@ public class AssignmentRepository(AppDbContext context) : IAssignmentRepository
     {
         return await context.Assignments
             .FirstOrDefaultAsync(a => a.SlotId == slotId && a.ResourceId == resourceId);
+    }
+    public async Task<List<Assignment>> GetByResourceIdAsync(Guid resourceId)
+    {
+        return await context.Assignments
+            .Where(a => a.ResourceId == resourceId)
+            .ToListAsync();
     }
 
 
