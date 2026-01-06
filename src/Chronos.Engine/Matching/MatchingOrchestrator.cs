@@ -3,7 +3,7 @@ using Chronos.Domain.Schedule.Messages;
 namespace Chronos.Engine.Matching;
 
 /// <summary>
-/// Routes scheduling requests to the appropriate matching strategy
+/// Routes scheduling requests to the appropriate matching strategy (Batch or Online)
 /// </summary>
 public class MatchingOrchestrator
 {
@@ -24,22 +24,23 @@ public class MatchingOrchestrator
         CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Routing scheduling request of type {RequestType} to {Mode} strategy",
-            request.GetType().Name,
-            mode);
+            "Orchestrating scheduling request with mode {Mode}, request type {RequestType}",
+            mode,
+            request.GetType().Name);
 
         var strategy = _strategies.FirstOrDefault(s => s.Mode == mode);
 
         if (strategy == null)
         {
-            var errorMessage = $"No strategy found for mode: {mode}";
-            _logger.LogError(errorMessage);
-            throw new InvalidOperationException(errorMessage);
+            var error = $"No strategy found for mode {mode}";
+            _logger.LogError(error);
+            throw new InvalidOperationException(error);
         }
 
-        _logger.LogDebug(
-            "Selected strategy: {StrategyType}",
-            strategy.GetType().Name);
+        _logger.LogInformation(
+            "Using strategy {StrategyType} for mode {Mode}",
+            strategy.GetType().Name,
+            mode);
 
         return await strategy.ExecuteAsync(request, cancellationToken);
     }
