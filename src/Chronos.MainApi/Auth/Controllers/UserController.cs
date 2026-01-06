@@ -105,6 +105,14 @@ public class UserController(
     {
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         logger.LogInformation("Delete user {UserId} from organization {OrganizationId}", userId, organizationId);
+
+        var thisUserId = User.GetUserId();
+        if (thisUserId == userId)
+        {
+            logger.LogInformation("User {UserId} attempted to delete themselves, which is not allowed.", userId);
+            return BadRequest("Users cannot delete themselves.");
+        }
+
         await userService.DeleteUserAsync(organizationId, userId);
         return NoContent();
     }
