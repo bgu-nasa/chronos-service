@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chronos.Tests", "Chronos.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chronos.Tests.Data", "tests\Chronos.Tests.Data\Chronos.Tests.Data.csproj", "{24E07964-EE27-47D7-AEEF-CD11207FE12E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chronos.Engine", "Chronos.Engine\Chronos.Engine.csproj", "{0EED08D1-62E8-4BD2-9F83-28B1345EEF94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{24E07964-EE27-47D7-AEEF-CD11207FE12E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24E07964-EE27-47D7-AEEF-CD11207FE12E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24E07964-EE27-47D7-AEEF-CD11207FE12E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EED08D1-62E8-4BD2-9F83-28B1345EEF94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EED08D1-62E8-4BD2-9F83-28B1345EEF94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EED08D1-62E8-4BD2-9F83-28B1345EEF94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EED08D1-62E8-4BD2-9F83-28B1345EEF94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{24E07964-EE27-47D7-AEEF-CD11207FE12E} = {DCD97785-8792-4C06-9682-6103328E4D7D}
