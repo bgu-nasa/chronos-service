@@ -244,7 +244,7 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
                 OrganizationId = organizationId,
                 SlotId = selected.SlotId,
                 ResourceId = selected.ResourceId,
-                ScheduledItemId = activity.Id
+                ActivityId = activity.Id
             };
 
             await _assignmentRepository.AddAsync(assignment);
