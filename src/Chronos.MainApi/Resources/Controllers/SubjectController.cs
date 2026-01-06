@@ -1,4 +1,5 @@
 using Chronos.MainApi.Resources.Contracts;
+using Chronos.MainApi.Resources.Extensions;
 using Chronos.MainApi.Resources.Services;
 using Chronos.Shared.Exceptions;
 using Chronos.Shared.Extensions;
@@ -8,14 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chronos.MainApi.Resources.Controllers;
 
 [ApiController]
-[Route("api/resources/subjects/[controller]")]
+[Route("api/department/{departmentId}/resources/subjects/[controller]")]
 public class SubjectController(
     ILogger<SubjectController> logger,
     ISubjectService subjectService,
     IActivityService activityService
     ) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost]
     public async Task<IActionResult> CreateSubjectAsync([FromBody] CreateSubjectRequest request)
     {
@@ -30,10 +31,13 @@ public class SubjectController(
             request.Code,
             request.Name);
 
-        return CreatedAtAction(nameof(GetSubject), new { subjectId }, new { id = subjectId });
+        var subject = await subjectService.GetSubjectAsync(new Guid(organizationId), subjectId);
+        var response = subject.ToSubjectResponse();
+
+        return CreatedAtAction(nameof(GetSubject), new { subjectId }, response);
     }
 
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("{subjectId}")]
     public async Task<IActionResult> GetSubject(Guid subjectId)
     {
@@ -44,11 +48,11 @@ public class SubjectController(
         if (subject == null)
             return NotFound();
         
-        var subjectResponse = new SubjectResponse(subject.Id);
+        var subjectResponse = subject.ToSubjectResponse();
         return Ok(subjectResponse);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet]
     public async Task<IActionResult> GetSubjectsAsync()
     {
@@ -56,12 +60,12 @@ public class SubjectController(
         var organizationId = GetOrganizationIdFromContext();
         
         var subjects = await subjectService.GetSubjectsAsync(new Guid(organizationId));
-        var subjectResponses = subjects.Select(s => new SubjectResponse(s.Id)).ToList();
+        var subjectResponses = subjects.Select(s => s.ToSubjectResponse()).ToList();
         
         return Ok(subjectResponses);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet]
     public async Task<IActionResult> GetSubjectsByDepartmentAsync([FromQuery] Guid departmentId)
     {
@@ -69,12 +73,12 @@ public class SubjectController(
         var organizationId = GetOrganizationIdFromContext();
         
         var subjects = await subjectService.GetSubjectsByDepartmentAsync(new Guid(organizationId), departmentId);
-        var subjectResponses = subjects.Select(s => new SubjectResponse(s.Id)).ToList();
+        var subjectResponses = subjects.Select(s => s.ToSubjectResponse()).ToList();
         
         return Ok(subjectResponses);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPatch("{subjectId}")]
     public async Task<IActionResult> UpdateSubjectAsync(Guid subjectId, [FromBody] UpdateSubjectRequest request)
     {
@@ -92,7 +96,7 @@ public class SubjectController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpDelete("{subjectId}")]
     public async Task<IActionResult> DeleteSubjectAsync(Guid subjectId)
     {
@@ -104,7 +108,7 @@ public class SubjectController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost("{subjectId}/activities")]
     public async Task<IActionResult> CreateActivityAsync(Guid subjectId, [FromBody] CreateActivityRequest request)
     {
@@ -119,10 +123,13 @@ public class SubjectController(
             request.ActivityType,
             request.ExpectedStudents);
         
-        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId }, new { id =  activityId });
+        var activity = await activityService.GetActivityAsync(new Guid(organizationId), activityId);
+        var response = activity.ToActivityResponse();
+        
+        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId }, response);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("{subjectId}/activities/{activityId}")]
     public async Task<IActionResult> GetActivity(Guid subjectId, Guid activityId)
     {
@@ -136,11 +143,11 @@ public class SubjectController(
         if (activity == null)
             return NotFound();
         
-        var activityResponse = new ActivityResponse(activity.Id);
+        var activityResponse = activity.ToActivityResponse();
         return Ok(activityResponse);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("activities")]
     public async Task<IActionResult> GetActivitiesAsync()
     {
@@ -148,12 +155,12 @@ public class SubjectController(
         var organizationId = GetOrganizationIdFromContext();
         
         var activities = await activityService.GetActivitiesAsync(new Guid(organizationId));
-        var activityResponses = activities.Select(a => new ActivityResponse(a.Id)).ToList();
+        var activityResponses = activities.Select(a => a.ToActivityResponse()).ToList();
         
         return Ok(activityResponses);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("{subjectId}/activities")]
     public async Task<IActionResult> GetActivitiesBySubjectAsync(Guid subjectId)
     {
@@ -164,12 +171,12 @@ public class SubjectController(
             new Guid(organizationId),
             subjectId);
         
-        var activityResponses = activities.Select(a => new ActivityResponse(a.Id)).ToList();
+        var activityResponses = activities.Select(a => a.ToActivityResponse()).ToList();
         
         return Ok(activityResponses);
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPatch("activities/{activityId}")]
     public async Task<IActionResult> UpdateActivityAsync(Guid activityId, [FromBody] UpdateActivityRequest request)
     {
@@ -187,7 +194,7 @@ public class SubjectController(
         return NoContent();
     }
     
-    [Authorize]
+    [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpDelete("activities/{activityId}")]
     public async Task<IActionResult> DeleteActivityAsync(Guid activityId)
     {
