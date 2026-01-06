@@ -1,4 +1,5 @@
 using Chronos.Domain.Management.Roles;
+using Chronos.MainApi.Auth.Contracts;
 using Chronos.MainApi.Management.Contracts;
 
 namespace Chronos.MainApi.Management.Services;
@@ -10,4 +11,5 @@ public interface IRoleService
     Task<RoleAssignmentResponse> GetAssignmentAsync(Guid organizationId, Guid roleAssignmentId);
     Task<RoleAssignmentResponse> AddAssignmentAsync(Guid organizationId, Guid? departmentId, Guid userId, Role role);
     Task RemoveAssignmentAsync(Guid organizationId, Guid roleAssignmentId);
+    Task<List<UserRoleAssignmentSummary>> GetRoleAssignmentsSummaryAsync(Guid organizationId);
 }

@@ -27,6 +27,16 @@ public class RoleController(
     }
 
     [Authorize(Policy = "OrgRole:Viewer")]
+    [HttpGet("summary")]
+    public async Task<IActionResult> GetRoleAssignmentsSummary()
+    {
+        logger.LogInformation("Get role assignments summary");
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+        var summary = await roleService.GetRoleAssignmentsSummaryAsync(organizationId);
+        return Ok(summary);
+    }
+
+    [Authorize(Policy = "OrgRole:Viewer")]
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetUserRoleAssignments(string userId)
     {
