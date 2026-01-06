@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Chronos.MainApi.Management.Services;
 using Chronos.MainApi.Shared.Middleware;
-using Chronos.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
