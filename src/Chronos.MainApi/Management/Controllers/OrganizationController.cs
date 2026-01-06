@@ -17,7 +17,7 @@ public class OrganizationController(
 : ControllerBase
 {
     [Authorize]
-    [HttpGet("/info")]
+    [HttpGet("info")]
     public async Task<IActionResult> GetOrganizationInfoAsync()
     {
         logger.LogInformation("Get organization info");
@@ -41,7 +41,7 @@ public class OrganizationController(
     }
 
     [Authorize(Policy = "OrgRole:Administrator")]
-    [HttpPost("/restore")]
+    [HttpPost("restore")]
     public async Task<IActionResult> RestoreOrganization()
     {
         logger.LogInformation("Restore organization endpoint was called");
