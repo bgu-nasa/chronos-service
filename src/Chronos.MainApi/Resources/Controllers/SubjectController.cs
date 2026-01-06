@@ -1,9 +1,9 @@
 using Chronos.MainApi.Resources.Contracts;
 using Chronos.MainApi.Resources.Extensions;
 using Chronos.MainApi.Resources.Services;
+using Chronos.MainApi.Shared.Controllers.Utils;
 using Chronos.Shared.Exceptions;
 using Chronos.Shared.Extensions;
-using Chronos.MainApi.Shared.Controllers.ControllerUtils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
