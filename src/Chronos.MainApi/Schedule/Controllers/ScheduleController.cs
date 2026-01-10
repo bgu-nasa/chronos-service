@@ -1,8 +1,7 @@
-using Chronos.MainApi.Management.Controllers;
 using Chronos.MainApi.Schedule.Contracts;
 using Chronos.MainApi.Schedule.Extensions;
 using Chronos.MainApi.Schedule.Services;
-using Chronos.MainApi.Shared.Middleware;
+using Chronos.MainApi.Shared.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
