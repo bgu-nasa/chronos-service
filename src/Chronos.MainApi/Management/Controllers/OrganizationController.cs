@@ -1,4 +1,5 @@
 using Chronos.MainApi.Management.Services;
+using Chronos.MainApi.Shared.Controllers.Utils;
 using Chronos.MainApi.Shared.Extensions;
 using Chronos.MainApi.Shared.Middleware;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chronos.MainApi.Management.Controllers;
 
 [ApiController]
-[RequireOrganization]
 [Route("api/management/[controller]")]
 public class OrganizationController(
     ILogger<OrganizationController> logger,
@@ -16,12 +16,12 @@ public class OrganizationController(
 : ControllerBase
 {
     [Authorize]
-    [HttpGet("/info")]
+    [HttpGet("info")]
     public async Task<IActionResult> GetOrganizationInfoAsync()
     {
         logger.LogInformation("Get organization info");
 
-        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+        var organizationId = HttpContext.User.GetOrganizationId();
         var userId = HttpContext.User.GetUserId();
 
         var orgInfo = await infoService.GetOrganizationInformationAsync(organizationId, userId);
@@ -30,6 +30,7 @@ public class OrganizationController(
     }
 
     [Authorize(Policy = "OrgRole:Administrator")]
+    [RequireOrganization]
     [HttpDelete]
     public async Task<IActionResult> DeleteOrganization()
     {
@@ -40,7 +41,8 @@ public class OrganizationController(
     }
 
     [Authorize(Policy = "OrgRole:Administrator")]
-    [HttpPost("/restore")]
+    [RequireOrganization]
+    [HttpPost("restore")]
     public async Task<IActionResult> RestoreOrganization()
     {
         logger.LogInformation("Restore organization endpoint was called");

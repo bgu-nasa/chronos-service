@@ -8,7 +8,7 @@ public class ResourceTypeService(
     ResourceValidationService validationService,
     ILogger<ResourceType> logger) : IResourceTypeService
 {
-    public async Task<Guid> CreateResourceTypeAsync(Guid organizationId, string type)
+    public async Task<ResourceType> CreateResourceTypeAsync(Guid organizationId, string type)
     {
         logger.LogInformation("Creating resource type. OrganizationId: {OrganizationId}, Type: {Type}",
             organizationId, type);
@@ -24,7 +24,7 @@ public class ResourceTypeService(
         await resourceTypeRepository.AddAsync(resourceType);
 
         logger.LogInformation("Resource type created successfully. ResourceTypeId: {ResourceTypeId}, OrganizationId: {OrganizationId}", resourceType.Id, organizationId);
-        return resourceType.Id;
+        return resourceType;
     }
 
     public async Task<ResourceType> GetResourceTypeAsync(Guid organizationId, Guid resourceTypeId)

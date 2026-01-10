@@ -1,12 +1,13 @@
 using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
+using Chronos.MainApi.Shared.ExternalMangement;
 
 namespace Chronos.MainApi.Schedule.Services;
 
 public class UserPreferenceService(
     IUserPreferenceRepository userPreferenceRepository,
     ILogger<UserPreferenceService> logger,
-    IManegmentClient scheduleValidationService) : IUserPreferenceService
+    IManagementExternalService scheduleValidationService) : IUserPreferenceService
 {
     public async Task<Guid> CreateUserPreferenceAsync(Guid organizationId,Guid userId, Guid schedulingPeriodId,
         string key, string value)

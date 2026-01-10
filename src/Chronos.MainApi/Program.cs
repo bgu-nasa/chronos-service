@@ -64,7 +64,14 @@ builder.Services.AddSingleton<IAuthorizationHandler, RequireRoleOrgHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, RequireRoleDeptHandler>();
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -94,6 +101,18 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// TODO Move to config file
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 // Enable CORS
@@ -106,10 +125,12 @@ if (app.Environment.IsDevelopment() || app.Environment.IsLocal())
     app.UseSwaggerUI();
 }
 
+// Global exception handler should be first in the pipeline
+app.UseMiddleware<GlobalExceptionHandler>();
+app.UseMiddleware<OrganizationMiddleware>();
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseMiddleware<OrganizationMiddleware>();
 
 // app.UseHttpsRedirection();
 app.MapControllers();

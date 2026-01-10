@@ -300,7 +300,7 @@ Activity {
 // Matching (edges)
 Assignment {
     Id, OrganizationId
-    SlotId, ResourceId, ScheduledItemId (= ActivityId)
+    SlotId, ResourceId, ActivityId
     // Unique constraint: (SlotId, ResourceId)
 }
 

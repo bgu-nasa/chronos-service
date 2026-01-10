@@ -1,6 +1,7 @@
 using Chronos.MainApi.Management.Contracts;
 using Chronos.MainApi.Management.Extensions;
 using Chronos.MainApi.Management.Services;
+using Chronos.MainApi.Shared.Controllers.Utils;
 using Chronos.MainApi.Shared.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,17 @@ public class RoleController(
         logger.LogInformation("Get all role assignments");
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         var assignments = await roleService.GetAllAssignmentsAsync(organizationId);
-        return Ok(assignments.Select(a => a.ToRoleAssignmentResponse()).ToArray());
+        return Ok(assignments);
+    }
+
+    [Authorize(Policy = "OrgRole:Viewer")]
+    [HttpGet("summary")]
+    public async Task<IActionResult> GetRoleAssignmentsSummary()
+    {
+        logger.LogInformation("Get role assignments summary");
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+        var summary = await roleService.GetRoleAssignmentsSummaryAsync(organizationId);
+        return Ok(summary);
     }
 
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -40,7 +51,7 @@ public class RoleController(
         }
         
         var assignments = await roleService.GetUserAssignmentsAsync(organizationId, userGuid);
-        return Ok(assignments.Select(a => a.ToRoleAssignmentResponse()).ToArray());
+        return Ok(assignments);
     }
 
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -59,7 +70,7 @@ public class RoleController(
         
         var assignment = await roleService.GetAssignmentAsync(organizationId, assignmentGuid);
         
-        return Ok(assignment.ToRoleAssignmentResponse());
+        return Ok(assignment);
     }
 
     [Authorize(Policy = "OrgRole:ResourceManager")]
@@ -80,7 +91,7 @@ public class RoleController(
         return CreatedAtAction(
             nameof(GetRoleAssignmentById),
             new { roleAssignmentId = assignment.Id },
-            assignment.ToRoleAssignmentResponse()
+            assignment
         );
     }
 

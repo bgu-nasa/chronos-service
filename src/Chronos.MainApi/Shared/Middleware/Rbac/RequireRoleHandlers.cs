@@ -5,6 +5,30 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Chronos.MainApi.Shared.Middleware.Rbac;
 
+public static class RoleCheckerHelpers
+{
+    public static bool IsOrganizationRoleAuthorized(AuthorizationHandlerContext context, Role requirement, string organizationId)
+    {
+        return context.User.GetRoles()
+            .Where(sr => sr.DepartmentId is null)
+            .Where(sr => sr.OrganizationId.ToString().Equals(organizationId))
+            .Select(sr => sr.Role)
+            .Any(r => r.RoleIncludes(requirement));
+    }
+
+
+
+    public static bool IsDepartmentRoleAuthorized(AuthorizationHandlerContext context, Role requirement, string organizationId, string departmentId)
+    {
+        return context.User.GetRoles()
+            .Where(sr => sr.OrganizationId.ToString().Equals(organizationId))
+            .Where(sr => sr.DepartmentId is not null)
+            .Where(sr => sr.DepartmentId.ToString()!.Equals(departmentId))
+            .Select(sr => sr.Role)
+            .Any(r => r.RoleIncludes(requirement));
+    }
+}
+
 /// <summary>
 /// Forces the user to have a specific role within the organization that is defined in the request context.
 /// </summary>
@@ -24,11 +48,7 @@ public sealed class RequireRoleOrgHandler : AuthorizationHandler<RequireOrgRole>
             return Task.CompletedTask;
         }
 
-        var authorized = context.User.GetRoles()
-            .Where(sr => sr.DepartmentId is null)
-            .Where(sr => sr.OrganizationId.ToString().Equals(organizationId))
-            .Select(sr => sr.Role)
-            .Any(r => r.RoleIncludes(requirement.Role));
+        var authorized = RoleCheckerHelpers.IsOrganizationRoleAuthorized(context, requirement.Role, organizationId);
 
         if (authorized)
         {
@@ -60,12 +80,8 @@ public sealed class RequireRoleDeptHandler : AuthorizationHandler<RequireDeptRol
             return Task.CompletedTask;
         }
 
-        var authorized = context.User.GetRoles()
-            .Where(sr => sr.OrganizationId.ToString().Equals(organizationId))
-            .Where(sr => sr.DepartmentId is not null)
-            .Where(sr => sr.DepartmentId.ToString()!.Equals(departmentId))
-            .Select(sr => sr.Role)
-            .Any(r => r.RoleIncludes(requirement.Role));
+        var authorized = RoleCheckerHelpers.IsDepartmentRoleAuthorized(context, requirement.Role, organizationId, departmentId)
+            || RoleCheckerHelpers.IsOrganizationRoleAuthorized(context, requirement.Role, organizationId);
 
         if (authorized)
         {

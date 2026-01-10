@@ -1,12 +1,13 @@
 ﻿using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
+using Chronos.MainApi.Shared.ExternalMangement;
 using Chronos.Shared.Exceptions;
 
 namespace Chronos.MainApi.Schedule.Services;
 
 public class SlotService(
     ISlotRepository slotRepository,
-    IManegmentClient validationService,
+    IManagementExternalService validationService,
     ILogger<SlotService> logger) : ISlotService
 {
     

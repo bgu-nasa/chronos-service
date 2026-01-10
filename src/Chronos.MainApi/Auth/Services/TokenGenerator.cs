@@ -5,6 +5,7 @@ using System.Text.Json;
 using Chronos.Domain.Auth;
 using Chronos.Domain.Management.Roles;
 using Chronos.MainApi.Auth.Configuration;
+using Chronos.MainApi.Management.Extensions;
 using Chronos.MainApi.Management.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +25,7 @@ public class TokenGenerator(IOptions<AuthConfiguration> config, IRoleService rol
     {
         var roles = await roleService.GetUserAssignmentsAsync(user.OrganizationId, user.Id);
         return roles
-            .Select(r => new SimpleRoleAssignment(r.Role, r.OrganizationId, r.DepartmentId))
+            .Select(r => new SimpleRoleAssignment(r.Role.ToDomainRole(), r.OrganizationId, r.DepartmentId))
             .ToList();
     }
 

@@ -24,6 +24,6 @@ public static class RoleResolver
             return true;
         }
 
-        return RoleMaps.TryGetValue(givenRole, out var includedRoles) && includedRoles.Contains(requiredRole);
+        return RoleMaps.TryGetValue(requiredRole, out var includedRoles) && includedRoles.Contains(requiredRole);
     }
 }
