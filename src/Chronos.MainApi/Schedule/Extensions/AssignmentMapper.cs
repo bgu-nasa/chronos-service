@@ -11,6 +11,6 @@ public static class AssignmentMapper
             OrganizationId: assignment.OrganizationId.ToString(),
             SlotId: assignment.SlotId.ToString(),
             ResourceId: assignment.ResourceId.ToString(),
-            ScheduledItemId: assignment.ScheduledItemId.ToString()
+            ActivityId: assignment.ActivityId.ToString()
         );
 }
