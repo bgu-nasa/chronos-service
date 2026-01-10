@@ -5,4 +5,4 @@ public record AssignmentResponse(
     string OrganizationId,
     string SlotId,
     string ResourceId,
-    string ScheduledItemId);
+    string ActivityId);
