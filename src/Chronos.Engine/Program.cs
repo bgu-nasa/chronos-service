@@ -14,22 +14,26 @@ using Microsoft.EntityFrameworkCore;
 var builder = Host.CreateApplicationBuilder(args);
 
 // Load configuration from AppSettings folder
-builder.Configuration
-    .SetBasePath(builder.Environment.ContentRootPath)
+builder
+    .Configuration.SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile("AppSettings/appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"AppSettings/appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddJsonFile(
+        $"AppSettings/appsettings.{builder.Environment.EnvironmentName}.json",
+        optional: true,
+        reloadOnChange: true
+    )
     .AddEnvironmentVariables();
 
 // Configuration
 builder.Services.Configure<RabbitMqOptions>(
-    builder.Configuration.GetSection(RabbitMqOptions.SectionName));
+    builder.Configuration.GetSection(RabbitMqOptions.SectionName)
+);
 
 // Add IHttpContextAccessor (required by AppDbContext, but will be null in non-web context)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 // Database - using InMemoryDatabase for now (same as MainApi)
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("AppDbContext"));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("AppDbContext"));
 
 // Auth Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -61,6 +65,7 @@ builder.Services.AddSingleton<IMessagePublisher, MessagePublisher>();
 // Constraint Processing
 builder.Services.AddScoped<IConstraintProcessor, ActivityConstraintProcessor>();
 builder.Services.AddScoped<IConstraintHandler, ExampleExcludedWeekdayConstraintHandler>();
+
 // Add more constraint handlers here as needed
 
 // Matching Algorithms
