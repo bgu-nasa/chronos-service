@@ -16,7 +16,5 @@ public interface IConstraintHandler
     /// <summary>
     /// Process the constraint and return the set of Slot IDs that should be excluded
     /// </summary>
-    Task<HashSet<Guid>> ProcessConstraintAsync(
-        ActivityConstraint constraint,
-        Guid organizationId);
+    Task<HashSet<Guid>> ProcessConstraintAsync(ActivityConstraint constraint, Guid organizationId);
 }

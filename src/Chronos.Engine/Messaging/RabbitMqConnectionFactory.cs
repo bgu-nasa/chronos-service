@@ -4,25 +4,21 @@ using RabbitMQ.Client;
 
 namespace Chronos.Engine.Messaging;
 
-public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory, IDisposable
+public class RabbitMqConnectionFactory(
+    IOptions<RabbitMqOptions> options,
+    ILogger<RabbitMqConnectionFactory> logger
+) : IRabbitMqConnectionFactory, IDisposable
 {
-    private readonly RabbitMqOptions _options;
-    private readonly ILogger<RabbitMqConnectionFactory> _logger;
+    private readonly RabbitMqOptions _options = options.Value;
+    private readonly ILogger<RabbitMqConnectionFactory> _logger = logger;
     private IConnection? _connection;
     private readonly object _lock = new();
-
-    public RabbitMqConnectionFactory(
-        IOptions<RabbitMqOptions> options,
-        ILogger<RabbitMqConnectionFactory> logger)
-    {
-        _options = options.Value;
-        _logger = logger;
-    }
 
     public IConnection CreateConnection()
     {
         if (_connection != null && _connection.IsOpen)
         {
+            _logger.LogTrace("Reusing existing RabbitMQ connection");
             return _connection;
         }
 
@@ -30,13 +26,15 @@ public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory, IDisposable
         {
             if (_connection != null && _connection.IsOpen)
             {
+                _logger.LogTrace("Reusing existing RabbitMQ connection (after lock)");
                 return _connection;
             }
 
             _logger.LogInformation(
                 "Creating RabbitMQ connection to {HostName}:{Port}",
                 _options.HostName,
-                _options.Port);
+                _options.Port
+            );
 
             var factory = new ConnectionFactory
             {
@@ -46,7 +44,7 @@ public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory, IDisposable
                 Password = _options.Password,
                 VirtualHost = _options.VirtualHost,
                 AutomaticRecoveryEnabled = true,
-                NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
+                NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
             };
 
             _connection = factory.CreateConnection();
@@ -59,15 +57,19 @@ public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory, IDisposable
 
     public IModel CreateChannel()
     {
+        _logger.LogDebug("Creating new RabbitMQ channel");
         var connection = CreateConnection();
         var channel = connection.CreateModel();
+
+        _logger.LogTrace("Declaring exchange and queues");
 
         // Declare exchange
         channel.ExchangeDeclare(
             exchange: _options.ExchangeName,
             type: "topic",
             durable: true,
-            autoDelete: false);
+            autoDelete: false
+        );
 
         // Declare batch queue
         channel.QueueDeclare(
@@ -75,12 +77,14 @@ public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory, IDisposable
             durable: true,
             exclusive: false,
             autoDelete: false,
-            arguments: null);
+            arguments: null
+        );
 
         channel.QueueBind(
             queue: _options.BatchQueueName,
             exchange: _options.ExchangeName,
-            routingKey: "request.batch");
+            routingKey: "request.batch"
+        );
 
         // Declare online queue
         channel.QueueDeclare(
@@ -88,12 +92,14 @@ public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory, IDisposable
             durable: true,
             exclusive: false,
             autoDelete: false,
-            arguments: null);
+            arguments: null
+        );
 
         channel.QueueBind(
             queue: _options.OnlineQueueName,
             exchange: _options.ExchangeName,
-            routingKey: "request.online");
+            routingKey: "request.online"
+        );
 
         _logger.LogDebug("RabbitMQ channel created with queues configured");
 

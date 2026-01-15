@@ -9,28 +9,20 @@ using RabbitMQ.Client.Events;
 
 namespace Chronos.Engine.Messaging;
 
-public class OnlineSchedulingConsumer : BackgroundService
+public class OnlineSchedulingConsumer(
+    IRabbitMqConnectionFactory connectionFactory,
+    MatchingOrchestrator orchestrator,
+    IMessagePublisher messagePublisher,
+    IOptions<RabbitMqOptions> options,
+    ILogger<OnlineSchedulingConsumer> logger
+) : BackgroundService
 {
-    private readonly IRabbitMqConnectionFactory _connectionFactory;
-    private readonly MatchingOrchestrator _orchestrator;
-    private readonly IMessagePublisher _messagePublisher;
-    private readonly RabbitMqOptions _options;
-    private readonly ILogger<OnlineSchedulingConsumer> _logger;
+    private readonly IRabbitMqConnectionFactory _connectionFactory = connectionFactory;
+    private readonly MatchingOrchestrator _orchestrator = orchestrator;
+    private readonly IMessagePublisher _messagePublisher = messagePublisher;
+    private readonly RabbitMqOptions _options = options.Value;
+    private readonly ILogger<OnlineSchedulingConsumer> _logger = logger;
     private IModel? _channel;
-
-    public OnlineSchedulingConsumer(
-        IRabbitMqConnectionFactory connectionFactory,
-        MatchingOrchestrator orchestrator,
-        IMessagePublisher messagePublisher,
-        IOptions<RabbitMqOptions> options,
-        ILogger<OnlineSchedulingConsumer> logger)
-    {
-        _connectionFactory = connectionFactory;
-        _orchestrator = orchestrator;
-        _messagePublisher = messagePublisher;
-        _options = options.Value;
-        _logger = logger;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -52,9 +44,12 @@ public class OnlineSchedulingConsumer : BackgroundService
 
                     _logger.LogInformation(
                         "Received online scheduling request. DeliveryTag: {DeliveryTag}",
-                        ea.DeliveryTag);
+                        ea.DeliveryTag
+                    );
 
-                    var request = JsonSerializer.Deserialize<HandleConstraintChangeRequest>(message);
+                    var request = JsonSerializer.Deserialize<HandleConstraintChangeRequest>(
+                        message
+                    );
 
                     if (request == null)
                     {
@@ -67,19 +62,22 @@ public class OnlineSchedulingConsumer : BackgroundService
                     var result = await _orchestrator.ExecuteAsync(
                         request,
                         SchedulingMode.Online,
-                        stoppingToken);
+                        stoppingToken
+                    );
 
                     // Publish result
                     await _messagePublisher.PublishAsync(
                         result,
-                        result.Success ? "result.success" : "result.failed");
+                        result.Success ? "result.success" : "result.failed"
+                    );
 
                     _channel.BasicAck(ea.DeliveryTag, false);
 
                     _logger.LogInformation(
                         "Online scheduling completed. Success: {Success}, Modified: {Modified}",
                         result.Success,
-                        result.AssignmentsModified);
+                        result.AssignmentsModified
+                    );
                 }
                 catch (Exception ex)
                 {
@@ -91,11 +89,13 @@ public class OnlineSchedulingConsumer : BackgroundService
             _channel.BasicConsume(
                 queue: _options.OnlineQueueName,
                 autoAck: false,
-                consumer: consumer);
+                consumer: consumer
+            );
 
             _logger.LogInformation(
                 "Online Scheduling Consumer started, listening to queue: {QueueName}",
-                _options.OnlineQueueName);
+                _options.OnlineQueueName
+            );
 
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
