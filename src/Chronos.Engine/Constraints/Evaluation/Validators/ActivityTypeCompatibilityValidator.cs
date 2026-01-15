@@ -11,21 +11,15 @@ namespace Chronos.Engine.Constraints.Evaluation.Validators;
 /// Value Format: "Lecture Hall,Seminar Room,Laboratory" (comma-separated resource type names)
 /// Type: Hard constraint (error if violated)
 /// </summary>
-public class ActivityTypeCompatibilityValidator : IConstraintValidator
+public class ActivityTypeCompatibilityValidator(
+    IResourceTypeRepository resourceTypeRepository,
+    ILogger<ActivityTypeCompatibilityValidator> logger
+) : IConstraintValidator
 {
-    private readonly IResourceTypeRepository _resourceTypeRepository;
-    private readonly ILogger<ActivityTypeCompatibilityValidator> _logger;
+    private readonly IResourceTypeRepository _resourceTypeRepository = resourceTypeRepository;
+    private readonly ILogger<ActivityTypeCompatibilityValidator> _logger = logger;
 
     public string ConstraintKey => "compatible_resource_types";
-
-    public ActivityTypeCompatibilityValidator(
-        IResourceTypeRepository resourceTypeRepository,
-        ILogger<ActivityTypeCompatibilityValidator> logger
-    )
-    {
-        _resourceTypeRepository = resourceTypeRepository;
-        _logger = logger;
-    }
 
     public async Task<ConstraintViolation?> ValidateAsync(
         ActivityConstraint constraint,
@@ -34,6 +28,12 @@ public class ActivityTypeCompatibilityValidator : IConstraintValidator
         Resource resource
     )
     {
+        _logger.LogDebug(
+            "Validating compatible_resource_types constraint for Activity {ActivityId}, Resource {ResourceId}",
+            activity.Id,
+            resource.Id
+        );
+
         try
         {
             // Parse comma-separated resource type names
@@ -64,6 +64,11 @@ public class ActivityTypeCompatibilityValidator : IConstraintValidator
             }
 
             // Load the resource's type information
+            _logger.LogTrace(
+                "Loading resource type {ResourceTypeId} for Resource {ResourceId}",
+                resource.ResourceTypeId,
+                resource.Id
+            );
             var resourceType = await _resourceTypeRepository.GetByIdAsync(resource.ResourceTypeId);
 
             if (resourceType == null)
@@ -103,6 +108,11 @@ public class ActivityTypeCompatibilityValidator : IConstraintValidator
             }
 
             // No violation - resource type is compatible
+            _logger.LogTrace(
+                "Resource type '{ResourceType}' is compatible for Activity {ActivityId}",
+                resourceType.Type,
+                activity.Id
+            );
             return null;
         }
         catch (Exception ex)

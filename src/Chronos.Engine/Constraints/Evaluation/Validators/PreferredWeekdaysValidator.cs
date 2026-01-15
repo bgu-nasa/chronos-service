@@ -10,16 +10,12 @@ namespace Chronos.Engine.Constraints.Evaluation.Validators;
 /// Value Format: "Monday,Wednesday,Friday" (comma-separated weekday names)
 /// Type: Soft constraint (warning if not matched)
 /// </summary>
-public class PreferredWeekdaysValidator : IConstraintValidator
+public class PreferredWeekdaysValidator(ILogger<PreferredWeekdaysValidator> logger)
+    : IConstraintValidator
 {
-    private readonly ILogger<PreferredWeekdaysValidator> _logger;
+    private readonly ILogger<PreferredWeekdaysValidator> _logger = logger;
 
     public string ConstraintKey => "preferred_weekdays";
-
-    public PreferredWeekdaysValidator(ILogger<PreferredWeekdaysValidator> logger)
-    {
-        _logger = logger;
-    }
 
     public Task<ConstraintViolation?> ValidateAsync(
         ActivityConstraint constraint,

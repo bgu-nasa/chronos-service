@@ -11,16 +11,12 @@ namespace Chronos.Engine.Constraints.Evaluation.Validators;
 /// Value Format: {"min": 30} or {"min": 20, "max": 50} (JSON with min/max capacity)
 /// Type: Hard constraint (error if violated)
 /// </summary>
-public class RequiredCapacityValidator : IConstraintValidator
+public class RequiredCapacityValidator(ILogger<RequiredCapacityValidator> logger)
+    : IConstraintValidator
 {
-    private readonly ILogger<RequiredCapacityValidator> _logger;
+    private readonly ILogger<RequiredCapacityValidator> _logger = logger;
 
     public string ConstraintKey => "required_capacity";
-
-    public RequiredCapacityValidator(ILogger<RequiredCapacityValidator> logger)
-    {
-        _logger = logger;
-    }
 
     public Task<ConstraintViolation?> ValidateAsync(
         ActivityConstraint constraint,

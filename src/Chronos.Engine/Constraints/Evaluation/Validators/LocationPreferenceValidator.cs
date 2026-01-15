@@ -10,16 +10,12 @@ namespace Chronos.Engine.Constraints.Evaluation.Validators;
 /// Value Format: "Building A,Building B,Building C" (comma-separated location names)
 /// Type: Soft constraint (warning if not matched)
 /// </summary>
-public class LocationPreferenceValidator : IConstraintValidator
+public class LocationPreferenceValidator(ILogger<LocationPreferenceValidator> logger)
+    : IConstraintValidator
 {
-    private readonly ILogger<LocationPreferenceValidator> _logger;
+    private readonly ILogger<LocationPreferenceValidator> _logger = logger;
 
     public string ConstraintKey => "location_preference";
-
-    public LocationPreferenceValidator(ILogger<LocationPreferenceValidator> logger)
-    {
-        _logger = logger;
-    }
 
     public Task<ConstraintViolation?> ValidateAsync(
         ActivityConstraint constraint,

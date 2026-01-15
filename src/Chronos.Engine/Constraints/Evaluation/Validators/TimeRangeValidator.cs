@@ -11,16 +11,11 @@ namespace Chronos.Engine.Constraints.Evaluation.Validators;
 /// Value Format: {"start": "08:00", "end": "17:00"} (JSON with start/end times in HH:mm format)
 /// Type: Hard constraint (error if violated)
 /// </summary>
-public class TimeRangeValidator : IConstraintValidator
+public class TimeRangeValidator(ILogger<TimeRangeValidator> logger) : IConstraintValidator
 {
-    private readonly ILogger<TimeRangeValidator> _logger;
+    private readonly ILogger<TimeRangeValidator> _logger = logger;
 
     public string ConstraintKey => "time_range";
-
-    public TimeRangeValidator(ILogger<TimeRangeValidator> logger)
-    {
-        _logger = logger;
-    }
 
     public Task<ConstraintViolation?> ValidateAsync(
         ActivityConstraint constraint,

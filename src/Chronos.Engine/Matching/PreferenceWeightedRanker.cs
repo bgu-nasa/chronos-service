@@ -6,19 +6,14 @@ namespace Chronos.Engine.Matching;
 /// <summary>
 /// Calculates preference weights for (Slot, Resource) pairs and performs weighted random selection
 /// </summary>
-public class PreferenceWeightedRanker
+public class PreferenceWeightedRanker(
+    IUserPreferenceRepository userPreferenceRepository,
+    ILogger<PreferenceWeightedRanker> logger
+)
 {
-    private readonly IUserPreferenceRepository _userPreferenceRepository;
-    private readonly ILogger<PreferenceWeightedRanker> _logger;
+    private readonly IUserPreferenceRepository _userPreferenceRepository = userPreferenceRepository;
+    private readonly ILogger<PreferenceWeightedRanker> _logger = logger;
     private readonly Random _random = new();
-
-    public PreferenceWeightedRanker(
-        IUserPreferenceRepository userPreferenceRepository,
-        ILogger<PreferenceWeightedRanker> logger)
-    {
-        _userPreferenceRepository = userPreferenceRepository;
-        _logger = logger;
-    }
 
     /// <summary>
     /// Calculate preference weight for a (Slot, Resource) pair based on user preferences
@@ -27,10 +22,26 @@ public class PreferenceWeightedRanker
         SlotResourcePair candidate,
         Guid userId,
         Guid organizationId,
-        Guid schedulingPeriodId)
+        Guid schedulingPeriodId
+    )
     {
-        var preferences = await _userPreferenceRepository
-            .GetByUserPeriodAsync(userId, schedulingPeriodId);
+        _logger.LogTrace(
+            "Calculating weight for candidate (Slot: {SlotId}, Resource: {ResourceId}) for User {UserId}",
+            candidate.SlotId,
+            candidate.ResourceId,
+            userId
+        );
+
+        var preferences = await _userPreferenceRepository.GetByUserPeriodAsync(
+            userId,
+            schedulingPeriodId
+        );
+
+        _logger.LogTrace(
+            "Loaded {PreferenceCount} preferences for User {UserId}",
+            preferences.Count,
+            userId
+        );
 
         if (!preferences.Any())
         {
@@ -38,11 +49,13 @@ public class PreferenceWeightedRanker
         }
 
         double weight = 1.0;
+        var matchedPreferences = 0;
 
         foreach (var pref in preferences)
         {
             if (CandidateMatchesPreference(candidate, pref))
             {
+                matchedPreferences++;
                 var multiplier = GetPreferenceMultiplier(pref.Key, pref.Value);
                 weight *= multiplier;
 
@@ -51,9 +64,17 @@ public class PreferenceWeightedRanker
                     pref.Key,
                     pref.Value,
                     multiplier,
-                    candidate);
+                    candidate
+                );
             }
         }
+
+        _logger.LogTrace(
+            "Final weight for candidate: {Weight:F2} (matched {MatchedCount}/{TotalCount} preferences)",
+            weight,
+            matchedPreferences,
+            preferences.Count
+        );
 
         return weight;
     }
@@ -64,11 +85,15 @@ public class PreferenceWeightedRanker
     /// </summary>
     public SlotResourcePair SelectRandomWeighted(
         List<SlotResourcePair> candidates,
-        double[] weights)
+        double[] weights
+    )
     {
         if (candidates.Count == 0)
         {
-            throw new ArgumentException("Cannot select from empty candidate list", nameof(candidates));
+            throw new ArgumentException(
+                "Cannot select from empty candidate list",
+                nameof(candidates)
+            );
         }
 
         if (candidates.Count != weights.Length)
@@ -106,7 +131,8 @@ public class PreferenceWeightedRanker
                     i,
                     weights[i],
                     cumulative,
-                    randomValue);
+                    randomValue
+                );
 
                 return candidates[i];
             }
@@ -121,12 +147,19 @@ public class PreferenceWeightedRanker
         // Example matching logic - can be extended based on preference types
         return preference.Key switch
         {
-            "preferred_weekday" => candidate.Slot.Weekday.Equals(preference.Value, StringComparison.OrdinalIgnoreCase),
-            "avoid_weekday" => candidate.Slot.Weekday.Equals(preference.Value, StringComparison.OrdinalIgnoreCase),
+            "preferred_weekday" => candidate.Slot.Weekday.Equals(
+                preference.Value,
+                StringComparison.OrdinalIgnoreCase
+            ),
+            "avoid_weekday" => candidate.Slot.Weekday.Equals(
+                preference.Value,
+                StringComparison.OrdinalIgnoreCase
+            ),
             "preferred_time_morning" => candidate.Slot.FromTime.Hours < 12,
-            "preferred_time_afternoon" => candidate.Slot.FromTime.Hours >= 12 && candidate.Slot.FromTime.Hours < 17,
+            "preferred_time_afternoon" => candidate.Slot.FromTime.Hours >= 12
+                && candidate.Slot.FromTime.Hours < 17,
             "preferred_time_evening" => candidate.Slot.FromTime.Hours >= 17,
-            _ => false
+            _ => false,
         };
     }
 
@@ -143,7 +176,7 @@ public class PreferenceWeightedRanker
             "avoid_time_morning" => 0.3,
             "avoid_time_afternoon" => 0.5,
             "avoid_time_evening" => 0.5,
-            _ => 1.0 // Neutral for unknown preferences
+            _ => 1.0, // Neutral for unknown preferences
         };
     }
 }
