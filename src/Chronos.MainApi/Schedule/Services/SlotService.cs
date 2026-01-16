@@ -12,7 +12,7 @@ public class SlotService(
 {
     
 
-    public async Task<Guid> CreateSlotAsync(Guid organizationId, Guid schedulingPeriodId, string weekday, TimeSpan fromTime, TimeSpan toTime)
+    public async Task<Guid> CreateSlotAsync(Guid organizationId, Guid schedulingPeriodId, WeekDays weekday, TimeSpan fromTime, TimeSpan toTime)
     {
         logger.LogInformation(
             "Creating slot. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}, Weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
@@ -83,7 +83,7 @@ public class SlotService(
         return filtered;
     }
     
-    public async Task UpdateSlotAsync(Guid organizationId, Guid slotId, string weekday, TimeSpan fromTime, TimeSpan toTime)
+    public async Task UpdateSlotAsync(Guid organizationId, Guid slotId, WeekDays weekday, TimeSpan fromTime, TimeSpan toTime)
     {
         logger.LogInformation(
             "Updating slot. OrganizationId: {OrganizationId}, SlotId: {SlotId}",
@@ -125,6 +125,13 @@ public class SlotService(
                 "Invalid time range. FromTime: {FromTime}, ToTime: {ToTime}",
                 fromTime, toTime);
             throw new BadRequestException("FromTime must be earlier than ToTime");
+        }
+        if (fromTime < TimeSpan.Zero || toTime < TimeSpan.Zero)
+        {
+            logger.LogInformation(
+                "Invalid time range: negative time. FromTime: {FromTime}, ToTime: {ToTime}",
+                fromTime, toTime);
+            throw new BadRequestException("FromTime and ToTime must be non-negative");
         }
     }
 

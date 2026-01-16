@@ -1,6 +1,6 @@
 namespace Chronos.MainApi.Schedule.Contracts;
 
 public record UpdateSlotRequest(
-    string Weekday,
+    WeekDays Weekday,
     TimeSpan FromTime,
     TimeSpan ToTime);

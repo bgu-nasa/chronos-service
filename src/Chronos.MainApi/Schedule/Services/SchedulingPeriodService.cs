@@ -113,10 +113,17 @@ public class SchedulingPeriodService(
     }
     private void ValidateDateRange(DateTime fromDate, DateTime toDate)
     {
-        if (fromDate > toDate)
+        var todayUtc = DateTime.UtcNow.Date;
+
+        if (fromDate.Date < todayUtc || toDate.Date < todayUtc)
+        {
+            throw new BadRequestException("FromDate and ToDate cannot be in the past");
+        }
+        if (fromDate.Date >= toDate.Date)
         {
             throw new BadRequestException("FromDate must be before or equal to ToDate");
         }
+        
     }
     private async Task<SchedulingPeriod> ValidateAndGetSchedulingPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
     {

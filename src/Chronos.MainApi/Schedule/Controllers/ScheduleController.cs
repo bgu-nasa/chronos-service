@@ -17,9 +17,10 @@ public class ScheduleController(
     : ControllerBase
 {
     private const string ViewerPolicy = "OrgRole:Viewer";
-    private const string OperatorPolicy = "OrgRole:Operator";
+    private const string ResourceManagerPolicy = "OrgRole:ResourceManager";
 
-    [Authorize(Policy = OperatorPolicy)]
+
+    [Authorize(Policy = ResourceManagerPolicy)]
     [HttpPost("periods")]
     public async Task<IActionResult> CreateSchedulingPeriod([FromBody] CreateSchedulingPeriodRequest request)
     {
@@ -65,7 +66,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize (Policy = OperatorPolicy)]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpPatch("periods/{schedulingPeriodId}")]
     public async Task<IActionResult> UpdateSchedulingPeriod(
         Guid schedulingPeriodId,
@@ -84,7 +85,7 @@ public class ScheduleController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpDelete("periods/{schedulingPeriodId}")]
     public async Task<IActionResult> DeleteSchedulingPeriod(Guid schedulingPeriodId)
     {
@@ -97,7 +98,7 @@ public class ScheduleController(
     }
 
 
-    [Authorize (Policy = OperatorPolicy)]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpPost("slots")]
     public async Task<IActionResult> CreateSlot([FromBody] CreateSlotRequest request)
     {
@@ -157,7 +158,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize (Policy = OperatorPolicy)]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpPatch("slots/{slotId}")]
     public async Task<IActionResult> UpdateSlot(Guid slotId, [FromBody] UpdateSlotRequest request)
     {
@@ -174,7 +175,7 @@ public class ScheduleController(
         return NoContent();
     }
 
-    [Authorize (Policy = OperatorPolicy)]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpDelete("slots/{slotId}")]
     public async Task<IActionResult> DeleteSlot(Guid slotId)
     {
@@ -187,7 +188,7 @@ public class ScheduleController(
     }
 
 
-    [Authorize (Policy = OperatorPolicy)]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpPost("assignments")]
     public async Task<IActionResult> CreateAssignment([FromBody] CreateAssignmentRequest request)
     {
@@ -259,7 +260,7 @@ public class ScheduleController(
         return Ok(responses);
     }
 
-    [Authorize (Policy = OperatorPolicy)]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpPatch("assignments/{assignmentId}")]
     public async Task<IActionResult> UpdateAssignment(Guid assignmentId, [FromBody] UpdateAssignmentRequest request)
     {
@@ -276,7 +277,7 @@ public class ScheduleController(
         return NoContent();
     }
 
-    [Authorize (Policy = OperatorPolicy)]
+    [Authorize (Policy = ResourceManagerPolicy)]
     [HttpDelete("assignments/{assignmentId}")]
     public async Task<IActionResult> DeleteAssignment(Guid assignmentId)
     {

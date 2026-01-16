@@ -4,6 +4,6 @@ public record SlotResponse(
     string Id,
     string OrganizationId,
     string SchedulingPeriodId,
-    string Weekday,
+    WeekDays Weekday,
     TimeSpan FromTime,
     TimeSpan ToTime);
