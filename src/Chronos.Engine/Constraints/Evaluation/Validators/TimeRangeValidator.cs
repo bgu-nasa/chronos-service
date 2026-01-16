@@ -26,8 +26,12 @@ public class TimeRangeValidator(ILogger<TimeRangeValidator> logger) : IConstrain
     {
         try
         {
-            // Parse JSON constraint value
-            var timeRange = JsonSerializer.Deserialize<TimeRangeConstraint>(constraint.Value);
+            // Parse JSON constraint value (case-insensitive to allow both "start"/"Start")
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var timeRange = JsonSerializer.Deserialize<TimeRangeConstraint>(
+                constraint.Value,
+                options
+            );
 
             if (
                 timeRange == null

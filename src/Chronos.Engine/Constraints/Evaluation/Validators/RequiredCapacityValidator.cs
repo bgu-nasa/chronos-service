@@ -27,9 +27,11 @@ public class RequiredCapacityValidator(ILogger<RequiredCapacityValidator> logger
     {
         try
         {
-            // Parse JSON constraint value
+            // Parse JSON constraint value (case-insensitive to allow both "min"/"Min" and "max"/"Max")
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var capacityConstraint = JsonSerializer.Deserialize<CapacityConstraint>(
-                constraint.Value
+                constraint.Value,
+                options
             );
 
             if (capacityConstraint == null)

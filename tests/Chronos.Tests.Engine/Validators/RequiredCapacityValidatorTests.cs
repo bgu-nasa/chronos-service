@@ -34,7 +34,7 @@ public class RequiredCapacityValidatorTests
         var resource = TestDataBuilder.CreateResource(capacity: 50);
         var constraint = TestDataBuilder.CreateConstraint(
             key: "required_capacity",
-            value: "{\"min\": 30}"
+            value: """{"min": 30}"""
         );
 
         // Act
@@ -53,7 +53,7 @@ public class RequiredCapacityValidatorTests
         var resource = TestDataBuilder.CreateResource(capacity: 20);
         var constraint = TestDataBuilder.CreateConstraint(
             key: "required_capacity",
-            value: "{\"min\": 30}"
+            value: """{"min": 30}"""
         );
 
         // Act
@@ -75,7 +75,7 @@ public class RequiredCapacityValidatorTests
         var resource = TestDataBuilder.CreateResource(capacity: 60);
         var constraint = TestDataBuilder.CreateConstraint(
             key: "required_capacity",
-            value: "{\"min\": 20, \"max\": 50}"
+            value: """{"min": 20, "max": 50}"""
         );
 
         // Act
@@ -97,7 +97,7 @@ public class RequiredCapacityValidatorTests
         var resource = TestDataBuilder.CreateResource(capacity: 35);
         var constraint = TestDataBuilder.CreateConstraint(
             key: "required_capacity",
-            value: "{\"min\": 20, \"max\": 50}"
+            value: """{"min": 20, "max": 50}"""
         );
 
         // Act
@@ -116,7 +116,7 @@ public class RequiredCapacityValidatorTests
         var resource = TestDataBuilder.CreateResource(capacity: null);
         var constraint = TestDataBuilder.CreateConstraint(
             key: "required_capacity",
-            value: "{\"min\": 30}"
+            value: """{"min": 30}"""
         );
 
         // Act
@@ -138,7 +138,7 @@ public class RequiredCapacityValidatorTests
         var resource = TestDataBuilder.CreateResource(capacity: 50);
         var constraint = TestDataBuilder.CreateConstraint(
             key: "required_capacity",
-            value: "{\"min\": 30}"
+            value: """{"min": 30}"""
         );
 
         // Act

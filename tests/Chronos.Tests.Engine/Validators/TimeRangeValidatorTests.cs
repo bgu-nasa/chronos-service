@@ -37,7 +37,7 @@ public class TimeRangeValidatorTests
         var resource = TestDataBuilder.CreateResource();
         var constraint = TestDataBuilder.CreateConstraint(
             key: "time_range",
-            value: "{\"start\": \"08:00\", \"end\": \"17:00\"}"
+            value: """{"start": "08:00", "end": "17:00"}"""
         );
 
         // Act
@@ -59,7 +59,7 @@ public class TimeRangeValidatorTests
         var resource = TestDataBuilder.CreateResource();
         var constraint = TestDataBuilder.CreateConstraint(
             key: "time_range",
-            value: "{\"start\": \"08:00\", \"end\": \"17:00\"}"
+            value: """{"start": "08:00", "end": "17:00"}"""
         );
 
         // Act
@@ -84,7 +84,7 @@ public class TimeRangeValidatorTests
         var resource = TestDataBuilder.CreateResource();
         var constraint = TestDataBuilder.CreateConstraint(
             key: "time_range",
-            value: "{\"start\": \"08:00\", \"end\": \"17:00\"}"
+            value: """{"start": "08:00", "end": "17:00"}"""
         );
 
         // Act
@@ -108,7 +108,7 @@ public class TimeRangeValidatorTests
         var resource = TestDataBuilder.CreateResource();
         var constraint = TestDataBuilder.CreateConstraint(
             key: "time_range",
-            value: "{\"start\": \"08:00\", \"end\": \"17:00\"}"
+            value: """{"start": "08:00", "end": "17:00"}"""
         );
 
         // Act
@@ -149,7 +149,7 @@ public class TimeRangeValidatorTests
         var resource = TestDataBuilder.CreateResource();
         var constraint = TestDataBuilder.CreateConstraint(
             key: "time_range",
-            value: "{\"start\": \"25:00\", \"end\": \"17:00\"}"
+            value: """{"start": "25:00", "end": "17:00"}"""
         );
 
         // Act
@@ -171,7 +171,7 @@ public class TimeRangeValidatorTests
         var resource = TestDataBuilder.CreateResource();
         var constraint = TestDataBuilder.CreateConstraint(
             key: "time_range",
-            value: "{\"end\": \"17:00\"}"
+            value: """{"end": "17:00"}"""
         );
 
         // Act

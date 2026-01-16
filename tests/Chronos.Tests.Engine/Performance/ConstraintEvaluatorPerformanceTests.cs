@@ -71,10 +71,6 @@ public class ConstraintEvaluatorPerformanceTests
         stopwatch
             .ElapsedMilliseconds.Should()
             .BeLessThan(1, $"Evaluation took {stopwatch.ElapsedMilliseconds}ms, expected <1ms");
-
-        TestContext.WriteLine(
-            $"Single constraint evaluation: {stopwatch.Elapsed.TotalMilliseconds:F3}ms"
-        );
     }
 
     [Test]
@@ -143,10 +139,6 @@ public class ConstraintEvaluatorPerformanceTests
         stopwatch
             .ElapsedMilliseconds.Should()
             .BeLessThan(1, $"Evaluation took {stopwatch.ElapsedMilliseconds}ms, expected <1ms");
-
-        TestContext.WriteLine(
-            $"Five constraints evaluation: {stopwatch.Elapsed.TotalMilliseconds:F3}ms"
-        );
     }
 
     [Test]
@@ -199,10 +191,6 @@ public class ConstraintEvaluatorPerformanceTests
         stopwatch
             .ElapsedMilliseconds.Should()
             .BeLessThan(1, $"Evaluation took {stopwatch.ElapsedMilliseconds}ms, expected <1ms");
-
-        TestContext.WriteLine(
-            $"GetViolations with {violations.Count()} violations: {stopwatch.Elapsed.TotalMilliseconds:F3}ms"
-        );
     }
 
     [Test]
@@ -252,8 +240,5 @@ public class ConstraintEvaluatorPerformanceTests
         averageMs
             .Should()
             .BeLessThan(1.0, $"Average evaluation took {averageMs:F3}ms, expected <1ms");
-
-        TestContext.WriteLine($"Average over {iterations} iterations: {averageMs:F3}ms");
-        TestContext.WriteLine($"Total time: {stopwatch.Elapsed.TotalMilliseconds:F3}ms");
     }
 }

@@ -106,7 +106,7 @@ public class ConstraintEvaluatorIntegrationTests
             TestDataBuilder.CreateConstraint(
                 activityId: activity.Id,
                 key: "time_range",
-                value: "{\"start\": \"08:00\", \"end\": \"17:00\"}"
+                value: """{"start": "08:00", "end": "17:00"}"""
             ),
         };
 
@@ -141,12 +141,12 @@ public class ConstraintEvaluatorIntegrationTests
             TestDataBuilder.CreateConstraint(
                 activityId: activity.Id,
                 key: "time_range",
-                value: "{\"start\": \"08:00\", \"end\": \"17:00\"}"
+                value: """{"start": "08:00", "end": "17:00"}"""
             ),
             TestDataBuilder.CreateConstraint(
                 activityId: activity.Id,
                 key: "required_capacity",
-                value: "{\"min\": 30}"
+                value: """{"min": 30}"""
             ),
             TestDataBuilder.CreateConstraint(
                 activityId: activity.Id,
@@ -244,12 +244,12 @@ public class ConstraintEvaluatorIntegrationTests
             TestDataBuilder.CreateConstraint(
                 activityId: activity.Id,
                 key: "time_range",
-                value: "{\"start\": \"08:00\", \"end\": \"17:00\"}"
+                value: """{"start": "08:00", "end": "17:00"}"""
             ),
             TestDataBuilder.CreateConstraint(
                 activityId: activity.Id,
                 key: "required_capacity",
-                value: "{\"min\": 30, \"max\": 100}"
+                value: """{"min": 30, "max": 100}"""
             ),
             TestDataBuilder.CreateConstraint(
                 activityId: activity.Id,
