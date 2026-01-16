@@ -10,7 +10,7 @@ public static class SlotMapper
             Id: slot.Id.ToString(),
             OrganizationId: slot.OrganizationId.ToString(),
             SchedulingPeriodId: slot.SchedulingPeriodId.ToString(),
-            Weekday: slot.Weekday,
+            Weekday: Enum.Parse<WeekDays>(slot.Weekday, ignoreCase: true),
             FromTime: slot.FromTime,
             ToTime: slot.ToTime
         );
