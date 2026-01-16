@@ -25,7 +25,7 @@ public class SlotService(
             Id = Guid.NewGuid(),
             OrganizationId = organizationId,
             SchedulingPeriodId = schedulingPeriodId,
-            Weekday = weekday,
+            Weekday = weekday.ToString(),
             FromTime = fromTime,
             ToTime = toTime
         };
@@ -91,7 +91,7 @@ public class SlotService(
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
         TimeRangeValidator(fromTime, toTime);
-        slot.Weekday = weekday;
+        slot.Weekday = weekday.ToString();
         slot.FromTime = fromTime;
         slot.ToTime = toTime;
 

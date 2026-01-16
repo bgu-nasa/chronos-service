@@ -1,6 +1,6 @@
 public enum WeekDays
 {
-    Monday,
+    Monday ,
     Tuesday,
     Wednesday,
     Thursday,
