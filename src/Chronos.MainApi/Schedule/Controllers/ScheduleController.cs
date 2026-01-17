@@ -248,16 +248,30 @@ public class ScheduleController(
     }
 
     [Authorize (Policy = ViewerPolicy)]
-    [HttpGet("scheduled-items/{scheduledItemId}/assignments")]
-    public async Task<IActionResult> GetAssignmentsByScheduledItem(Guid scheduledItemId)
+    [HttpGet("activities/{activityId}/assignments")]
+    public async Task<IActionResult> GetAssignmentsByActivity(Guid activityId)
     {
-        logger.LogInformation("Get assignments by scheduled item endpoint was called for {ScheduledItemId}", scheduledItemId);
+        logger.LogInformation("Get assignments by activity endpoint was called for {ActivityId}", activityId);
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
 
-        var assignments = await assignmentService.GetAssignmentsByScheduledItemAsync(organizationId, scheduledItemId);
+        var assignments = await assignmentService.GetAssignmentsByActivityIdAsync(organizationId, activityId);
         var responses = assignments.Select(a => a.ToAssignmentResponse()).ToList();
 
         return Ok(responses);
+    }
+
+    [Authorize (Policy = ViewerPolicy)]
+    [HttpGet("slots/{slotId}/resources/{resourceId}/assignment")]
+    public async Task<IActionResult> GetAssignmentBySlotAndResource(Guid slotId, Guid resourceId)
+    {
+        logger.LogInformation("Get assignment by slot and resource endpoint was called for {SlotId} and {ResourceId}", slotId, resourceId);
+        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
+
+        var assignment = await assignmentService.GetAssignmentBySlotAndResourceItemAsync(organizationId, slotId, resourceId);
+        if (assignment == null)
+            return NotFound();
+
+        return Ok(assignment.ToAssignmentResponse());
     }
 
     [Authorize (Policy = ResourceManagerPolicy)]

@@ -12,11 +12,11 @@ public interface IAssignmentService
     
     Task<List<Assignment>> GetAssignmentsBySlotAsync(Guid organizationId, Guid slotId);
     
-    Task<List<Assignment>> GetAssignmentsByScheduledItemAsync(Guid organizationId, Guid scheduledItemId);
+    Task<List<Assignment>> GetAssignmentsByActivityIdAsync(Guid organizationId, Guid activityId);
     
     Task<Assignment?> GetAssignmentBySlotAndResourceItemAsync(Guid organizationId, Guid slotId, Guid resourceId);
     
-    Task UpdateAssignmentAsync(Guid organizationId, Guid assignmentId, Guid slotId, Guid resourceId , Guid scheduledItemId);
+    Task UpdateAssignmentAsync(Guid organizationId, Guid assignmentId, Guid slotId, Guid resourceId , Guid activityId);
     
     Task DeleteAssignmentAsync(Guid organizationId, Guid assignmentId);
     

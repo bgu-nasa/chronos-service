@@ -87,10 +87,10 @@ public class AssignmentService(
         return filtered;
     }
     
-    public async Task<List<Assignment>> GetAssignmentsByScheduledItemAsync(Guid organizationId, Guid activityId)
+    public async Task<List<Assignment>> GetAssignmentsByActivityIdAsync(Guid organizationId, Guid activityId)
     {
         logger.LogInformation(
-            "Retrieving assignments by scheduling item. OrganizationId: {OrganizationId}, activityId: {activityId}",
+            "Retrieving assignments by activity id. OrganizationId: {OrganizationId}, activityId: {activityId}",
             organizationId, activityId);
         await validationService.ValidateOrganizationAsync(organizationId);
         
@@ -99,7 +99,7 @@ public class AssignmentService(
             .Where(a => a.OrganizationId == organizationId)
             .ToList();
         
-        logger.LogInformation("Retrieved {Count} assignments for scheduling item. OrganizationId: {OrganizationId}, activityId: {activityId}", filtered.Count, organizationId, activityId);
+        logger.LogInformation("Retrieved {Count} assignments for activity. OrganizationId: {OrganizationId}, activityId: {activityId}", filtered.Count, organizationId, activityId);
         return filtered;
     }
     
