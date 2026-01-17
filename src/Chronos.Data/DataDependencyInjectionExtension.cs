@@ -1,6 +1,7 @@
 ﻿using Chronos.Data.Repositories.Auth;
 using Chronos.Data.Repositories.Management;
 using Chronos.Data.Repositories.Resources;
+using Chronos.Data.Repositories.Schedule;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Chronos.Data;
@@ -24,5 +25,14 @@ public static class DataDependencyInjectionExtension
         services.AddScoped<IResourceTypeRepository, ResourceTypeRepository>();
         services.AddScoped<IResourceAttributeRepository, ResourceAttributeRepository>();
         services.AddScoped<IResourceAttributeAssignmentRepository, ResourceAttributeAssignmentRepository>();
+
+        // Schedule
+        services.AddScoped<ISchedulingPeriodRepository, SchedulingPeriodRepository>();
+        services.AddScoped<ISlotRepository, SlotRepository>();
+        services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+        services.AddScoped<IActivityConstraintRepository, ActivityConstraintRepository>();
+        services.AddScoped<IOrganizationPolicyRepository, OrganizationPolicyRepository>();
+        services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
+        services.AddScoped<IUserConstraintRepository, UserConstraintRepository>();
     }
 }
