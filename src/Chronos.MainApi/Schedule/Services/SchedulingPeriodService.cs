@@ -113,7 +113,7 @@ public class SchedulingPeriodService(
     }
     private void ValidateDateRange(DateTime fromDate, DateTime toDate)
     {
-        var todayUtc = DateTime.UtcNow.Date;
+        var todayUtc = DateTime.Today;
 
         if (fromDate.Date < todayUtc || toDate.Date < todayUtc)
         {
