@@ -4,6 +4,7 @@ using Chronos.Data.Context;
 using Chronos.MainApi.Auth;
 using Chronos.MainApi.Auth.Configuration;
 using Chronos.MainApi.Management;
+using Chronos.MainApi.Resources;
 using Chronos.MainApi.Shared.Extensions;
 using Chronos.MainApi.Shared.Middleware;
 using Chronos.MainApi.Shared.Middleware.Rbac;
@@ -35,6 +36,7 @@ builder.Services.AddServiceRepositories();
 // Register modules
 builder.Services.AddAuthModule(builder.Configuration);
 builder.Services.AddManagementModule(builder.Configuration);
+builder.Services.AddResourcesModule(builder.Configuration);
 
 // Configure JWT Authentication
 var authConfig = builder.Configuration.GetSection(nameof(AuthConfiguration)).Get<AuthConfiguration>();
