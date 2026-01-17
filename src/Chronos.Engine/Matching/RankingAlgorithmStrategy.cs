@@ -11,54 +11,56 @@ namespace Chronos.Engine.Matching;
 /// Batch mode matching using Ranking Algorithm
 /// Achieves 1-1/e ≈ 0.632 competitive ratio
 /// </summary>
-public class RankingAlgorithmStrategy : IMatchingStrategy
+public class RankingAlgorithmStrategy(
+    IActivityRepository activityRepository,
+    ISlotRepository slotRepository,
+    IResourceRepository resourceRepository,
+    IAssignmentRepository assignmentRepository,
+    IConstraintProcessor constraintProcessor,
+    PreferenceWeightedRanker ranker,
+    ILogger<RankingAlgorithmStrategy> logger
+) : IMatchingStrategy
 {
-    public SchedulingMode Mode => SchedulingMode.Batch;
-
-    private readonly IActivityRepository _activityRepository;
-    private readonly ISlotRepository _slotRepository;
-    private readonly IResourceRepository _resourceRepository;
-    private readonly IAssignmentRepository _assignmentRepository;
-    private readonly IConstraintProcessor _constraintProcessor;
-    private readonly PreferenceWeightedRanker _ranker;
-    private readonly ILogger<RankingAlgorithmStrategy> _logger;
+    private readonly IActivityRepository _activityRepository = activityRepository;
+    private readonly ISlotRepository _slotRepository = slotRepository;
+    private readonly IResourceRepository _resourceRepository = resourceRepository;
+    private readonly IAssignmentRepository _assignmentRepository = assignmentRepository;
+    private readonly IConstraintProcessor _constraintProcessor = constraintProcessor;
+    private readonly PreferenceWeightedRanker _ranker = ranker;
+    private readonly ILogger<RankingAlgorithmStrategy> _logger = logger;
     private readonly Random _random = new();
 
-    public RankingAlgorithmStrategy(
-        IActivityRepository activityRepository,
-        ISlotRepository slotRepository,
-        IResourceRepository resourceRepository,
-        IAssignmentRepository assignmentRepository,
-        IConstraintProcessor constraintProcessor,
-        PreferenceWeightedRanker ranker,
-        ILogger<RankingAlgorithmStrategy> logger)
-    {
-        _activityRepository = activityRepository;
-        _slotRepository = slotRepository;
-        _resourceRepository = resourceRepository;
-        _assignmentRepository = assignmentRepository;
-        _constraintProcessor = constraintProcessor;
-        _ranker = ranker;
-        _logger = logger;
-    }
+    public SchedulingMode Mode => SchedulingMode.Batch;
 
-    public async Task<SchedulingResult> ExecuteAsync(object request, CancellationToken cancellationToken)
+    public async Task<SchedulingResult> ExecuteAsync(
+        object request,
+        CancellationToken cancellationToken
+    )
     {
         if (request is not SchedulePeriodRequest periodRequest)
         {
-            throw new ArgumentException($"Expected SchedulePeriodRequest, got {request.GetType().Name}");
+            throw new ArgumentException(
+                $"Expected SchedulePeriodRequest, got {request.GetType().Name}"
+            );
         }
 
         _logger.LogInformation(
             "Starting Ranking Algorithm for SchedulingPeriod {PeriodId}, Organization {OrgId}",
             periodRequest.SchedulingPeriodId,
-            periodRequest.OrganizationId);
+            periodRequest.OrganizationId
+        );
 
         try
         {
+            var startTime = DateTime.UtcNow;
+            _logger.LogDebug("Starting Ranking Algorithm execution at {StartTime}", startTime);
+
             // Step 1: Load all activities for the scheduling period
             var activities = await LoadActivitiesForPeriodAsync(periodRequest.SchedulingPeriodId);
-            _logger.LogInformation("Loaded {ActivityCount} activities to schedule", activities.Count);
+            _logger.LogInformation(
+                "Loaded {ActivityCount} activities to schedule",
+                activities.Count
+            );
 
             if (activities.Count == 0)
             {
@@ -68,17 +70,21 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
                     0,
                     0,
                     new List<Guid>(),
-                    "No activities to schedule");
+                    "No activities to schedule"
+                );
             }
 
             // Step 2: Load all (Slot, Resource) pairs
-            var slots = await _slotRepository.GetBySchedulingPeriodIdAsync(periodRequest.SchedulingPeriodId);
+            var slots = await _slotRepository.GetBySchedulingPeriodIdAsync(
+                periodRequest.SchedulingPeriodId
+            );
             var resources = await _resourceRepository.GetAllAsync();
 
             _logger.LogInformation(
                 "Loaded {SlotCount} slots and {ResourceCount} resources",
                 slots.Count,
-                resources.Count);
+                resources.Count
+            );
 
             // Step 3: Generate all (Slot, Resource) combinations → Set L
             var allPairs = GenerateSlotResourcePairs(slots, resources);
@@ -86,7 +92,10 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
 
             // Step 4: Generate RANDOM PERMUTATION σ of L (the "Ranking")
             var rankedPairs = GenerateRandomPermutation(allPairs);
-            _logger.LogInformation("Generated random permutation of {PairCount} pairs", rankedPairs.Count);
+            _logger.LogInformation(
+                "Generated random permutation of {PairCount} pairs",
+                rankedPairs.Count
+            );
 
             // Step 5: Process activities and match using ranking algorithm
             var result = await ProcessActivitiesWithRankingAsync(
@@ -94,12 +103,22 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
                 rankedPairs,
                 periodRequest.OrganizationId,
                 periodRequest.SchedulingPeriodId,
-                cancellationToken);
+                cancellationToken
+            );
 
             _logger.LogInformation(
                 "Ranking Algorithm completed. Created: {Created}, Failed: {Failed}",
                 result.AssignmentsCreated,
-                result.UnscheduledActivityIds.Count);
+                result.UnscheduledActivityIds.Count
+            );
+
+            var endTime = DateTime.UtcNow;
+            var duration = (endTime - startTime).TotalSeconds;
+            _logger.LogInformation(
+                "Ranking Algorithm execution time: {Duration:F2} seconds ({ActivitiesPerSecond:F2} activities/sec)",
+                duration,
+                activities.Count / Math.Max(duration, 0.001)
+            );
 
             return result;
         }
@@ -112,7 +131,8 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
                 0,
                 0,
                 new List<Guid>(),
-                $"Algorithm failed: {ex.Message}");
+                $"Algorithm failed: {ex.Message}"
+            );
         }
     }
 
@@ -125,7 +145,8 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
 
     private List<SlotResourcePair> GenerateSlotResourcePairs(
         List<Slot> slots,
-        List<Resource> resources)
+        List<Resource> resources
+    )
     {
         var pairs = new List<SlotResourcePair>();
 
@@ -166,28 +187,49 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
         List<SlotResourcePair> rankedPairs,
         Guid organizationId,
         Guid schedulingPeriodId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var createdAssignments = 0;
         var unscheduledActivities = new List<Guid>();
         var occupiedPairs = new HashSet<(Guid SlotId, Guid ResourceId)>();
 
+        _logger.LogDebug(
+            "Processing {ActivityCount} activities with {PairCount} ranked pairs",
+            activities.Count,
+            rankedPairs.Count
+        );
+
+        var activityIndex = 0;
+
         foreach (var activity in activities)
         {
+            activityIndex++;
             if (cancellationToken.IsCancellationRequested)
             {
-                _logger.LogWarning("Batch scheduling cancelled");
+                _logger.LogWarning(
+                    "Batch scheduling cancelled after processing {ProcessedCount}/{TotalCount} activities",
+                    activityIndex - 1,
+                    activities.Count
+                );
                 break;
             }
 
-            _logger.LogDebug("Processing Activity {ActivityId}", activity.Id);
+            _logger.LogDebug(
+                "Processing Activity {ActivityId} ({Index}/{Total})",
+                activity.Id,
+                activityIndex,
+                activities.Count
+            );
 
             // Get excluded slots from constraints
             var excludedSlots = await _constraintProcessor.GetExcludedSlotIdsAsync(
                 activity.Id,
-                organizationId);
+                organizationId
+            );
 
             // Filter valid candidates
+            var totalPairs = rankedPairs.Count;
             var validCandidates = rankedPairs
                 .Where(p => !excludedSlots.Contains(p.SlotId))
                 .Where(p => !occupiedPairs.Contains((p.SlotId, p.ResourceId)))
@@ -195,13 +237,31 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
                 .OrderBy(p => p.Rank) // Order by rank (earlier rank = higher priority)
                 .ToList();
 
+            var excludedByConstraints = rankedPairs.Count(p => excludedSlots.Contains(p.SlotId));
+            var excludedByOccupation = rankedPairs.Count(p =>
+                !excludedSlots.Contains(p.SlotId)
+                && occupiedPairs.Contains((p.SlotId, p.ResourceId))
+            );
+            var excludedByCapacity =
+                totalPairs - excludedByConstraints - excludedByOccupation - validCandidates.Count;
+
+            _logger.LogTrace(
+                "Activity {ActivityId} filtering: {Valid} valid, {Constraints} excluded by constraints, {Occupied} occupied, {Capacity} insufficient capacity",
+                activity.Id,
+                validCandidates.Count,
+                excludedByConstraints,
+                excludedByOccupation,
+                excludedByCapacity
+            );
+
             if (!validCandidates.Any())
             {
                 _logger.LogWarning(
                     "No valid candidates for Activity {ActivityId}. Excluded slots: {ExcludedCount}, Occupied: {OccupiedCount}",
                     activity.Id,
                     excludedSlots.Count,
-                    occupiedPairs.Count);
+                    occupiedPairs.Count
+                );
 
                 unscheduledActivities.Add(activity.Id);
                 continue;
@@ -210,7 +270,8 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
             _logger.LogDebug(
                 "Found {CandidateCount} valid candidates for Activity {ActivityId}",
                 validCandidates.Count,
-                activity.Id);
+                activity.Id
+            );
 
             // Calculate preference weights for top candidates (optimize by only checking top N)
             var topCandidates = validCandidates.Take(10).ToList();
@@ -222,7 +283,8 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
                     topCandidates[i],
                     activity.AssignedUserId,
                     organizationId,
-                    schedulingPeriodId);
+                    schedulingPeriodId
+                );
 
                 // Bias towards earlier ranks (primary criterion)
                 // Weight decreases exponentially with rank
@@ -235,7 +297,8 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
             _logger.LogInformation(
                 "Matched Activity {ActivityId} to {Candidate}",
                 activity.Id,
-                selected);
+                selected
+            );
 
             // Create assignment
             var assignment = new Assignment
@@ -244,12 +307,22 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
                 OrganizationId = organizationId,
                 SlotId = selected.SlotId,
                 ResourceId = selected.ResourceId,
-                ActivityId = activity.Id
+                ActivityId = activity.Id,
             };
 
             await _assignmentRepository.AddAsync(assignment);
             occupiedPairs.Add((selected.SlotId, selected.ResourceId));
             createdAssignments++;
+
+            if (createdAssignments % 10 == 0)
+            {
+                _logger.LogDebug(
+                    "Progress: {Created} assignments created, {Failed} failed, {Remaining} remaining",
+                    createdAssignments,
+                    unscheduledActivities.Count,
+                    activities.Count - activityIndex
+                );
+            }
         }
 
         return new SchedulingResult(
@@ -260,7 +333,8 @@ public class RankingAlgorithmStrategy : IMatchingStrategy
             unscheduledActivities,
             unscheduledActivities.Any()
                 ? $"{unscheduledActivities.Count} activities could not be scheduled"
-                : null);
+                : null
+        );
     }
 
     private bool IsCapacitySufficient(Resource resource, int? expectedStudents)

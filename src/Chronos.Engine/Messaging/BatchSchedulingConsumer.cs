@@ -9,28 +9,20 @@ using RabbitMQ.Client.Events;
 
 namespace Chronos.Engine.Messaging;
 
-public class BatchSchedulingConsumer : BackgroundService
+public class BatchSchedulingConsumer(
+    IRabbitMqConnectionFactory connectionFactory,
+    MatchingOrchestrator orchestrator,
+    IMessagePublisher messagePublisher,
+    IOptions<RabbitMqOptions> options,
+    ILogger<BatchSchedulingConsumer> logger
+) : BackgroundService
 {
-    private readonly IRabbitMqConnectionFactory _connectionFactory;
-    private readonly MatchingOrchestrator _orchestrator;
-    private readonly IMessagePublisher _messagePublisher;
-    private readonly RabbitMqOptions _options;
-    private readonly ILogger<BatchSchedulingConsumer> _logger;
+    private readonly IRabbitMqConnectionFactory _connectionFactory = connectionFactory;
+    private readonly MatchingOrchestrator _orchestrator = orchestrator;
+    private readonly IMessagePublisher _messagePublisher = messagePublisher;
+    private readonly RabbitMqOptions _options = options.Value;
+    private readonly ILogger<BatchSchedulingConsumer> _logger = logger;
     private IModel? _channel;
-
-    public BatchSchedulingConsumer(
-        IRabbitMqConnectionFactory connectionFactory,
-        MatchingOrchestrator orchestrator,
-        IMessagePublisher messagePublisher,
-        IOptions<RabbitMqOptions> options,
-        ILogger<BatchSchedulingConsumer> logger)
-    {
-        _connectionFactory = connectionFactory;
-        _orchestrator = orchestrator;
-        _messagePublisher = messagePublisher;
-        _options = options.Value;
-        _logger = logger;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -52,7 +44,8 @@ public class BatchSchedulingConsumer : BackgroundService
 
                     _logger.LogInformation(
                         "Received batch scheduling request. DeliveryTag: {DeliveryTag}",
-                        ea.DeliveryTag);
+                        ea.DeliveryTag
+                    );
 
                     var request = JsonSerializer.Deserialize<SchedulePeriodRequest>(message);
 
@@ -67,19 +60,22 @@ public class BatchSchedulingConsumer : BackgroundService
                     var result = await _orchestrator.ExecuteAsync(
                         request,
                         SchedulingMode.Batch,
-                        stoppingToken);
+                        stoppingToken
+                    );
 
                     // Publish result
                     await _messagePublisher.PublishAsync(
                         result,
-                        result.Success ? "result.success" : "result.failed");
+                        result.Success ? "result.success" : "result.failed"
+                    );
 
                     _channel.BasicAck(ea.DeliveryTag, false);
 
                     _logger.LogInformation(
                         "Batch scheduling completed. Success: {Success}, Assignments: {Assignments}",
                         result.Success,
-                        result.AssignmentsCreated);
+                        result.AssignmentsCreated
+                    );
                 }
                 catch (Exception ex)
                 {
@@ -91,11 +87,13 @@ public class BatchSchedulingConsumer : BackgroundService
             _channel.BasicConsume(
                 queue: _options.BatchQueueName,
                 autoAck: false,
-                consumer: consumer);
+                consumer: consumer
+            );
 
             _logger.LogInformation(
                 "Batch Scheduling Consumer started, listening to queue: {QueueName}",
-                _options.BatchQueueName);
+                _options.BatchQueueName
+            );
 
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }

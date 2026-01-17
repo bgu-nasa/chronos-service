@@ -5,7 +5,8 @@ using Chronos.Data.Repositories.Resources;
 using Chronos.Data.Repositories.Schedule;
 using Chronos.Engine.Configuration;
 using Chronos.Engine.Constraints;
-using Chronos.Engine.Constraints.Handlers;
+using Chronos.Engine.Constraints.Evaluation;
+using Chronos.Engine.Constraints.Evaluation.Validators;
 using Chronos.Engine.Matching;
 using Chronos.Engine.Messaging;
 using Microsoft.AspNetCore.Http;
@@ -14,22 +15,26 @@ using Microsoft.EntityFrameworkCore;
 var builder = Host.CreateApplicationBuilder(args);
 
 // Load configuration from AppSettings folder
-builder.Configuration
-    .SetBasePath(builder.Environment.ContentRootPath)
+builder
+    .Configuration.SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile("AppSettings/appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"AppSettings/appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddJsonFile(
+        $"AppSettings/appsettings.{builder.Environment.EnvironmentName}.json",
+        optional: true,
+        reloadOnChange: true
+    )
     .AddEnvironmentVariables();
 
 // Configuration
 builder.Services.Configure<RabbitMqOptions>(
-    builder.Configuration.GetSection(RabbitMqOptions.SectionName));
+    builder.Configuration.GetSection(RabbitMqOptions.SectionName)
+);
 
 // Add IHttpContextAccessor (required by AppDbContext, but will be null in non-web context)
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 // Database - using InMemoryDatabase for now (same as MainApi)
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("AppDbContext"));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("AppDbContext"));
 
 // Auth Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -58,10 +63,18 @@ builder.Services.AddScoped<IOrganizationPolicyRepository, OrganizationPolicyRepo
 builder.Services.AddSingleton<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>();
 builder.Services.AddSingleton<IMessagePublisher, MessagePublisher>();
 
-// Constraint Processing
+// Constraint Evaluation System
+builder.Services.AddScoped<IConstraintEvaluator, ConstraintEvaluator>();
+
+// Register all constraint validators
+builder.Services.AddScoped<IConstraintValidator, PreferredWeekdaysValidator>();
+builder.Services.AddScoped<IConstraintValidator, TimeRangeValidator>();
+builder.Services.AddScoped<IConstraintValidator, RequiredCapacityValidator>();
+builder.Services.AddScoped<IConstraintValidator, LocationPreferenceValidator>();
+builder.Services.AddScoped<IConstraintValidator, ActivityTypeCompatibilityValidator>();
+
+// Legacy Constraint Processing (for backward compatibility)
 builder.Services.AddScoped<IConstraintProcessor, ActivityConstraintProcessor>();
-builder.Services.AddScoped<IConstraintHandler, ExampleExcludedWeekdayConstraintHandler>();
-// Add more constraint handlers here as needed
 
 // Matching Algorithms
 builder.Services.AddScoped<PreferenceWeightedRanker>();
