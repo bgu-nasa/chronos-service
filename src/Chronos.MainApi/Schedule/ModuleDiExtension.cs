@@ -1,5 +1,4 @@
 using Chronos.MainApi.Schedule.Services;
-using Chronos.MainApi.Shared.ExternalMangement;
 
 namespace Chronos.MainApi.Schedule;
 
@@ -16,9 +15,5 @@ public static class ModuleDiExtension
         services.AddScoped<IOrganizationPolicyService, OrganizationPolicyService>();
         services.AddScoped<IUserPreferenceService, UserPreferenceService>();
         services.AddScoped<IUserConstraintService, UserConstraintService>();
-
-        services.AddScoped<IManagementExternalService, ManagementExternalService>();
-
-
     }
 }
