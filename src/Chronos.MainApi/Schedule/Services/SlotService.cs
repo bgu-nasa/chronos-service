@@ -17,7 +17,7 @@ public class SlotService(
         logger.LogInformation(
             "Creating slot. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}, Weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
             organizationId, schedulingPeriodId, weekday, fromTime, toTime);
-        await ValidateAndGetSlotAsync(organizationId, schedulingPeriodId);
+        await validationService.ValidateOrganizationAsync(organizationId);
         TimeRangeValidator(fromTime, toTime);
 
         var slot = new Slot
@@ -70,7 +70,7 @@ public class SlotService(
             "Retrieving slots by scheduling period. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}",
             organizationId, schedulingPeriodId);
 
-        await ValidateAndGetSlotAsync(organizationId, schedulingPeriodId);
+        await validationService.ValidateOrganizationAsync(organizationId);
 
         var all = await slotRepository.GetBySchedulingPeriodIdAsync(schedulingPeriodId);
         var filtered = all
