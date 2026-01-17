@@ -4,7 +4,7 @@ namespace Chronos.MainApi.Resources;
 
 public static class ModuleDiExtension
 {
-    public static void AddManagementModule(this IServiceCollection services, IConfiguration configuration)
+    public static void AddResourcesModule(this IServiceCollection services, IConfiguration configuration)
     {
         // Validation Service
         services.AddScoped<ResourceValidationService>();

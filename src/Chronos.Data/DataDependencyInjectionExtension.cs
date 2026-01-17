@@ -1,5 +1,6 @@
 ﻿using Chronos.Data.Repositories.Auth;
 using Chronos.Data.Repositories.Management;
+using Chronos.Data.Repositories.Resources;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Chronos.Data;
@@ -15,5 +16,13 @@ public static class DataDependencyInjectionExtension
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
         services.AddScoped<IRoleAssignmentRepository, RoleAssignmentRepository>();
+        
+        // Resources
+        services.AddScoped<ISubjectRepository, SubjectRepository>();
+        services.AddScoped<IActivityRepository, ActivityRepository>();
+        services.AddScoped<IResourceRepository, ResourceRepository>();
+        services.AddScoped<IResourceTypeRepository, ResourceTypeRepository>();
+        services.AddScoped<IResourceAttributeRepository, ResourceAttributeRepository>();
+        services.AddScoped<IResourceAttributeAssignmentRepository, ResourceAttributeAssignmentRepository>();
     }
 }
