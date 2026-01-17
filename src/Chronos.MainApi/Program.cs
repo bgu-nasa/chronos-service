@@ -40,7 +40,6 @@ builder.Services.AddAuthModule(builder.Configuration);
 builder.Services.AddManagementModule(builder.Configuration);
 builder.Services.AddResourcesModule(builder.Configuration);
 builder.Services.AddScheduleModule(builder.Configuration);
-builder.Services.AddSharedModule(builder.Configuration);
 
 
 // Configure JWT Authentication
