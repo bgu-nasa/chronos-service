@@ -110,7 +110,7 @@ public class SubjectController(
         var response = activity.ToActivityResponse();
         
         return CreatedAtAction(nameof(GetActivity),
-            new { departmentId = subjectId, subjectId = subjectId, activityId = activity.Id }, response);
+            new { departmentId = departmentId, subjectId = subjectId, activityId = activity.Id }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
