@@ -2,8 +2,6 @@ using Chronos.MainApi.Resources.Contracts;
 using Chronos.MainApi.Resources.Extensions;
 using Chronos.MainApi.Resources.Services;
 using Chronos.MainApi.Shared.Controllers.Utils;
-using Chronos.Shared.Exceptions;
-using Chronos.Shared.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +17,7 @@ public class SubjectController(
 {
     [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost]
-    public async Task<IActionResult> CreateSubjectAsync([FromBody] CreateSubjectRequest request)
+    public async Task<IActionResult> CreateSubjectAsync(Guid departmentId, [FromBody] CreateSubjectRequest request)
     {
         logger.LogInformation("Create subject endpoint was called.");
 
@@ -34,7 +32,7 @@ public class SubjectController(
         
         var response = subject.ToSubjectResponse();
 
-        return CreatedAtAction(nameof(GetSubject), new { subjectId = subject.Id }, response);
+        return CreatedAtAction(nameof(GetSubject), new { departmentId = departmentId, subjectId = subject.Id }, response);
     }
 
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -60,19 +58,6 @@ public class SubjectController(
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
         var subjects = await subjectService.GetSubjectsAsync(organizationId);
-        var subjectResponses = subjects.Select(s => s.ToSubjectResponse()).ToList();
-        
-        return Ok(subjectResponses);
-    }
-    
-    [Authorize(Policy = "OrgRole:Viewer")]
-    [HttpGet]
-    public async Task<IActionResult> GetSubjectsByDepartmentAsync([FromQuery] Guid departmentId)
-    {
-        logger.LogInformation("Get subjects by department endpoint was called.");
-        var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
-        
-        var subjects = await subjectService.GetSubjectsByDepartmentAsync(organizationId, departmentId);
         var subjectResponses = subjects.Select(s => s.ToSubjectResponse()).ToList();
         
         return Ok(subjectResponses);
@@ -110,14 +95,13 @@ public class SubjectController(
     
     [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost("{subjectId}/activities")]
-    public async Task<IActionResult> CreateActivityAsync(Guid subjectId, [FromBody] CreateActivityRequest request)
+    public async Task<IActionResult> CreateActivityAsync(Guid departmentId, Guid subjectId, [FromBody] CreateActivityRequest request)
     {
         logger.LogInformation("Create activity endpoint was called for subject {SubjectId}", subjectId);
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
         
         var activity = await activityService.CreateActivityAsync(
-            organizationId,
-            subjectId,
+            request.OrganizationId,
             request.SubjectId,
             request.AssignedUserId,
             request.ActivityType,
@@ -125,7 +109,8 @@ public class SubjectController(
         
         var response = activity.ToActivityResponse();
         
-        return CreatedAtAction(nameof(GetActivity), new { subjectId, activityId = activity.Id }, response);
+        return CreatedAtAction(nameof(GetActivity),
+            new { departmentId = departmentId, subjectId = subjectId, activityId = activity.Id }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
