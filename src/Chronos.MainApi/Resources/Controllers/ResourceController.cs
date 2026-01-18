@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chronos.MainApi.Resources.Controllers;
 
 [ApiController]
-[Route("api/department/{departmentId}/resources/[controller]")]
+[Route("api/resources/[controller]")]
 public class ResourceController(
     ILogger<ResourceController> logger,
     IResourceService resourceService,
