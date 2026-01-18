@@ -4,7 +4,7 @@ using Chronos.Domain.Resources;
 namespace Chronos.MainApi.Resources.Services;
 
 public class ResourceService(
-    ResourceRepository resourceRepository,
+    IResourceRepository resourceRepository,
     ResourceValidationService validationService,
     ILogger<ResourceService> logger) : IResourceService
 {
