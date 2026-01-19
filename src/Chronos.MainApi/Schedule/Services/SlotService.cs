@@ -8,6 +8,7 @@ namespace Chronos.MainApi.Schedule.Services;
 public class SlotService(
     ISlotRepository slotRepository,
     IManagementExternalService validationService,
+    ISchedulingPeriodService schedulingPeriodService,
     ILogger<SlotService> logger) : ISlotService
 {
     
@@ -18,8 +19,8 @@ public class SlotService(
             "Creating slot. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}, Weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
             organizationId, schedulingPeriodId, weekday, fromTime, toTime);
         await validationService.ValidateOrganizationAsync(organizationId);
+        ValidateSchedulingPeriodAsync(organizationId, schedulingPeriodId);
         TimeRangeValidator(fromTime, toTime);
-
         var slot = new Slot
         {
             Id = Guid.NewGuid(),
@@ -147,5 +148,21 @@ public class SlotService(
         }
 
         return slot;
+    }
+        private async void ValidateSchedulingPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
+    {
+        var period = await schedulingPeriodService.GetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
+        if (period == null)
+        {
+            logger.LogInformation("Scheduling period not found for Organization {OrganizationId} with SchedulingPeriodId {SchedulingPeriodId}", organizationId, schedulingPeriodId);
+            throw new NotFoundException($"Scheduling period with ID '{schedulingPeriodId}' not found in organization '{organizationId}'.");
+        }
+        if(period.ToDate < DateTime.Now)
+        {
+            logger.LogInformation(
+                "Cannot operate on a scheduling period that has already ended. SchedulingPeriodId: {SchedulingPeriodId}",
+                schedulingPeriodId);
+            throw new BadRequestException("Cannot operate on a scheduling period that has already ended.");
+        }
     }
 }
