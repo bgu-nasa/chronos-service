@@ -20,7 +20,7 @@ public class SlotService(
             organizationId, schedulingPeriodId, weekday, fromTime, toTime);
         await validationService.ValidateOrganizationAsync(organizationId);
         ValidateSchedulingPeriodAsync(organizationId, schedulingPeriodId);
-        TimeRangeValidator(fromTime, toTime);
+        TimeRangeValidator(weekday, fromTime, toTime, schedulingPeriodId);
         var slot = new Slot
         {
             Id = Guid.NewGuid(),
@@ -91,7 +91,7 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
-        TimeRangeValidator(fromTime, toTime);
+        TimeRangeValidator(weekday, fromTime, toTime, slot.SchedulingPeriodId);
         slot.Weekday = weekday.ToString();
         slot.FromTime = fromTime;
         slot.ToTime = toTime;
@@ -118,7 +118,7 @@ public class SlotService(
             slot.Id, organizationId);
     }
     
-    private void TimeRangeValidator(TimeSpan fromTime, TimeSpan toTime)
+    private async void TimeRangeValidator(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId)
     {
         if (fromTime >= toTime)
         {
@@ -133,6 +133,21 @@ public class SlotService(
                 "Invalid time range: negative time. FromTime: {FromTime}, ToTime: {ToTime}",
                 fromTime, toTime);
             throw new BadRequestException("FromTime and ToTime must be non-negative");
+        }
+
+        var slots = await slotRepository.GetBySchedulingPeriodIdAsync(schedulingPeriodId);
+        foreach (var slot in slots)
+        {
+            if(slot.Weekday.Equals(weekday))
+            {
+                if((fromTime == slot.FromTime) && (toTime == slot.ToTime))
+                {
+                    logger.LogInformation(
+                        "Time range overlaps with existing slot. weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
+                        weekday, fromTime, toTime);
+                    throw new BadRequestException("The specified time range overlaps with an existing slot.");
+                }
+            }
         }
     }
 
