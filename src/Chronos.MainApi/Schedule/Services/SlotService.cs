@@ -140,7 +140,7 @@ public class SlotService(
         {
             if(slot.Weekday.Equals(weekday))
             {
-                if((fromTime == slot.FromTime) && (toTime == slot.ToTime))
+                if((fromTime < slot.ToTime) && (toTime > slot.FromTime))
                 {
                     logger.LogInformation(
                         "Time range overlaps with existing slot. weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
@@ -149,6 +149,7 @@ public class SlotService(
                 }
             }
         }
+        
     }
 
     private async Task<Slot> ValidateAndGetSlotAsync(Guid organizationId, Guid slotId)
