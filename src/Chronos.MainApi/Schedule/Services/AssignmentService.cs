@@ -13,6 +13,7 @@ public class AssignmentService(
     ISubjectService subjectService,
     ISlotService slotService,
     ISchedulingPeriodService schedulingPeriodService,
+    IExternalResourceService externalResourceService,
     ILogger<AssignmentService> logger) : IAssignmentService
 {
     public async Task<Guid> CreateAssignmentAsync(Guid organizationId, Guid slotId, Guid resourceId, Guid activityId)
@@ -22,7 +23,7 @@ public class AssignmentService(
             organizationId, slotId, resourceId, activityId);
         
         await validationService.ValidateOrganizationAsync(organizationId);
-        validateSchedulingPreriod(organizationId, slotId, resourceId, activityId);
+        validateData(organizationId, slotId, resourceId, activityId);
         validateTwoAssignmentsPerSlotPerResource(organizationId, slotId, resourceId);
         var assignment = new Assignment
         {
@@ -131,7 +132,7 @@ public class AssignmentService(
             organizationId, assignmentId);
         
         var assignment = await ValidateAndGetAssignmentAsync(organizationId, assignmentId);
-        validateSchedulingPreriod(organizationId, slotId, resourceId, activityId);
+        validateData(organizationId, slotId, resourceId, activityId);
         validateTwoAssignmentsPerSlotPerResource(organizationId, slotId, resourceId);
         assignment.SlotId = slotId;
         assignment.ResourceId = resourceId;
@@ -171,8 +172,15 @@ public class AssignmentService(
         return assignment;
     }
     
-    private async void validateSchedulingPreriod(Guid organizationId, Guid slotId, Guid resourceId, Guid activityId)
+    private async void validateData(Guid organizationId, Guid slotId, Guid resourceId, Guid activityId)
     {
+        var externalResource = await externalResourceService.ExternalResourceExistsAsync(resourceId, organizationId);
+        if(!externalResource)
+        {
+            logger.LogInformation("External Resource {ResourceId} not found for Organization {OrganizationId}", resourceId, organizationId);
+            throw new NotFoundException($"External Resource with ID {resourceId} not found in organization {organizationId}.");
+        }
+        
         var activity = await activityService.GetActivityAsync(organizationId, activityId);
         if(activity == null)
         {
