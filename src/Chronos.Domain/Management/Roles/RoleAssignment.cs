@@ -10,4 +10,9 @@ public class RoleAssignment
     public Guid? DepartmentId { get; set; }
 
     public Role Role { get; set; }
+
+    /// <summary>
+    /// Indicates whether this role assignment is system-assigned and cannot be deleted by users.
+    /// </summary>
+    public bool IsSystemAssigned { get; set; } = false;
 }

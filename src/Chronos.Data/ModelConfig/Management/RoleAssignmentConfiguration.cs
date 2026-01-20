@@ -26,6 +26,10 @@ public class RoleAssignmentConfiguration : IEntityTypeConfiguration<RoleAssignme
         builder.Property(ra => ra.Role)
             .IsRequired();
 
+        builder.Property(ra => ra.IsSystemAssigned)
+            .IsRequired()
+            .HasDefaultValue(false);
+
         // Index config:
         builder.HasIndex(ra => new { ra.UserId, ra.OrganizationId, ra.DepartmentId, ra.Role })
             .IsUnique();
