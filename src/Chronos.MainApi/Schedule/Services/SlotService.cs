@@ -19,8 +19,8 @@ public class SlotService(
             "Creating slot. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}, Weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
             organizationId, schedulingPeriodId, weekday, fromTime, toTime);
         await validationService.ValidateOrganizationAsync(organizationId);
-        ValidateSchedulingPeriodAsync(organizationId, schedulingPeriodId);
-        TimeRangeValidator(weekday, fromTime, toTime, schedulingPeriodId);
+        await ValidateSchedulingPeriodAsync(organizationId, schedulingPeriodId);
+        await TimeRangeValidator(weekday, fromTime, toTime, schedulingPeriodId);
         var slot = new Slot
         {
             Id = Guid.NewGuid(),
@@ -91,7 +91,7 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
-        TimeRangeValidator(weekday, fromTime, toTime, slot.SchedulingPeriodId);
+        await TimeRangeValidator(weekday, fromTime, toTime, slot.SchedulingPeriodId);
         slot.Weekday = weekday.ToString();
         slot.FromTime = fromTime;
         slot.ToTime = toTime;
@@ -117,8 +117,8 @@ public class SlotService(
             "Slot deleted successfully. SlotId: {SlotId}, OrganizationId: {OrganizationId}",
             slot.Id, organizationId);
     }
-    
-    private async void TimeRangeValidator(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId)
+
+    private async Task TimeRangeValidator(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId)
     {
         if (fromTime >= toTime)
         {
@@ -165,7 +165,7 @@ public class SlotService(
 
         return slot;
     }
-        private async void ValidateSchedulingPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
+        private async Task ValidateSchedulingPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
     {
         var period = await schedulingPeriodService.GetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
         if (period == null)
