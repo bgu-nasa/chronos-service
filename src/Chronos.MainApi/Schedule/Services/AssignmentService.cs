@@ -210,6 +210,11 @@ public class AssignmentService(
             logger.LogInformation("Slot {SlotId} does not belong to the same scheduling period as the activity {ActivityId}", slotId, activityId);
             throw new BadRequestException("Slot does not belong to the same scheduling period as the activity");
         }
+        if(activity.ExpectedStudents != null && resourceExists.Capacity < activity.ExpectedStudents)
+        {
+            logger.LogInformation("Resource {ResourceId} capacity is less than expected students for Activity {ActivityId}", resourceId, activityId);
+            throw new BadRequestException("Resource capacity is less than expected students for the activity");
+        }
 
     }
     private async Task validateTwoAssignmentsPerSlotPerResource(Guid organizationId, Guid slotId, Guid resourceId)
