@@ -19,11 +19,16 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();
-if (builder.Environment.IsLocal())
+
+// Database configuration
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
 {
-    // Remove this later and use psql
-    builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("AppDbContext"));
+    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 }
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 // Tell the app to load config files from the AppSettings folder
 builder.Configuration
