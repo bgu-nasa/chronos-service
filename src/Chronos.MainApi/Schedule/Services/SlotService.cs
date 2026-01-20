@@ -8,6 +8,7 @@ namespace Chronos.MainApi.Schedule.Services;
 public class SlotService(
     ISlotRepository slotRepository,
     IManagementExternalService validationService,
+    ISchedulingPeriodService schedulingPeriodService,
     ILogger<SlotService> logger) : ISlotService
 {
     
@@ -18,8 +19,8 @@ public class SlotService(
             "Creating slot. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}, Weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
             organizationId, schedulingPeriodId, weekday, fromTime, toTime);
         await validationService.ValidateOrganizationAsync(organizationId);
-        TimeRangeValidator(fromTime, toTime);
-
+        ValidateSchedulingPeriodAsync(organizationId, schedulingPeriodId);
+        TimeRangeValidator(weekday, fromTime, toTime, schedulingPeriodId);
         var slot = new Slot
         {
             Id = Guid.NewGuid(),
@@ -90,7 +91,7 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
-        TimeRangeValidator(fromTime, toTime);
+        TimeRangeValidator(weekday, fromTime, toTime, slot.SchedulingPeriodId);
         slot.Weekday = weekday.ToString();
         slot.FromTime = fromTime;
         slot.ToTime = toTime;
@@ -117,7 +118,7 @@ public class SlotService(
             slot.Id, organizationId);
     }
     
-    private void TimeRangeValidator(TimeSpan fromTime, TimeSpan toTime)
+    private async void TimeRangeValidator(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId)
     {
         if (fromTime >= toTime)
         {
@@ -133,6 +134,22 @@ public class SlotService(
                 fromTime, toTime);
             throw new BadRequestException("FromTime and ToTime must be non-negative");
         }
+
+        var slots = await slotRepository.GetBySchedulingPeriodIdAsync(schedulingPeriodId);
+        foreach (var slot in slots)
+        {
+            if(slot.Weekday.Equals(weekday))
+            {
+                if((fromTime < slot.ToTime) && (toTime > slot.FromTime))
+                {
+                    logger.LogInformation(
+                        "Time range overlaps with existing slot. weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
+                        weekday, fromTime, toTime);
+                    throw new BadRequestException("The specified time range overlaps with an existing slot.");
+                }
+            }
+        }
+        
     }
 
     private async Task<Slot> ValidateAndGetSlotAsync(Guid organizationId, Guid slotId)
@@ -147,5 +164,21 @@ public class SlotService(
         }
 
         return slot;
+    }
+        private async void ValidateSchedulingPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
+    {
+        var period = await schedulingPeriodService.GetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
+        if (period == null)
+        {
+            logger.LogInformation("Scheduling period not found for Organization {OrganizationId} with SchedulingPeriodId {SchedulingPeriodId}", organizationId, schedulingPeriodId);
+            throw new NotFoundException($"Scheduling period with ID '{schedulingPeriodId}' not found in organization '{organizationId}'.");
+        }
+        if(period.ToDate < DateTime.Now)
+        {
+            logger.LogInformation(
+                "Cannot operate on a scheduling period that has already ended. SchedulingPeriodId: {SchedulingPeriodId}",
+                schedulingPeriodId);
+            throw new BadRequestException("Cannot operate on a scheduling period that has already ended.");
+        }
     }
 }
