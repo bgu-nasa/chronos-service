@@ -6,8 +6,37 @@ This guide explains how to run the Chronos service with PostgreSQL using Docker 
 
 - Docker Desktop installed and running
 - Docker Compose (included with Docker Desktop)
+- .NET 8 SDK (for running migrations)
 
-## Quick Start
+## First-Time Setup
+
+When setting up the project for the first time, follow these steps:
+
+### 1. Start PostgreSQL Database
+
+```bash
+docker-compose up postgres -d
+```
+
+This starts only the PostgreSQL container in detached mode.
+
+### 2. Apply Database Migrations
+
+```bash
+dotnet ef database update --project src/Chronos.Data --startup-project src/Chronos.MainApi
+```
+
+This creates all the necessary database tables and schema.
+
+### 3. Start All Services
+
+```bash
+docker-compose up --build
+```
+
+This builds and starts both the API and PostgreSQL containers.
+
+## Quick Start (After First-Time Setup)
 
 1. **Build and start all services:**
 
