@@ -16,9 +16,8 @@ public class SchedulingPeriodService(
         logger.LogInformation(
             "Creating scheduling period. OrganizationId: {OrganizationId}, Name: {Name}, FromDate: {FromDate}, ToDate: {ToDate}",
             organizationId, name, fromDate, toDate);
-        ValidateDateRange(fromDate, toDate);
         await validationService.ValidateOrganizationAsync(organizationId);
-
+        ValidateDateRange(fromDate, toDate);
         var period = new SchedulingPeriod
         {
             Id = Guid.NewGuid(),
@@ -111,7 +110,7 @@ public class SchedulingPeriodService(
 
         logger.LogInformation("Scheduling period deleted successfully. SchedulingPeriodId: {SchedulingPeriodId}", schedulingPeriodId);
     }
-    private void ValidateDateRange(DateTime fromDate, DateTime toDate)
+    private async void ValidateDateRange(DateTime fromDate, DateTime toDate)
     {
         var todayUtc = DateTime.Today;
 
@@ -122,6 +121,14 @@ public class SchedulingPeriodService(
         if (fromDate.Date >= toDate.Date)
         {
             throw new BadRequestException("FromDate must be before or equal to ToDate");
+        }
+        var all = await schedulingPeriodRepository.GetAllAsync();
+        foreach (var period in all)
+        {
+            if (fromDate < period.ToDate && toDate > period.FromDate)
+            {
+                throw new BadRequestException("The specified date range overlaps with an existing scheduling period.");
+            }
         }
         
     }
@@ -136,5 +143,4 @@ public class SchedulingPeriodService(
 
         return period;
     }
-
 }
