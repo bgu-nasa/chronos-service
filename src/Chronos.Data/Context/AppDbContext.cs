@@ -11,10 +11,10 @@ using Chronos.Domain.Schedule;
 
 namespace Chronos.Data.Context;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor)
+public class AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor? httpContextAccessor)
     : DbContext(options)
 {
-    private readonly string? _currentOrganizationId = httpContextAccessor.HttpContext.GetOrganizationId()?.ToLower();
+    private readonly string? _currentOrganizationId = httpContextAccessor?.HttpContext?.GetOrganizationId()?.ToLower();
 
     // Auth
     public DbSet<User> Users => Set<User>();
