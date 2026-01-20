@@ -9,7 +9,7 @@ public interface IRoleService
     Task<List<RoleAssignmentResponse>> GetAllAssignmentsAsync(Guid organizationId);
     Task<List<RoleAssignmentResponse>> GetUserAssignmentsAsync(Guid organizationId, Guid userId);
     Task<RoleAssignmentResponse> GetAssignmentAsync(Guid organizationId, Guid roleAssignmentId);
-    Task<RoleAssignmentResponse> AddAssignmentAsync(Guid organizationId, Guid? departmentId, Guid userId, Role role);
+    Task<RoleAssignmentResponse> AddAssignmentAsync(Guid organizationId, Guid? departmentId, Guid userId, Role role, bool isSystemAssigned = false);
     Task RemoveAssignmentAsync(Guid organizationId, Guid roleAssignmentId);
     Task<List<UserRoleAssignmentSummary>> GetRoleAssignmentsSummaryAsync(Guid organizationId);
 }
