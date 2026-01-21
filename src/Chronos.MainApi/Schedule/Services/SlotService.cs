@@ -7,6 +7,7 @@ namespace Chronos.MainApi.Schedule.Services;
 
 public class SlotService(
     ISlotRepository slotRepository,
+    IAssignmentRepository assignmentRepository,
     IManagementExternalService validationService,
     ISchedulingPeriodService schedulingPeriodService,
     ILogger<SlotService> logger) : ISlotService
@@ -19,8 +20,8 @@ public class SlotService(
             "Creating slot. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}, Weekday: {Weekday}, FromTime: {FromTime}, ToTime: {ToTime}",
             organizationId, schedulingPeriodId, weekday, fromTime, toTime);
         await validationService.ValidateOrganizationAsync(organizationId);
-        ValidateSchedulingPeriodAsync(organizationId, schedulingPeriodId);
-        TimeRangeValidator(weekday, fromTime, toTime, schedulingPeriodId);
+        await ValidateSchedulingPeriodAsync(organizationId, schedulingPeriodId);
+        await TimeRangeValidatorAsync(weekday, fromTime, toTime, schedulingPeriodId);
         var slot = new Slot
         {
             Id = Guid.NewGuid(),
@@ -91,7 +92,7 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
-        TimeRangeValidator(weekday, fromTime, toTime, slot.SchedulingPeriodId);
+        await TimeRangeValidatorAsync(weekday, fromTime, toTime, slot.SchedulingPeriodId , slotId);
         slot.Weekday = weekday.ToString();
         slot.FromTime = fromTime;
         slot.ToTime = toTime;
@@ -110,15 +111,19 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
-
+        var assignments = await assignmentRepository.GetBySlotIdAsync(slotId);
+        foreach(var assignment in assignments)
+        {
+            await assignmentRepository.DeleteAsync(assignment);
+        }
         await slotRepository.DeleteAsync(slot);
 
         logger.LogInformation(
             "Slot deleted successfully. SlotId: {SlotId}, OrganizationId: {OrganizationId}",
             slot.Id, organizationId);
     }
-    
-    private async void TimeRangeValidator(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId)
+
+    private async Task TimeRangeValidatorAsync(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId ,Guid? slotId = null)
     {
         if (fromTime >= toTime)
         {
@@ -138,7 +143,11 @@ public class SlotService(
         var slots = await slotRepository.GetBySchedulingPeriodIdAsync(schedulingPeriodId);
         foreach (var slot in slots)
         {
-            if(slot.Weekday.Equals(weekday))
+            if(slotId != null && slot.Id == slotId)
+            {
+                continue;
+            }
+            if(slot.Weekday.Equals(weekday.ToString()))
             {
                 if((fromTime < slot.ToTime) && (toTime > slot.FromTime))
                 {
@@ -160,12 +169,12 @@ public class SlotService(
             logger.LogInformation(
                 "Slot not found or does not belong to the organization. SlotId: {SlotId}, OrganizationId: {OrganizationId}",
                 slotId, organizationId);
-            throw new KeyNotFoundException("Slot not found.");
+            throw new NotFoundException($"Slot with ID '{slotId}' not found in organization '{organizationId}'.");
         }
 
         return slot;
     }
-        private async void ValidateSchedulingPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
+        private async Task ValidateSchedulingPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
     {
         var period = await schedulingPeriodService.GetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
         if (period == null)
