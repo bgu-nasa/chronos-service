@@ -86,7 +86,7 @@ public class SchedulingPeriodService(
             "Updating scheduling period. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}",
             organizationId, schedulingPeriodId);
 
-        await ValidateDateRange(fromDate, toDate);
+        await ValidateDateRange(fromDate, toDate, schedulingPeriodId);
 
         var period = await ValidateAndGetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
 
@@ -110,7 +110,7 @@ public class SchedulingPeriodService(
 
         logger.LogInformation("Scheduling period deleted successfully. SchedulingPeriodId: {SchedulingPeriodId}", schedulingPeriodId);
     }
-    private async Task ValidateDateRange(DateTime fromDate, DateTime toDate)
+    private async Task ValidateDateRange(DateTime fromDate, DateTime toDate ,Guid? schedulingPeriodId = null)
     {
         var todayUtc = DateTime.Today;
 
@@ -125,6 +125,10 @@ public class SchedulingPeriodService(
         var all = await schedulingPeriodRepository.GetAllAsync();
         foreach (var period in all)
         {
+            if(schedulingPeriodId != null && period.Id == schedulingPeriodId)
+            {
+                continue;
+            }
             if (fromDate < period.ToDate && toDate > period.FromDate)
             {
                 throw new BadRequestException("The specified date range overlaps with an existing scheduling period.");
