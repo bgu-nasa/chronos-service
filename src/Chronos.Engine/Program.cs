@@ -64,16 +64,16 @@ builder.Services.AddSingleton<IRabbitMqConnectionFactory, RabbitMqConnectionFact
 builder.Services.AddSingleton<IMessagePublisher, MessagePublisher>();
 
 // Constraint Evaluation System
-builder.Services.AddScoped<IConstraintEvaluator, ConstraintEvaluator>();
+builder.Services.AddSingleton<IConstraintEvaluator, ConstraintEvaluator>();
 
-// Register all constraint validators
-builder.Services.AddScoped<IConstraintValidator, PreferredWeekdaysValidator>();
-builder.Services.AddScoped<IConstraintValidator, TimeRangeValidator>();
-builder.Services.AddScoped<IConstraintValidator, RequiredCapacityValidator>();
-builder.Services.AddScoped<IConstraintValidator, LocationPreferenceValidator>();
-builder.Services.AddScoped<IConstraintValidator, ActivityTypeCompatibilityValidator>();
-builder.Services.AddScoped<IConstraintValidator, ForbiddenTimeRangeValidator>();
-builder.Services.AddScoped<IConstraintValidator, PreferredTimeRangeValidator>();
+// Register all constraint validators as singletons
+builder.Services.AddSingleton<IConstraintValidator, PreferredWeekdaysValidator>();
+builder.Services.AddSingleton<IConstraintValidator, TimeRangeValidator>();
+builder.Services.AddSingleton<IConstraintValidator, RequiredCapacityValidator>();
+builder.Services.AddSingleton<IConstraintValidator, LocationPreferenceValidator>();
+builder.Services.AddSingleton<IConstraintValidator, ActivityTypeCompatibilityValidator>();
+builder.Services.AddSingleton<IConstraintValidator, ForbiddenTimeRangeValidator>();
+builder.Services.AddSingleton<IConstraintValidator, PreferredTimeRangeValidator>();
 
 // Legacy Constraint Processing (for backward compatibility)
 builder.Services.AddScoped<IConstraintProcessor, ActivityConstraintProcessor>();

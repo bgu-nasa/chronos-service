@@ -4,6 +4,7 @@ using Chronos.Data.Repositories.Schedule;
 using Chronos.Engine.Constraints.Evaluation;
 using Chronos.Engine.Constraints.Evaluation.Validators;
 using Chronos.Tests.Engine.TestFixtures;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Chronos.Tests.Engine.Performance;
 
@@ -14,12 +15,23 @@ public class ConstraintEvaluatorPerformanceTests
     private ConstraintEvaluator _evaluator = null!;
     private IActivityConstraintRepository _constraintRepository = null!;
     private IResourceTypeRepository _resourceTypeRepository = null!;
+    private IServiceScopeFactory _serviceScopeFactory = null!;
 
     [SetUp]
     public void SetUp()
     {
         _constraintRepository = Substitute.For<IActivityConstraintRepository>();
         _resourceTypeRepository = Substitute.For<IResourceTypeRepository>();
+
+        // Create service scope factory for validators that need it
+        var validatorServiceCollection = new ServiceCollection();
+        validatorServiceCollection.AddSingleton(_resourceTypeRepository);
+        var validatorServiceProvider = validatorServiceCollection.BuildServiceProvider();
+        var validatorServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
+        validatorServiceScopeFactory.CreateScope().Returns(callInfo =>
+        {
+            return validatorServiceProvider.CreateScope();
+        });
 
         var validators = new List<IConstraintValidator>
         {
@@ -28,14 +40,27 @@ public class ConstraintEvaluatorPerformanceTests
             new RequiredCapacityValidator(Substitute.For<ILogger<RequiredCapacityValidator>>()),
             new LocationPreferenceValidator(Substitute.For<ILogger<LocationPreferenceValidator>>()),
             new ActivityTypeCompatibilityValidator(
-                _resourceTypeRepository,
+                validatorServiceScopeFactory,
                 Substitute.For<ILogger<ActivityTypeCompatibilityValidator>>()
             ),
         };
 
+        // Create a service provider and scope factory for the evaluator
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton(_constraintRepository);
+        foreach (var validator in validators)
+        {
+            serviceCollection.AddSingleton(validator);
+        }
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
+        _serviceScopeFactory.CreateScope().Returns(callInfo =>
+        {
+            return serviceProvider.CreateScope();
+        });
+
         _evaluator = new ConstraintEvaluator(
-            _constraintRepository,
-            validators,
+            _serviceScopeFactory,
             Substitute.For<ILogger<ConstraintEvaluator>>()
         );
     }
