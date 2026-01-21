@@ -7,6 +7,7 @@ namespace Chronos.MainApi.Schedule.Services;
 
 public class SlotService(
     ISlotRepository slotRepository,
+    IAssignmentRepository assignmentRepository,
     IManagementExternalService validationService,
     ISchedulingPeriodService schedulingPeriodService,
     ILogger<SlotService> logger) : ISlotService
@@ -110,7 +111,11 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
-
+        var assignments = await assignmentRepository.GetBySlotIdAsync(slotId);
+        foreach(var assignment in assignments)
+        {
+            await assignmentRepository.DeleteAsync(assignment);
+        }
         await slotRepository.DeleteAsync(slot);
 
         logger.LogInformation(
