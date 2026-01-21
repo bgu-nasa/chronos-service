@@ -72,6 +72,8 @@ builder.Services.AddScoped<IConstraintValidator, TimeRangeValidator>();
 builder.Services.AddScoped<IConstraintValidator, RequiredCapacityValidator>();
 builder.Services.AddScoped<IConstraintValidator, LocationPreferenceValidator>();
 builder.Services.AddScoped<IConstraintValidator, ActivityTypeCompatibilityValidator>();
+builder.Services.AddScoped<IConstraintValidator, ForbiddenTimeRangeValidator>();
+builder.Services.AddScoped<IConstraintValidator, PreferredTimeRangeValidator>();
 
 // Legacy Constraint Processing (for backward compatibility)
 builder.Services.AddScoped<IConstraintProcessor, ActivityConstraintProcessor>();
