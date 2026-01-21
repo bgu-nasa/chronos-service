@@ -55,10 +55,10 @@ public class RoleService(
         return assignment.ToRoleAssignmentResponse();
     }
 
-    public async Task<RoleAssignmentResponse> AddAssignmentAsync(Guid organizationId, Guid? departmentId, Guid userId, Role role)
+    public async Task<RoleAssignmentResponse> AddAssignmentAsync(Guid organizationId, Guid? departmentId, Guid userId, Role role, bool isSystemAssigned = false)
     {
-        logger.LogInformation("Adding role assignment. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}, UserId: {UserId}, Role: {Role}",
-            organizationId, departmentId, userId, role);
+        logger.LogInformation("Adding role assignment. OrganizationId: {OrganizationId}, DepartmentId: {DepartmentId}, UserId: {UserId}, Role: {Role}, IsSystemAssigned: {IsSystemAssigned}",
+            organizationId, departmentId, userId, role, isSystemAssigned);
 
         await validationService.ValidateOrganizationAsync(organizationId);
 
@@ -73,13 +73,14 @@ public class RoleService(
             OrganizationId = organizationId,
             DepartmentId = departmentId,
             UserId = userId,
-            Role = role
+            Role = role,
+            IsSystemAssigned = isSystemAssigned
         };
 
         var addedAssignment = await roleAssignmentRepository.AddAsync(roleAssignment);
 
-        logger.LogInformation("Role assignment added successfully. RoleAssignmentId: {RoleAssignmentId}, OrganizationId: {OrganizationId}, UserId: {UserId}",
-            addedAssignment.Id, organizationId, userId);
+        logger.LogInformation("Role assignment added successfully. RoleAssignmentId: {RoleAssignmentId}, OrganizationId: {OrganizationId}, UserId: {UserId}, IsSystemAssigned: {IsSystemAssigned}",
+            addedAssignment.Id, organizationId, userId, isSystemAssigned);
 
         return addedAssignment.ToRoleAssignmentResponse();
     }
@@ -96,6 +97,13 @@ public class RoleService(
         {
             logger.LogWarning("Role assignment not found. OrganizationId: {OrganizationId}, RoleAssignmentId: {RoleAssignmentId}", organizationId, roleAssignmentId);
             throw new NotFoundException("Role assignment not found");
+        }
+
+        if (assignment.IsSystemAssigned)
+        {
+            logger.LogWarning("Attempted to remove system-assigned role. OrganizationId: {OrganizationId}, RoleAssignmentId: {RoleAssignmentId}, Role: {Role}",
+                organizationId, roleAssignmentId, assignment.Role);
+            throw new BadRequestException("Cannot remove system-assigned role assignments");
         }
 
         await roleAssignmentRepository.DeleteAsync(organizationId, roleAssignmentId);

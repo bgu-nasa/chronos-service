@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: chronos-postgres
+    environment:
+      POSTGRES_DB: chronos
+      POSTGRES_USER: chronos
+      POSTGRES_PASSWORD: chronos123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chronos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chronos-network
+
+  api:
+    build:
+      context: .
+      dockerfile: src/Chronos.MainApi/Dockerfile
+    container_name: chronos-api
+    env_file:
+      - .local.env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chronos;Username=chronos;Password=chronos123
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - chronos-network
+
+volumes:
+  postgres_data:
+
+networks:
+  chronos-network:
+    driver: bridge

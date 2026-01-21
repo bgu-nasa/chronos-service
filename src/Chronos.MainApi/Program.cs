@@ -10,6 +10,7 @@ using Chronos.MainApi.Shared;
 using Chronos.MainApi.Shared.Extensions;
 using Chronos.MainApi.Shared.Middleware;
 using Chronos.MainApi.Shared.Middleware.Rbac;
+using Chronos.Shared.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +19,22 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Discord Logger
+builder.Services.Configure<DiscordLoggerConfiguration>(
+    builder.Configuration.GetSection("DiscordLogger"));
+builder.Logging.AddDiscordLogger("ChronosMainApi");
+
 builder.Services.AddHttpContextAccessor();
-if (builder.Environment.IsLocal())
+
+// Database configuration
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
 {
-    // Remove this later and use psql
-    builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("AppDbContext"));
+    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 }
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 // Tell the app to load config files from the AppSettings folder
 builder.Configuration

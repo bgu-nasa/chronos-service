@@ -18,7 +18,7 @@ public class OnboardingService(ILogger<OnboardingService> logger, IOrganizationS
     {
         logger.LogInformation("Onboarding admin user for organization {OrganizationId}", admin.OrganizationId);
 
-        var roleAssignment = await roleService.AddAssignmentAsync(organizationId, null, admin.Id, Role.Administrator);
+        var roleAssignment = await roleService.AddAssignmentAsync(organizationId, null, admin.Id, Role.Administrator, isSystemAssigned: true);
 
         logger.LogInformation("Assigned admin to organization {OrganizationId}, role id: {roleId}. This should conclude the onboarding process", organizationId, roleAssignment.Id);
     }
