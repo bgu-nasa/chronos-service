@@ -174,7 +174,7 @@ public class ResourceController(
     
     [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPost("attributes")]
-    public async Task<IActionResult> CreateResourceAttributeAsync(Guid resourceId, [FromBody] CreateResourceAttributeRequest request)
+    public async Task<IActionResult> CreateResourceAttributeAsync([FromBody] CreateResourceAttributeRequest request)
     {
         logger.LogInformation("Create resource attribute endpoint was called.");
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
@@ -186,7 +186,7 @@ public class ResourceController(
         
         var response = resourceAttribute.ToResourceAttributeResponse();
         
-        return CreatedAtAction(nameof(GetResourceAttribute), new { resourceId, resourceAttributeId = resourceAttribute.Id }, response);
+        return CreatedAtAction(nameof(GetResourceAttribute), new { resourceAttributeId = resourceAttribute.Id }, response);
     }
     
     [Authorize(Policy = "OrgRole:Viewer")]
@@ -221,7 +221,7 @@ public class ResourceController(
     
     [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpPatch("attributes/{resourceAttributeId}")]
-    public async Task<IActionResult> UpdateResourceAttributeAsync(Guid resourceId, Guid resourceAttributeId, [FromBody] UpdateResourceAttributeRequest request)
+    public async Task<IActionResult> UpdateResourceAttributeAsync(Guid resourceAttributeId, [FromBody] UpdateResourceAttributeRequest request)
     {
         logger.LogInformation("Update resource attribute endpoint was called for resource attribute {ResourceAttributeId}", resourceAttributeId);
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
@@ -237,7 +237,7 @@ public class ResourceController(
     
     [Authorize(Policy = "OrgRole:ResourceManager")]
     [HttpDelete("attributes/{resourceAttributeId}")]
-    public async Task<IActionResult> DeleteResourceAttributeAsync(Guid resourceId, Guid resourceAttributeId)
+    public async Task<IActionResult> DeleteResourceAttributeAsync(Guid resourceAttributeId)
     {
         logger.LogInformation("Delete resource attribute endpoint was called for resource attribute {ResourceAttributeId}", resourceAttributeId);
         var organizationId = ControllerUtils.GetOrganizationIdAndFailIfMissing(HttpContext, logger);
