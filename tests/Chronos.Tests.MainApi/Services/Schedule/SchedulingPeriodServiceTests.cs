@@ -1,4 +1,5 @@
 using Chronos.Data.Repositories.Schedule;
+using Chronos.Domain.Resources;
 using Chronos.Domain.Schedule;
 using Chronos.MainApi.Schedule.Services;
 using Chronos.MainApi.Shared.ExternalMangement;
@@ -14,6 +15,11 @@ public class SchedulingPeriodServiceTests
 {
     private ISchedulingPeriodRepository _schedulingPeriodRepository = null!;
     private IManagementExternalService _validationService = null!;
+    private ISlotService _slotService = null!;
+    private IUserConstraintService _userConstraintService = null!;
+    private IUserPreferenceService _userPreferenceService = null!;
+    private IOrganizationPolicyService _organizationPolicyService = null!;
+    private IExternalSubjectService _externalSubjectService = null!;
     private ILogger<SchedulingPeriodService> _logger = null!;
     private SchedulingPeriodService _service = null!;
 
@@ -22,11 +28,21 @@ public class SchedulingPeriodServiceTests
     {
         _schedulingPeriodRepository = Substitute.For<ISchedulingPeriodRepository>();
         _validationService = Substitute.For<IManagementExternalService>();
+        _slotService = Substitute.For<ISlotService>();
+        _userConstraintService = Substitute.For<IUserConstraintService>();
+        _userPreferenceService = Substitute.For<IUserPreferenceService>();
+        _organizationPolicyService = Substitute.For<IOrganizationPolicyService>();
+        _externalSubjectService = Substitute.For<IExternalSubjectService>();
         _logger = Substitute.For<ILogger<SchedulingPeriodService>>();
 
         _service = new SchedulingPeriodService(
             _schedulingPeriodRepository,
             _validationService,
+            _slotService,
+            _userConstraintService,
+            _userPreferenceService,
+            _organizationPolicyService,
+            _externalSubjectService,
             _logger);
     }
 
@@ -456,6 +472,11 @@ public class SchedulingPeriodServiceTests
         };
 
         _schedulingPeriodRepository.GetByIdAsync(periodId).Returns(period);
+        _slotService.GetSlotsBySchedulingPeriodAsync(organizationId, periodId).Returns(new List<Slot>());
+        _userConstraintService.GetBySchedulingPeriodIdAsync(organizationId, periodId).Returns(new List<UserConstraint>());
+        _userPreferenceService.GetAllUserPreferencesBySchedulingPeriodIdAsync(organizationId, periodId).Returns(new List<UserPreference>());
+        _organizationPolicyService.GetPoliciesBySchedulingPeriodIdsAsync(organizationId, periodId).Returns(new List<OrganizationPolicy>());
+        _externalSubjectService.GetAllSubjectsBySchedulingPeriodAync(organizationId, periodId).Returns(new List<Subject>());
 
         await _service.DeleteSchedulingPeriodAsync(organizationId, periodId);
 

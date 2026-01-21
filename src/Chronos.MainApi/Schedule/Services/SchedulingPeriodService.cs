@@ -1,4 +1,5 @@
 ﻿using Chronos.Data.Repositories.Schedule;
+using Chronos.Domain.Resources;
 using Chronos.Domain.Schedule;
 using Chronos.MainApi.Shared.ExternalMangement;
 using Chronos.Shared.Exceptions;
@@ -8,6 +9,11 @@ namespace Chronos.MainApi.Schedule.Services;
 public class SchedulingPeriodService(
     ISchedulingPeriodRepository schedulingPeriodRepository,
     IManagementExternalService validationService,
+    ISlotService slotService,
+    IUserConstraintService userConstraintService,
+    IUserPreferenceService userPreferenceService,
+    IOrganizationPolicyService organizationPolicyService,
+    IExternalSubjectService externalSubjectService,
     ILogger<SchedulingPeriodService> logger) : ISchedulingPeriodService
 {
     public async Task<Guid> CreateSchedulingPeriodAsync(Guid organizationId, string name, DateTime fromDate,
@@ -106,6 +112,31 @@ public class SchedulingPeriodService(
             organizationId, schedulingPeriodId);
 
         var period = await ValidateAndGetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
+        var slots = await slotService.GetSlotsBySchedulingPeriodAsync(organizationId, schedulingPeriodId);
+        foreach (var slot in slots)
+        {
+            await slotService.DeleteSlotAsync(organizationId, slot.Id);
+        }
+        var userConstraints = await userConstraintService.GetBySchedulingPeriodIdAsync(organizationId, schedulingPeriodId);
+        foreach (var constraint in userConstraints)
+        {
+            await userConstraintService.DeleteUserConstraintAsync(organizationId, constraint.Id);
+        }
+        var userPreferences = await userPreferenceService.GetAllUserPreferencesBySchedulingPeriodIdAsync(organizationId, schedulingPeriodId);
+        foreach (var preference in userPreferences)
+        {
+            await userPreferenceService.DeleteUserPreferenceAsync(organizationId, preference.Id);
+        }
+        var organizationPolicies = await organizationPolicyService.GetPoliciesBySchedulingPeriodIdsAsync(organizationId, schedulingPeriodId);
+        foreach (var policy in organizationPolicies)
+        {
+            await organizationPolicyService.DeletePolicyAsync(organizationId, policy.Id);
+        }
+        var subjects = await externalSubjectService.GetAllSubjectsBySchedulingPeriodAync(organizationId,schedulingPeriodId);
+        foreach (var subject in subjects)
+        {
+            await externalSubjectService.DeleteSubjectAsync(organizationId,subject.Id);
+        }
         await schedulingPeriodRepository.DeleteAsync(period);
 
         logger.LogInformation("Scheduling period deleted successfully. SchedulingPeriodId: {SchedulingPeriodId}", schedulingPeriodId);
