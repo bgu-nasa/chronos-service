@@ -14,8 +14,17 @@ public class AuthService(
     ITokenGenerator tokenGenerator)
     : IAuthService
 {
+    private readonly HackyInvitationService _inviteCodeVerificationService = new();
+    
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
+        // TODO Remove this after development
+        if (!_inviteCodeVerificationService.VerifyInviteCode(request.InviteCode))
+        {
+            logger.LogWarning("Invalid invite code was sent {inviteCode}", request.InviteCode);
+            throw new UnauthorizedException("Chronos service is still under private beta, you may get access by contacting us.");
+        }
+        
         EmailValidator.ValidateEmail(request.AdminUser.Email);
         
         if (await userRepository.EmailExistsIgnoreFiltersAsync(request.AdminUser.Email))
