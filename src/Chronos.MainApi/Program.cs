@@ -124,7 +124,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:4173")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -132,9 +132,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
-// Enable CORS
-app.UseCors();
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment() || app.Environment.IsLocal())
@@ -146,6 +143,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsLocal())
 // Global exception handler should be first in the pipeline
 app.UseMiddleware<GlobalExceptionHandler>();
 app.UseMiddleware<OrganizationMiddleware>();
+
+// Enable CORS (must be after middleware but before authentication/authorization)
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();

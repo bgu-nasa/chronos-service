@@ -1,9 +1,11 @@
+using Chronos.Data.Context;
 using Chronos.Data.Repositories.Resources;
 using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Resources;
 using Chronos.Domain.Schedule;
 using Chronos.Domain.Schedule.Messages;
 using Chronos.Engine.Constraints;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chronos.Engine.Matching;
 
@@ -18,6 +20,7 @@ public class RankingAlgorithmStrategy(
     IAssignmentRepository assignmentRepository,
     IConstraintProcessor constraintProcessor,
     PreferenceWeightedRanker ranker,
+    AppDbContext dbContext,
     ILogger<RankingAlgorithmStrategy> logger
 ) : IMatchingStrategy
 {
@@ -27,6 +30,7 @@ public class RankingAlgorithmStrategy(
     private readonly IAssignmentRepository _assignmentRepository = assignmentRepository;
     private readonly IConstraintProcessor _constraintProcessor = constraintProcessor;
     private readonly PreferenceWeightedRanker _ranker = ranker;
+    private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<RankingAlgorithmStrategy> _logger = logger;
     private readonly Random _random = new();
 
@@ -56,7 +60,7 @@ public class RankingAlgorithmStrategy(
             _logger.LogDebug("Starting Ranking Algorithm execution at {StartTime}", startTime);
 
             // Step 1: Load all activities for the scheduling period
-            var activities = await LoadActivitiesForPeriodAsync(periodRequest.SchedulingPeriodId);
+            var activities = await LoadActivitiesForPeriodAsync(periodRequest.OrganizationId, periodRequest.SchedulingPeriodId);
             _logger.LogInformation(
                 "Loaded {ActivityCount} activities to schedule",
                 activities.Count
@@ -136,11 +140,36 @@ public class RankingAlgorithmStrategy(
         }
     }
 
-    private async Task<List<Activity>> LoadActivitiesForPeriodAsync(Guid schedulingPeriodId)
+    private async Task<List<Activity>> LoadActivitiesForPeriodAsync(Guid organizationId, Guid schedulingPeriodId)
     {
-        // For now, load all activities (in production, filter by scheduling period)
-        var allActivities = await _activityRepository.GetAllAsync();
-        return allActivities;
+        // Load activities filtered by organization and scheduling period
+        // Activities are linked to Subjects, which have SchedulingPeriodId
+        // We need to bypass the organization query filter since we're a background worker
+        // and don't have an HTTP context with organization ID
+        
+        // Load activities by joining with subjects to filter by scheduling period
+        // Use IgnoreQueryFilters to bypass the organization query filter since we're filtering manually
+        // Also include subjects with empty GUID (00000000-0000-0000-0000-000000000000) as a fallback
+        // to handle subjects that were created without being assigned to a scheduling period yet
+        var emptyGuid = Guid.Empty;
+        var activities = await _dbContext.Activities
+            .IgnoreQueryFilters()
+            .Where(a => a.OrganizationId == organizationId)
+            .Join(
+                _dbContext.Subjects.IgnoreQueryFilters()
+                    .Where(s => s.OrganizationId == organizationId && 
+                               (s.SchedulingPeriodId == schedulingPeriodId || s.SchedulingPeriodId == emptyGuid)),
+                activity => activity.SubjectId,
+                subject => subject.Id,
+                (activity, subject) => activity
+            )
+            .ToListAsync();
+        
+        _logger.LogInformation(
+            "Loaded {Count} activities for scheduling period {PeriodId} in organization {OrganizationId}",
+            activities.Count, schedulingPeriodId, organizationId);
+        
+        return activities;
     }
 
     private List<SlotResourcePair> GenerateSlotResourcePairs(
