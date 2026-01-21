@@ -23,8 +23,8 @@ public class AssignmentService(
             organizationId, slotId, resourceId, activityId);
         
         await validationService.ValidateOrganizationAsync(organizationId);
-        await ValidateData(organizationId, slotId, resourceId, activityId);
-        await validateTwoAssignmentsPerSlotPerResource(organizationId, slotId, resourceId);
+        await ValidateDataAsync(organizationId, slotId, resourceId, activityId);
+        await validateTwoAssignmentsPerSlotPerResourceAsync(organizationId, slotId, resourceId);
         var assignment = new Assignment
         {
             Id = Guid.NewGuid(),
@@ -132,8 +132,8 @@ public class AssignmentService(
             organizationId, assignmentId);
         
         var assignment = await ValidateAndGetAssignmentAsync(organizationId, assignmentId);
-        await ValidateData(organizationId, slotId, resourceId, activityId);
-        await validateTwoAssignmentsPerSlotPerResource(organizationId, slotId, resourceId , assignmentId);
+        await ValidateDataAsync(organizationId, slotId, resourceId, activityId);
+        await validateTwoAssignmentsPerSlotPerResourceAsync(organizationId, slotId, resourceId , assignmentId);
         assignment.SlotId = slotId;
         assignment.ResourceId = resourceId;
         assignment.ActivityId = activityId;
@@ -172,7 +172,7 @@ public class AssignmentService(
         return assignment;
     }
 
-    private async Task ValidateData(Guid organizationId, Guid slotId, Guid resourceId, Guid activityId)
+    private async Task ValidateDataAsync(Guid organizationId, Guid slotId, Guid resourceId, Guid activityId)
     {
         var resourceExists = await resourceService.GetResourceAsync(organizationId, resourceId);
         if(resourceExists == null)
@@ -217,7 +217,7 @@ public class AssignmentService(
         }
 
     }
-    private async Task validateTwoAssignmentsPerSlotPerResource(Guid organizationId, Guid slotId, Guid resourceId, Guid? excludeAssignmentId = null) 
+    private async Task validateTwoAssignmentsPerSlotPerResourceAsync(Guid organizationId, Guid slotId, Guid resourceId, Guid? excludeAssignmentId = null) 
     {
         var slot = await slotService.GetSlotAsync(organizationId, slotId);
         if(slot == null)

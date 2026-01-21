@@ -17,7 +17,7 @@ public class SchedulingPeriodService(
             "Creating scheduling period. OrganizationId: {OrganizationId}, Name: {Name}, FromDate: {FromDate}, ToDate: {ToDate}",
             organizationId, name, fromDate, toDate);
         await validationService.ValidateOrganizationAsync(organizationId);
-        await ValidateDateRange(fromDate, toDate);
+        await ValidateDateRangeAsync(fromDate, toDate);
         var period = new SchedulingPeriod
         {
             Id = Guid.NewGuid(),
@@ -86,7 +86,7 @@ public class SchedulingPeriodService(
             "Updating scheduling period. OrganizationId: {OrganizationId}, SchedulingPeriodId: {SchedulingPeriodId}",
             organizationId, schedulingPeriodId);
 
-        await ValidateDateRange(fromDate, toDate, schedulingPeriodId);
+        await ValidateDateRangeAsync(fromDate, toDate, schedulingPeriodId);
 
         var period = await ValidateAndGetSchedulingPeriodAsync(organizationId, schedulingPeriodId);
 
@@ -110,7 +110,7 @@ public class SchedulingPeriodService(
 
         logger.LogInformation("Scheduling period deleted successfully. SchedulingPeriodId: {SchedulingPeriodId}", schedulingPeriodId);
     }
-    private async Task ValidateDateRange(DateTime fromDate, DateTime toDate ,Guid? schedulingPeriodId = null)
+    private async Task ValidateDateRangeAsync(DateTime fromDate, DateTime toDate ,Guid? schedulingPeriodId = null)
     {
         var todayUtc = DateTime.Today;
 

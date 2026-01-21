@@ -20,7 +20,7 @@ public class SlotService(
             organizationId, schedulingPeriodId, weekday, fromTime, toTime);
         await validationService.ValidateOrganizationAsync(organizationId);
         await ValidateSchedulingPeriodAsync(organizationId, schedulingPeriodId);
-        await TimeRangeValidator(weekday, fromTime, toTime, schedulingPeriodId);
+        await TimeRangeValidatorAsync(weekday, fromTime, toTime, schedulingPeriodId);
         var slot = new Slot
         {
             Id = Guid.NewGuid(),
@@ -91,7 +91,7 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
-        await TimeRangeValidator(weekday, fromTime, toTime, slot.SchedulingPeriodId , slotId);
+        await TimeRangeValidatorAsync(weekday, fromTime, toTime, slot.SchedulingPeriodId , slotId);
         slot.Weekday = weekday.ToString();
         slot.FromTime = fromTime;
         slot.ToTime = toTime;
@@ -118,7 +118,7 @@ public class SlotService(
             slot.Id, organizationId);
     }
 
-    private async Task TimeRangeValidator(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId ,Guid? slotId = null)
+    private async Task TimeRangeValidatorAsync(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId ,Guid? slotId = null)
     {
         if (fromTime >= toTime)
         {
