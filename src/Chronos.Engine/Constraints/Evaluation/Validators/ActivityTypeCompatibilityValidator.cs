@@ -2,6 +2,7 @@ using Chronos.Data.Repositories.Resources;
 using Chronos.Domain.Constraints;
 using Chronos.Domain.Resources;
 using Chronos.Domain.Schedule;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Chronos.Engine.Constraints.Evaluation.Validators;
 
@@ -12,11 +13,11 @@ namespace Chronos.Engine.Constraints.Evaluation.Validators;
 /// Type: Hard constraint (error if violated)
 /// </summary>
 public class ActivityTypeCompatibilityValidator(
-    IResourceTypeRepository resourceTypeRepository,
+    IServiceScopeFactory serviceScopeFactory,
     ILogger<ActivityTypeCompatibilityValidator> logger
 ) : IConstraintValidator
 {
-    private readonly IResourceTypeRepository _resourceTypeRepository = resourceTypeRepository;
+    private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
     private readonly ILogger<ActivityTypeCompatibilityValidator> _logger = logger;
 
     public string ConstraintKey => "compatible_resource_types";
@@ -69,7 +70,11 @@ public class ActivityTypeCompatibilityValidator(
                 resource.ResourceTypeId,
                 resource.Id
             );
-            var resourceType = await _resourceTypeRepository.GetByIdAsync(resource.ResourceTypeId);
+            
+            // Create a scope to resolve scoped dependencies
+            using var scope = _serviceScopeFactory.CreateScope();
+            var resourceTypeRepository = scope.ServiceProvider.GetRequiredService<IResourceTypeRepository>();
+            var resourceType = await resourceTypeRepository.GetByIdAsync(resource.ResourceTypeId);
 
             if (resourceType == null)
             {

@@ -2,6 +2,7 @@ using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Constraints;
 using Chronos.Domain.Resources;
 using Chronos.Domain.Schedule;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Chronos.Engine.Constraints.Evaluation;
 
@@ -10,18 +11,15 @@ namespace Chronos.Engine.Constraints.Evaluation;
 /// </summary>
 public class ConstraintEvaluator : IConstraintEvaluator
 {
-    private readonly IActivityConstraintRepository _constraintRepository;
-    private readonly IEnumerable<IConstraintValidator> _validators;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger<ConstraintEvaluator> _logger;
 
     public ConstraintEvaluator(
-        IActivityConstraintRepository constraintRepository,
-        IEnumerable<IConstraintValidator> validators,
+        IServiceScopeFactory serviceScopeFactory,
         ILogger<ConstraintEvaluator> logger
     )
     {
-        _constraintRepository = constraintRepository;
-        _validators = validators;
+        _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
     }
 
@@ -43,10 +41,15 @@ public class ConstraintEvaluator : IConstraintEvaluator
         Resource resource
     )
     {
+        // Create a scope to resolve scoped dependencies (repository and validators)
+        using var scope = _serviceScopeFactory.CreateScope();
+        var constraintRepository = scope.ServiceProvider.GetRequiredService<IActivityConstraintRepository>();
+        var validators = scope.ServiceProvider.GetServices<IConstraintValidator>();
+
         var violations = new List<ConstraintViolation>();
 
         // Load all constraints for this activity
-        var constraints = await _constraintRepository.GetByActivityIdAsync(activity.Id);
+        var constraints = await constraintRepository.GetByActivityIdAsync(activity.Id);
 
         _logger.LogDebug(
             "Evaluating {ConstraintCount} constraints for Activity {ActivityId} with Slot {SlotId} and Resource {ResourceId}",
@@ -59,7 +62,7 @@ public class ConstraintEvaluator : IConstraintEvaluator
         foreach (var constraint in constraints)
         {
             // Find validator for this constraint type
-            var validator = _validators.FirstOrDefault(v => v.ConstraintKey == constraint.Key);
+            var validator = validators.FirstOrDefault(v => v.ConstraintKey == constraint.Key);
 
             if (validator == null)
             {

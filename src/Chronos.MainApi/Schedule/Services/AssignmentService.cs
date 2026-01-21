@@ -1,6 +1,5 @@
 using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
-using Chronos.MainApi.Resources.Services;
 using Chronos.MainApi.Shared.ExternalMangement;
 using Chronos.Shared.Exceptions;
 
@@ -9,9 +8,10 @@ namespace Chronos.MainApi.Schedule.Services;
 public class AssignmentService(
     IAssignmentRepository assignmentRepository,
     IManagementExternalService validationService,
-    IActivityService activityService,
-    ISubjectService subjectService,
+    IExternalActivityService activityService,
+    IExternalSubjectService subjectService,
     ISlotService slotService,
+    IExternalResourceService resourceService,
     ISchedulingPeriodService schedulingPeriodService,
     ILogger<AssignmentService> logger) : IAssignmentService
 {
@@ -22,8 +22,8 @@ public class AssignmentService(
             organizationId, slotId, resourceId, activityId);
         
         await validationService.ValidateOrganizationAsync(organizationId);
-        validateSchedulingPreriod(organizationId, slotId, resourceId, activityId);
-        validateTwoAssignmentsPerSlotPerResource(organizationId, slotId, resourceId);
+        await ValidateDataAsync(organizationId, slotId, resourceId, activityId);
+        await validateTwoAssignmentsPerSlotPerResourceAsync(organizationId, slotId, resourceId);
         var assignment = new Assignment
         {
             Id = Guid.NewGuid(),
@@ -131,8 +131,8 @@ public class AssignmentService(
             organizationId, assignmentId);
         
         var assignment = await ValidateAndGetAssignmentAsync(organizationId, assignmentId);
-        validateSchedulingPreriod(organizationId, slotId, resourceId, activityId);
-        validateTwoAssignmentsPerSlotPerResource(organizationId, slotId, resourceId);
+        await ValidateDataAsync(organizationId, slotId, resourceId, activityId);
+        await validateTwoAssignmentsPerSlotPerResourceAsync(organizationId, slotId, resourceId , assignmentId);
         assignment.SlotId = slotId;
         assignment.ResourceId = resourceId;
         assignment.ActivityId = activityId;
@@ -170,9 +170,15 @@ public class AssignmentService(
 
         return assignment;
     }
-    
-    private async void validateSchedulingPreriod(Guid organizationId, Guid slotId, Guid resourceId, Guid activityId)
+
+    private async Task ValidateDataAsync(Guid organizationId, Guid slotId, Guid resourceId, Guid activityId)
     {
+        var resourceExists = await resourceService.GetResourceAsync(organizationId, resourceId);
+        if(resourceExists == null)
+        {
+            logger.LogInformation("Resource {ResourceId} not found for Organization {OrganizationId}", resourceId, organizationId);
+            throw new NotFoundException($"Resource with ID {resourceId} not found in organization {organizationId}.");
+        }
         var activity = await activityService.GetActivityAsync(organizationId, activityId);
         if(activity == null)
         {
@@ -203,9 +209,14 @@ public class AssignmentService(
             logger.LogInformation("Slot {SlotId} does not belong to the same scheduling period as the activity {ActivityId}", slotId, activityId);
             throw new BadRequestException("Slot does not belong to the same scheduling period as the activity");
         }
+        if(activity.ExpectedStudents != null && resourceExists.Capacity < activity.ExpectedStudents)
+        {
+            logger.LogInformation("Resource {ResourceId} capacity is less than expected students for Activity {ActivityId}", resourceId, activityId);
+            throw new BadRequestException("Resource capacity is less than expected students for the activity");
+        }
 
     }
-    private async void validateTwoAssignmentsPerSlotPerResource(Guid organizationId, Guid slotId, Guid resourceId)
+    private async Task validateTwoAssignmentsPerSlotPerResourceAsync(Guid organizationId, Guid slotId, Guid resourceId, Guid? excludeAssignmentId = null) 
     {
         var slot = await slotService.GetSlotAsync(organizationId, slotId);
         if(slot == null)
@@ -216,6 +227,10 @@ public class AssignmentService(
         var existingAssignment = await assignmentRepository.GetByResourceIdAsync(resourceId);
         foreach (var assignment in existingAssignment)
         {
+            if(excludeAssignmentId != null && assignment.Id == excludeAssignmentId)
+            {
+                continue;
+            }
             var assignedSlot = await slotService.GetSlotAsync(organizationId, assignment.SlotId);
             if(assignedSlot.Weekday == slot.Weekday)
             {

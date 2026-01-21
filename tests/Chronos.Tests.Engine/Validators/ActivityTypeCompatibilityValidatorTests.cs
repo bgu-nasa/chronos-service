@@ -2,6 +2,7 @@ using Chronos.Data.Repositories.Resources;
 using Chronos.Domain.Constraints;
 using Chronos.Engine.Constraints.Evaluation.Validators;
 using Chronos.Tests.Engine.TestFixtures;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Chronos.Tests.Engine.Validators;
 
@@ -12,13 +13,25 @@ public class ActivityTypeCompatibilityValidatorTests
     private ActivityTypeCompatibilityValidator _validator = null!;
     private IResourceTypeRepository _resourceTypeRepository = null!;
     private ILogger<ActivityTypeCompatibilityValidator> _logger = null!;
+    private IServiceScopeFactory _serviceScopeFactory = null!;
 
     [SetUp]
     public void SetUp()
     {
         _resourceTypeRepository = Substitute.For<IResourceTypeRepository>();
         _logger = Substitute.For<ILogger<ActivityTypeCompatibilityValidator>>();
-        _validator = new ActivityTypeCompatibilityValidator(_resourceTypeRepository, _logger);
+        
+        // Create a service provider and scope factory for the validator
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton(_resourceTypeRepository);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
+        _serviceScopeFactory.CreateScope().Returns(callInfo =>
+        {
+            return serviceProvider.CreateScope();
+        });
+        
+        _validator = new ActivityTypeCompatibilityValidator(_serviceScopeFactory, _logger);
     }
 
     [Test]

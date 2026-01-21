@@ -1,4 +1,5 @@
 using Chronos.Domain.Constraints;
+using Chronos.Domain.Schedule;
 using Chronos.Engine.Constraints.Evaluation.Validators;
 using Chronos.Tests.Engine.TestFixtures;
 
@@ -139,5 +140,35 @@ public class PreferredWeekdaysValidatorTests
 
         // Assert
         result.Should().BeNull();
+    }
+
+    [Test]
+    public async Task ValidateAsync_WhenExceptionOccurs_ShouldReturnHardViolation()
+    {
+        // Arrange
+        var activity = TestDataBuilder.CreateActivity();
+        var slot = TestDataBuilder.CreateSlot(weekday: "Monday");
+        var resource = TestDataBuilder.CreateResource();
+        // Create a constraint with null value to trigger exception
+        var constraint = new ActivityConstraint
+        {
+            Id = Guid.NewGuid(),
+            ActivityId = Guid.NewGuid(),
+            OrganizationId = Guid.NewGuid(),
+            Key = "preferred_weekdays",
+            Value = null! // This will cause NullReferenceException when calling .Split()
+        };
+
+        // Act
+        var result = await _validator.ValidateAsync(constraint, activity, slot, resource);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.ConstraintKey.Should().Be("preferred_weekdays");
+        result.ConstraintValue.Should().BeNull();
+        result.ViolationType.Should().Be(ViolationType.Hard);
+        result.Severity.Should().Be(ViolationSeverity.Error);
+        result.Message.Should().Be("Invalid constraint format");
+        result.Details.Should().NotBeNullOrEmpty(); // Should contain exception message
     }
 }
