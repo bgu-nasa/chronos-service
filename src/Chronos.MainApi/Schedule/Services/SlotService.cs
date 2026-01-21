@@ -142,7 +142,7 @@ public class SlotService(
             {
                 continue;
             }
-            if(slot.Weekday.Equals(weekday))
+            if(slot.Weekday.Equals(weekday.ToString()))
             {
                 if((fromTime < slot.ToTime) && (toTime > slot.FromTime))
                 {
