@@ -14,18 +14,33 @@ A reusable Discord logging system for reporting logs to Discord channels via web
 
 ## Configuration
 
+### Using Environment Variables (Recommended for Production)
+
+For Docker or production deployments, use environment variables:
+
+Add to your [`.local.env`](.local.env) file:
+
+```bash
+DiscordLogger__DiscordWebhookUrl=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
+```
+
+The [`docker-compose.yml`](docker-compose.yml) loads this file automatically via `env_file: .local.env`, and ASP.NET Core will automatically bind the environment variable to the configuration using the double underscore (`__`) separator.
+
+### Using appsettings.json (Local Development)
+
 Add the following section to your `appsettings.json` (or `appsettings.Development.json`):
 
 ```json
 {
     "DiscordLogger": {
-        "DiscordWebhookUrl": "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN",
+        "DiscordWebhookUrl": "",
         "MinimumLogLevel": "Information",
-        "FlushIntervalSeconds": 30,
-        "BotName": "Chronos Logger"
+        "FlushIntervalSeconds": 30
     }
 }
 ```
+
+**Note**: Environment variables will override appsettings.json values. If `DiscordLogger__DiscordWebhookUrl` is set in the environment, it will take precedence.
 
 ### Configuration Options
 
