@@ -15,5 +15,10 @@ public static class ModuleDiExtension
         services.AddScoped<IOrganizationPolicyService, OrganizationPolicyService>();
         services.AddScoped<IUserPreferenceService, UserPreferenceService>();
         services.AddScoped<IUserConstraintService, UserConstraintService>();
+
+        // External Services
+        services.AddScoped<IExternalActivityService, ExternalActivityService>();
+        services.AddScoped<IExternalResourceService, ExternalResourceService>();
+        services.AddScoped<IExternalSubjectService, ExternalSubjectService>();
     }
 }
