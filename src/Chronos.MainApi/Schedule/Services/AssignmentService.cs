@@ -133,7 +133,7 @@ public class AssignmentService(
         
         var assignment = await ValidateAndGetAssignmentAsync(organizationId, assignmentId);
         await ValidateData(organizationId, slotId, resourceId, activityId);
-        await validateTwoAssignmentsPerSlotPerResource(organizationId, slotId, resourceId);
+        await validateTwoAssignmentsPerSlotPerResource(organizationId, slotId, resourceId , assignmentId);
         assignment.SlotId = slotId;
         assignment.ResourceId = resourceId;
         assignment.ActivityId = activityId;
@@ -217,7 +217,7 @@ public class AssignmentService(
         }
 
     }
-    private async Task validateTwoAssignmentsPerSlotPerResource(Guid organizationId, Guid slotId, Guid resourceId)
+    private async Task validateTwoAssignmentsPerSlotPerResource(Guid organizationId, Guid slotId, Guid resourceId, Guid? excludeAssignmentId = null) 
     {
         var slot = await slotService.GetSlotAsync(organizationId, slotId);
         if(slot == null)
@@ -228,6 +228,10 @@ public class AssignmentService(
         var existingAssignment = await assignmentRepository.GetByResourceIdAsync(resourceId);
         foreach (var assignment in existingAssignment)
         {
+            if(excludeAssignmentId != null && assignment.Id == excludeAssignmentId)
+            {
+                continue;
+            }
             var assignedSlot = await slotService.GetSlotAsync(organizationId, assignment.SlotId);
             if(assignedSlot.Weekday == slot.Weekday)
             {
