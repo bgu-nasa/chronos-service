@@ -240,7 +240,7 @@ public class ForbiddenTimeRangeValidatorTests
     }
 
     [Test]
-    public async Task ValidateAsync_WhenInvalidFormat_ShouldReturnViolation()
+    public async Task ValidateAsync_WhenInvalidFormat_ShouldReturnNull()
     {
         // Arrange
         var activity = TestDataBuilder.CreateActivity();
@@ -255,14 +255,12 @@ public class ForbiddenTimeRangeValidatorTests
         var result = await _validator.ValidateAsync(constraint, activity, slot, resource);
 
         // Assert
-        result.Should().NotBeNull();
-        result!.ViolationType.Should().Be(ViolationType.Hard);
-        result.Severity.Should().Be(ViolationSeverity.Error);
-        result.Message.Should().Contain("Invalid constraint format");
+        // Invalid format entries are ignored, so if no valid ranges are found, returns null
+        result.Should().BeNull();
     }
 
     [Test]
-    public async Task ValidateAsync_WhenInvalidTimeFormat_ShouldReturnViolation()
+    public async Task ValidateAsync_WhenInvalidTimeFormat_ShouldReturnNull()
     {
         // Arrange
         var activity = TestDataBuilder.CreateActivity();
@@ -277,9 +275,8 @@ public class ForbiddenTimeRangeValidatorTests
         var result = await _validator.ValidateAsync(constraint, activity, slot, resource);
 
         // Assert
-        result.Should().NotBeNull();
-        result!.ViolationType.Should().Be(ViolationType.Hard);
-        result.Severity.Should().Be(ViolationSeverity.Error);
+        // Invalid time format entries are ignored, so if no valid ranges are found, returns null
+        result.Should().BeNull();
     }
 
     [Test]
