@@ -144,6 +144,64 @@ Each constraint is classified as either:
 
 ---
 
+### 6. Forbidden Time Range
+
+**Key**: `forbidden_timerange`  
+**Type**: Hard Constraint  
+**Value Format**: String with weekday and time range in format "Weekday HH:mm - HH:mm". Multiple entries can be separated by commas or newlines.
+
+**Description**: Specifies time ranges that are forbidden for the activity. The slot must not overlap with any of the forbidden time ranges on the specified weekday.
+
+**Examples**:
+```
+"Monday 09:30 - 11:00"
+"Tuesday 13:00-15:00, Wednesday 10:00 - 12:00"
+"Monday 09:30 - 11:00
+Tuesday 13:00 - 15:00
+Friday 14:00 - 16:00"
+```
+
+**Validation**:
+- Weekday matching is case-insensitive
+- Time format must be HH:mm (24-hour)
+- Start time must be before end time
+- Slot overlaps if: slotStart < forbiddenEnd AND slotEnd > forbiddenStart
+- Empty value = no constraint
+
+**Violation Message**: `"Slot time range ({from}-{to}) on {weekday} overlaps with forbidden time range ({start}-{end})"`
+
+---
+
+### 7. Preferred Time Range
+
+**Key**: `preferred_timerange`  
+**Type**: Soft Constraint  
+**Value Format**: String with weekday and time range in format "Weekday HH:mm - HH:mm". Multiple entries can be separated by commas or newlines.
+
+**Description**: Specifies preferred time ranges for the activity. The slot should fall entirely within one of the preferred time ranges on the specified weekday. If the slot does not fall within any preferred range, a warning violation is returned.
+
+**Examples**:
+```
+"Monday 09:30 - 11:00"
+"Tuesday 13:00-15:00, Wednesday 10:00 - 12:00"
+"Monday 09:30 - 11:00
+Tuesday 13:00 - 15:00
+Friday 14:00 - 16:00"
+```
+
+**Validation**:
+- Weekday matching is case-insensitive
+- Time format must be HH:mm (24-hour)
+- Start time must be before end time
+- Slot falls within preferred range if: slotStart >= preferredStart AND slotEnd <= preferredEnd
+- Empty value = no constraint
+
+**Violation Messages**:
+- `"Slot time range ({from}-{to}) on {weekday} does not fall within preferred time ranges ({ranges})"`
+- `"Slot weekday '{weekday}' does not have any preferred time ranges"`
+
+---
+
 ## Usage Examples
 
 ### Example 1: Lecture with Time and Capacity Constraints
@@ -174,6 +232,24 @@ INSERT INTO ActivityConstraint (ActivityId, OrganizationId, Key, Value)
 VALUES 
   (@activityId, @orgId, 'preferred_weekdays', 'Tuesday,Thursday'),
   (@activityId, @orgId, 'location_preference', 'Main Campus');
+```
+
+### Example 4: Activity with Forbidden Time Ranges
+
+```sql
+INSERT INTO ActivityConstraint (ActivityId, OrganizationId, Key, Value)
+VALUES 
+  (@activityId, @orgId, 'forbidden_timerange', 'Monday 09:30 - 11:00, Wednesday 13:00 - 15:00'),
+  (@activityId, @orgId, 'time_range', '{"start": "08:00", "end": "17:00"}');
+```
+
+### Example 5: Activity with Preferred Time Ranges
+
+```sql
+INSERT INTO ActivityConstraint (ActivityId, OrganizationId, Key, Value)
+VALUES 
+  (@activityId, @orgId, 'preferred_timerange', 'Monday 09:30 - 11:00, Wednesday 13:00 - 15:00'),
+  (@activityId, @orgId, 'preferred_weekdays', 'Monday,Wednesday,Friday');
 ```
 
 ---

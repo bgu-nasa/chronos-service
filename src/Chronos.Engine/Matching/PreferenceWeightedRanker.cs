@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
 
@@ -159,8 +160,114 @@ public class PreferenceWeightedRanker(
             "preferred_time_afternoon" => candidate.Slot.FromTime.Hours >= 12
                 && candidate.Slot.FromTime.Hours < 17,
             "preferred_time_evening" => candidate.Slot.FromTime.Hours >= 17,
+            "preferred_timerange" => MatchesPreferredTimeRange(candidate, preference.Value),
             _ => false,
         };
+    }
+
+    private bool MatchesPreferredTimeRange(SlotResourcePair candidate, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        // Parse multiple preferred time ranges (comma or newline separated)
+        var preferredRanges = ParsePreferredTimeRanges(value);
+
+        if (!preferredRanges.Any())
+        {
+            return false;
+        }
+
+        // Check if slot falls within any preferred time range
+        foreach (var preferredRange in preferredRanges)
+        {
+            // Check if weekday matches (case-insensitive)
+            if (!string.Equals(candidate.Slot.Weekday, preferredRange.Weekday, StringComparison.OrdinalIgnoreCase))
+            {
+                continue; // Different weekday, check next range
+            }
+
+            // Check if slot falls entirely within the preferred time range
+            // Slot is within preferred range if: slotStart >= preferredStart AND slotEnd <= preferredEnd
+            if (candidate.Slot.FromTime >= preferredRange.StartTime && candidate.Slot.ToTime <= preferredRange.EndTime)
+            {
+                return true; // Slot matches a preferred range
+            }
+        }
+
+        return false; // No preferred range matches
+    }
+
+    private List<PreferredTimeRange> ParsePreferredTimeRanges(string value)
+    {
+        var ranges = new List<PreferredTimeRange>();
+
+        // Split by comma or newline
+        var entries = value.Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        // Pattern: "Weekday HH:mm - HH:mm" or "Weekday HH:mm-HH:mm"
+        // Examples: "Monday 09:30 - 11:00", "Tuesday 13:00-15:00"
+        var pattern = @"^(\w+)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$";
+
+        foreach (var entry in entries)
+        {
+            var trimmedEntry = entry.Trim();
+            if (string.IsNullOrWhiteSpace(trimmedEntry))
+            {
+                continue;
+            }
+
+            var match = Regex.Match(trimmedEntry, pattern, RegexOptions.IgnoreCase);
+            if (!match.Success)
+            {
+                _logger.LogWarning(
+                    "Invalid preferred_timerange format: '{Entry}'. Expected format: 'Weekday HH:mm - HH:mm'",
+                    trimmedEntry
+                );
+                continue;
+            }
+
+            var weekday = match.Groups[1].Value;
+            var startTimeStr = match.Groups[2].Value;
+            var endTimeStr = match.Groups[3].Value;
+
+            if (!TimeSpan.TryParse(startTimeStr, out var startTime) ||
+                !TimeSpan.TryParse(endTimeStr, out var endTime))
+            {
+                _logger.LogWarning(
+                    "Invalid time format in preferred_timerange: '{Entry}'. Use HH:mm format",
+                    trimmedEntry
+                );
+                continue;
+            }
+
+            if (startTime >= endTime)
+            {
+                _logger.LogWarning(
+                    "Start time must be before end time in preferred_timerange: '{Entry}'",
+                    trimmedEntry
+                );
+                continue;
+            }
+
+            ranges.Add(new PreferredTimeRange
+            {
+                Weekday = weekday,
+                StartTime = startTime,
+                EndTime = endTime
+            });
+        }
+
+        return ranges;
+    }
+
+    private class PreferredTimeRange
+    {
+        public string Weekday { get; set; } = string.Empty;
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
     }
 
     private double GetPreferenceMultiplier(string key, string value)
@@ -172,6 +279,7 @@ public class PreferenceWeightedRanker(
             "preferred_time_morning" => 3.0,
             "preferred_time_afternoon" => 2.0,
             "preferred_time_evening" => 2.0,
+            "preferred_timerange" => 4.0,
             "avoid_weekday" => 0.3,
             "avoid_time_morning" => 0.3,
             "avoid_time_afternoon" => 0.5,
