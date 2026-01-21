@@ -40,6 +40,8 @@ services:
       context: .
       dockerfile: src/Chronos.MainApi/Dockerfile
     container_name: chronos-api
+    env_file:
+      - .local.env
     restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
