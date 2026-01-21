@@ -91,7 +91,7 @@ public class SlotService(
             organizationId, slotId);
 
         var slot = await ValidateAndGetSlotAsync(organizationId, slotId);
-        await TimeRangeValidator(weekday, fromTime, toTime, slot.SchedulingPeriodId);
+        await TimeRangeValidator(weekday, fromTime, toTime, slot.SchedulingPeriodId , slotId);
         slot.Weekday = weekday.ToString();
         slot.FromTime = fromTime;
         slot.ToTime = toTime;
@@ -118,7 +118,7 @@ public class SlotService(
             slot.Id, organizationId);
     }
 
-    private async Task TimeRangeValidator(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId)
+    private async Task TimeRangeValidator(WeekDays weekday, TimeSpan fromTime, TimeSpan toTime, Guid schedulingPeriodId ,Guid? slotId = null)
     {
         if (fromTime >= toTime)
         {
@@ -138,6 +138,10 @@ public class SlotService(
         var slots = await slotRepository.GetBySchedulingPeriodIdAsync(schedulingPeriodId);
         foreach (var slot in slots)
         {
+            if(slotId != null && slot.Id == slotId)
+            {
+                continue;
+            }
             if(slot.Weekday.Equals(weekday))
             {
                 if((fromTime < slot.ToTime) && (toTime > slot.FromTime))
@@ -160,7 +164,7 @@ public class SlotService(
             logger.LogInformation(
                 "Slot not found or does not belong to the organization. SlotId: {SlotId}, OrganizationId: {OrganizationId}",
                 slotId, organizationId);
-            throw new KeyNotFoundException("Slot not found.");
+            throw new NotFoundException($"Slot with ID '{slotId}' not found in organization '{organizationId}'.");
         }
 
         return slot;
