@@ -1,6 +1,5 @@
 using Chronos.Data.Repositories.Schedule;
 using Chronos.Domain.Schedule;
-using Chronos.MainApi.Resources.Services;
 using Chronos.MainApi.Shared.ExternalMangement;
 using Chronos.Shared.Exceptions;
 
@@ -9,10 +8,10 @@ namespace Chronos.MainApi.Schedule.Services;
 public class AssignmentService(
     IAssignmentRepository assignmentRepository,
     IManagementExternalService validationService,
-    IActivityService activityService,
-    ISubjectService subjectService,
+    IExternalActivityService activityService,
+    IExternalSubjectService subjectService,
     ISlotService slotService,
-    IResourceService resourceService,
+    IExternalResourceService resourceService,
     ISchedulingPeriodService schedulingPeriodService,
     ILogger<AssignmentService> logger) : IAssignmentService
 {
