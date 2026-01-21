@@ -25,6 +25,8 @@ services:
       context: .
       dockerfile: src/Chronos.MainApi/Dockerfile
     container_name: chronos-api
+    env_file:
+      - .local.env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080

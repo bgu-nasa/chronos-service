@@ -10,6 +10,7 @@ using Chronos.MainApi.Shared;
 using Chronos.MainApi.Shared.Extensions;
 using Chronos.MainApi.Shared.Middleware;
 using Chronos.MainApi.Shared.Middleware.Rbac;
+using Chronos.Shared.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Discord Logger
+builder.Services.Configure<DiscordLoggerConfiguration>(
+    builder.Configuration.GetSection("DiscordLogger"));
+builder.Logging.AddDiscordLogger("ChronosMainApi");
 
 builder.Services.AddHttpContextAccessor();
 
